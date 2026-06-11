@@ -194,7 +194,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .ranking-name small { color: var(--muted); margin-top: 3px; }
 .ranking-points { color: var(--green); font: 800 1.05rem 'Manrope'; }
 .profile-card { max-width: 620px; margin: 0 auto; padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
-.profile-email { margin-bottom: 8px; color: var(--green); font-weight: 700; }
+.profile-username { margin-bottom: 8px; color: var(--green); font-weight: 700; }
 .profile-form { max-width: 430px; }
 .admin-header { display: flex; justify-content: space-between; gap: 20px; padding: 32px; margin-bottom: 26px; border-radius: 20px; color: white; background: var(--ink); }
 .admin-header h1 { margin: 8px 0; font-size: 2.2rem; }

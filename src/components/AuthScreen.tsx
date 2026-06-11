@@ -1,10 +1,10 @@
 import { FormEvent, useState } from 'react'
 import { LoaderCircle, Trophy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { isValidUsername, usernameToAuthEmail } from '../lib/username'
 
 export function AuthScreen() {
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -16,6 +16,14 @@ export function AuthScreen() {
     event.preventDefault()
     if (!supabase) return
 
+    if (!isValidUsername(username)) {
+      setIsError(true)
+      setMessage(
+        'Use de 3 a 24 caracteres: letras sem acento, números, ponto, hífen ou sublinhado.',
+      )
+      return
+    }
+
     if (mode === 'signup' && password !== passwordConfirmation) {
       setIsError(true)
       setMessage('As senhas não coincidem.')
@@ -25,18 +33,19 @@ export function AuthScreen() {
     setLoading(true)
     setMessage('')
     setIsError(false)
+    const authEmail = usernameToAuthEmail(username)
 
     const result =
       mode === 'signup'
         ? await supabase.auth.signUp({
-            email,
+            email: authEmail,
             password,
             options: {
-              data: { display_name: name.trim() },
+              data: { display_name: username.trim() },
             },
           })
         : await supabase.auth.signInWithPassword({
-            email,
+            email: authEmail,
             password,
           })
 
@@ -47,7 +56,7 @@ export function AuthScreen() {
       setMessage(result.error.message)
     } else if (mode === 'signup' && !result.data.session) {
       setMessage(
-        'Conta criada. Confirme o e-mail antes de entrar, ou desative essa exigência no Supabase.',
+        'O Supabase ainda está exigindo confirmação. Desative Confirm email nas configurações.',
       )
     } else {
       setMessage(mode === 'signup' ? 'Conta criada com sucesso.' : '')
@@ -97,32 +106,22 @@ export function AuthScreen() {
           <h2>{mode === 'login' ? 'Bem-vindo de volta' : 'Entre no bolão'}</h2>
           <p className="muted">
             {mode === 'login'
-              ? 'Use seu e-mail e sua senha para acessar.'
+              ? 'Use seu apelido e sua senha para acessar.'
               : 'Crie uma conta para registrar seus palpites.'}
           </p>
 
           <form onSubmit={handleSubmit}>
-            {mode === 'signup' && (
-              <label>
-                Seu nome
-                <input
-                  minLength={2}
-                  required
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Como aparecerá no ranking"
-                />
-              </label>
-            )}
             <label>
-              E-mail
+              Apelido
               <input
-                autoComplete="email"
-                type="email"
+                autoCapitalize="none"
+                autoComplete="username"
+                maxLength={24}
+                minLength={3}
                 required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="voce@exemplo.com"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Ex.: everton26"
               />
             </label>
             <label>

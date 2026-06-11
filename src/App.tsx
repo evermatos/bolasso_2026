@@ -300,7 +300,6 @@ export default function App() {
         {tab === 'profile' && session && (
           <ProfileScreen
             displayName={displayName}
-            email={session.user.email ?? ''}
           />
         )}
       </main>

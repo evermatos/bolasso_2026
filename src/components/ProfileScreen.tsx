@@ -3,11 +3,10 @@ import { KeyRound, LoaderCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 type Props = {
-  email: string
   displayName: string
 }
 
-export function ProfileScreen({ email, displayName }: Props) {
+export function ProfileScreen({ displayName }: Props) {
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
   const [message, setMessage] = useState('')
@@ -54,10 +53,10 @@ export function ProfileScreen({ email, displayName }: Props) {
         <KeyRound size={28} />
       </div>
 
-      <p className="profile-email">{email}</p>
+      <p className="profile-username">@{displayName}</p>
       <p className="muted">
-        Defina uma senha para os próximos acessos. A senha não é enviada por
-        e-mail nem pode ser visualizada pelo administrador.
+        Você entra usando este apelido e sua senha. A senha não pode ser
+        visualizada pelo administrador.
       </p>
 
       <form className="profile-form" onSubmit={updatePassword}>

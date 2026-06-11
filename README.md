@@ -5,7 +5,7 @@ gratuitamente no GitHub Pages e os dados ficam no Supabase.
 
 ## O que já funciona
 
-- Cadastro e login com e-mail e senha
+- Cadastro e login com apelido e senha, sem envio de e-mails
 - 72 jogos da fase de grupos já cadastrados
 - Datas e horários exibidos no horário de Abu Dhabi (`Asia/Dubai`, UTC+4)
 - Palpites editáveis até cinco minutos antes do início de cada jogo
@@ -55,13 +55,12 @@ o site mostra uma tela de indisponibilidade e não aceita dados locais.
 
 1. Crie um projeto em [supabase.com](https://supabase.com).
 2. Abra **SQL Editor**, copie `supabase/schema.sql` e execute.
-3. Em **Authentication > URL Configuration**, defina:
-   - Site URL: `https://evermatos.github.io/bolasso_2026/`
-   - Redirect URL: `https://evermatos.github.io/bolasso_2026/**`
-   - Para desenvolvimento, adicione também `http://localhost:5173/**`.
-4. Em **Authentication > Sign In / Providers > Email**, mantenha o provedor
-   de e-mail ativo e desative **Confirm email**. Isso permite cadastro
-   imediato sem envio de mensagens.
+3. Em **Authentication > Sign In / Providers > Email**:
+   - mantenha **Enable Email provider** ativo;
+   - desative **Confirm email**;
+   - deixe **Secure email change** desativado;
+   - salve.
+4. Não configure SMTP. O site não envia mensagens.
 5. Em **Project Settings > API**, copie a URL e a chave `Publishable`.
 6. Preencha `.env.local`:
 
@@ -70,41 +69,39 @@ VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_SUA_CHAVE_PUBLICA
 ```
 
-Crie sua conta pelo site e depois execute no SQL Editor:
+O Supabase exige internamente um identificador no formato de e-mail. O site
+gera automaticamente um endereço técnico não entregável, como
+`everton@bolasso.invalid`. Esse endereço nunca é mostrado ao participante,
+não recebe mensagens e não representa um e-mail real.
+
+Crie sua conta pelo site usando um apelido e depois execute no SQL Editor:
 
 ```sql
 update public.profiles
 set is_admin = true
-where id = (
-  select id from auth.users where email = 'SEU_EMAIL'
-);
+where lower(display_name) = lower('SEU_APELIDO');
 ```
 
 Nunca coloque uma chave `secret` ou `service_role` no projeto ou no GitHub.
 A chave `Publishable` é própria para uso no navegador e é protegida pelas
 políticas RLS do banco.
 
-### Contas antigas criadas por magic link
+### Migrar a conta antiga
 
-Uma conta criada anteriormente por magic link pode não possuir senha.
-
-Se a sessão ainda estiver ativa, abra **Perfil** no site, defina uma senha e
-salve. Isso associa a senha à conta existente sem enviar e-mail.
-
-Se a sessão já tiver expirado e a conta não tiver senha, para um projeto ainda
-sem palpites reais a migração mais simples é:
+Contas antigas criadas com e-mail não conseguem entrar pelo novo campo de
+apelido. Como o bolão ainda não começou, faça a migração simples:
 
 1. Abra **Authentication > Users** no Supabase.
 2. Exclua a conta antiga.
-3. Crie a conta novamente pelo site usando uma senha.
+3. Crie a conta novamente pelo site usando apelido e senha.
 4. Execute novamente o SQL que define `is_admin = true`.
 
 Excluir um usuário também exclui seu perfil e seus palpites. Não faça isso
-depois que o bolão já estiver em uso. Nesse caso, configure SMTP e use a
-recuperação de senha.
+depois que o bolão já estiver em uso.
 
-Senhas nunca são enviadas por e-mail nem armazenadas em texto legível. O
-Supabase armazena somente o hash seguro da senha.
+Senhas nunca são enviadas ou armazenadas em texto legível. O Supabase
+armazena somente o hash seguro da senha. Como não há recuperação por e-mail,
+quem esquecer a senha precisará falar com o administrador.
 
 ## Administrador e resultados
 
