@@ -82,6 +82,12 @@ export function AuthScreen() {
           <strong>1</strong>
           <span>🇦🇷</span>
         </div>
+        <img
+          className="supporters-art auth-supporters-art"
+          src={`${import.meta.env.BASE_URL}images/torcedores.webp`}
+          alt=""
+          aria-hidden="true"
+        />
       </section>
 
       <section className="auth-panel">

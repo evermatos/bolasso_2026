@@ -226,6 +226,12 @@ export default function App() {
                 <strong>{predictions.length}/{futureMatches.length}</strong>
                 <span>palpites feitos</span>
               </div>
+              <img
+                className="supporters-art predictions-supporters-art"
+                src={`${import.meta.env.BASE_URL}images/torcedores.webp`}
+                alt=""
+                aria-hidden="true"
+              />
             </section>
 
             <div className="page-heading">
