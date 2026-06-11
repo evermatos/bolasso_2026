@@ -213,12 +213,17 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 30; padding: 12px 18px; border-radius: 10px; color: white; background: var(--ink); box-shadow: 0 12px 32px rgb(0 0 0 / 20%); font-size: 0.85rem; font-weight: 700; }
 
 @media (max-width: 760px) {
-  .auth-shell { grid-template-columns: 1fr; background: #f2f3ec; }
+  .auth-shell { grid-template-columns: 1fr; background: var(--ink); }
   .auth-hero { min-height: 45vh; padding: 36px 24px 60px; }
   .auth-hero h1 { font-size: 3.8rem; }
   .auth-hero p, .score-preview { display: none; }
-  .auth-panel { margin-top: -26px; padding: 30px 24px 50px; background: var(--paper); color: var(--ink); border-radius: 28px 28px 0 0; z-index: 2; }
-  .auth-card h2, .auth-card label { color: var(--ink); }
+  .auth-panel { margin-top: -26px; padding: 30px 24px 50px; background: #103328; color: white; border: 1px solid rgb(255 255 255 / 8%); border-bottom: 0; border-radius: 28px 28px 0 0; z-index: 2; }
+  .auth-card { color: white; }
+  .auth-card h2, .auth-card label { color: white; }
+  .auth-card .muted { color: #b9c9c2; }
+  .auth-card .segmented { background: rgb(255 255 255 / 9%); }
+  .auth-card .segmented button { color: #b9c9c2; }
+  .auth-card .segmented button.active { background: var(--lime); color: var(--ink); box-shadow: none; }
   .auth-card input { background: #fff; color: var(--ink); -webkit-text-fill-color: var(--ink); }
   .topbar { height: 66px; padding: 0 18px; }
   .desktop-nav, .user-name { display: none; }
