@@ -258,10 +258,10 @@ grant execute on function public.finish_match(bigint, integer, integer) to authe
 revoke all on function public.get_ranking() from public;
 grant execute on function public.get_ranking() to authenticated;
 
--- Depois de criar sua própria conta, torne-a administradora pelo apelido:
+-- Depois de criar sua própria conta, torne-a administradora pelo username:
 -- update public.profiles
 -- set is_admin = true
--- where lower(display_name) = lower('seu_apelido');
+-- where lower(display_name) = lower('seu_username');
 
 -- Fase de grupos oficial. Os horários estão escritos em Abu Dhabi (UTC+4).
 insert into public.matches

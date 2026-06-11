@@ -5,7 +5,7 @@ gratuitamente no GitHub Pages e os dados ficam no Supabase.
 
 ## O que já funciona
 
-- Cadastro e login com apelido e senha, sem envio de e-mails
+- Cadastro e login com username e senha, sem envio de e-mails
 - 72 jogos da fase de grupos já cadastrados
 - Datas e horários exibidos no horário de Abu Dhabi (`Asia/Dubai`, UTC+4)
 - Palpites editáveis até cinco minutos antes do início de cada jogo
@@ -74,12 +74,12 @@ gera automaticamente um endereço técnico não entregável, como
 `everton@bolasso.invalid`. Esse endereço nunca é mostrado ao participante,
 não recebe mensagens e não representa um e-mail real.
 
-Crie sua conta pelo site usando um apelido e depois execute no SQL Editor:
+Crie sua conta pelo site usando um username e depois execute no SQL Editor:
 
 ```sql
 update public.profiles
 set is_admin = true
-where lower(display_name) = lower('SEU_APELIDO');
+where lower(display_name) = lower('SEU_USERNAME');
 ```
 
 Nunca coloque uma chave `secret` ou `service_role` no projeto ou no GitHub.
@@ -89,11 +89,11 @@ políticas RLS do banco.
 ### Migrar a conta antiga
 
 Contas antigas criadas com e-mail não conseguem entrar pelo novo campo de
-apelido. Como o bolão ainda não começou, faça a migração simples:
+username. Como o bolão ainda não começou, faça a migração simples:
 
 1. Abra **Authentication > Users** no Supabase.
 2. Exclua a conta antiga.
-3. Crie a conta novamente pelo site usando apelido e senha.
+3. Crie a conta novamente pelo site usando username e senha.
 4. Execute novamente o SQL que define `is_admin = true`.
 
 Excluir um usuário também exclui seu perfil e seus palpites. Não faça isso

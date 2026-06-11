@@ -106,13 +106,13 @@ export function AuthScreen() {
           <h2>{mode === 'login' ? 'Bem-vindo de volta' : 'Entre no bolão'}</h2>
           <p className="muted">
             {mode === 'login'
-              ? 'Use seu apelido e sua senha para acessar.'
+              ? 'Use seu username e sua senha para acessar.'
               : 'Crie uma conta para registrar seus palpites.'}
           </p>
 
           <form onSubmit={handleSubmit}>
             <label>
-              Apelido
+              Username
               <input
                 autoCapitalize="none"
                 autoComplete="username"
@@ -121,7 +121,7 @@ export function AuthScreen() {
                 required
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
-                placeholder="Ex.: everton26"
+                placeholder="Ex.: gilberto_barros"
               />
             </label>
             <label>

@@ -55,7 +55,7 @@ export function ProfileScreen({ displayName }: Props) {
 
       <p className="profile-username">@{displayName}</p>
       <p className="muted">
-        Você entra usando este apelido e sua senha. A senha não pode ser
+        Você entra usando este username e sua senha. A senha não pode ser
         visualizada pelo administrador.
       </p>
 
