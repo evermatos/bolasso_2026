@@ -55,8 +55,8 @@ o site mostra uma tela de indisponibilidade e não aceita dados locais.
 1. Crie um projeto em [supabase.com](https://supabase.com).
 2. Abra **SQL Editor**, copie `supabase/schema.sql` e execute.
 3. Em **Authentication > URL Configuration**, defina:
-   - Site URL: `https://everton-dematos.github.io/bolasso_2026/`
-   - Redirect URL: `https://everton-dematos.github.io/bolasso_2026/**`
+   - Site URL: `https://evermatos.github.io/bolasso_2026/`
+   - Redirect URL: `https://evermatos.github.io/bolasso_2026/**`
    - Para desenvolvimento, adicione também `http://localhost:5173/**`.
 4. Em **Project Settings > API**, copie a URL e a chave pública `anon`.
 5. Preencha `.env.local`:
@@ -140,7 +140,7 @@ portanto não pode ser contornado modificando o JavaScript no navegador.
 
 Depois do workflow terminar, o site ficará em:
 
-<https://everton-dematos.github.io/bolasso_2026/>
+<https://evermatos.github.io/bolasso_2026/>
 
 ## Checklist de produção
 
