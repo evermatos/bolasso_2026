@@ -52,8 +52,8 @@ export function Ranking({ rows, currentUserId }: Props) {
         </div>
 
         <div className="scoring-grid">
-          <div><strong>5 pts</strong><span>Acertou o placar exato</span></div>
-          <div><strong>4 pts</strong><span>Acertou o resultado e os gols de uma seleção</span></div>
+          <div><strong>7 pts</strong><span>Acertou o placar exato</span></div>
+          <div><strong>5 pts</strong><span>Acertou o resultado e os gols de uma seleção</span></div>
           <div><strong>3 pts</strong><span>Acertou quem venceu ou acertou o empate</span></div>
           <div><strong>1 pt</strong><span>Acertou apenas os gols de uma seleção</span></div>
           <div><strong>0 pts</strong><span>Não acertou nenhuma das condições</span></div>
@@ -61,7 +61,7 @@ export function Ranking({ rows, currentUserId }: Props) {
 
         <p className="scoring-note">
           Vale sempre a maior categoria atingida. Exemplo: palpite 2 × 0 e
-          resultado 2 × 1 valem 4 pontos.
+          resultado 2 × 1 valem 5 pontos.
         </p>
       </section>
     </div>

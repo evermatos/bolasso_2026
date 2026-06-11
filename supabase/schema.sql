@@ -32,7 +32,7 @@ create table public.predictions (
   match_id bigint not null references public.matches(id) on delete cascade,
   home_score smallint not null check (home_score between 0 and 99),
   away_score smallint not null check (away_score between 0 and 99),
-  points smallint check (points between 0 and 5),
+  points smallint check (points between 0 and 7),
   updated_at timestamptz not null default now(),
   primary key (user_id, match_id)
 );
@@ -123,7 +123,7 @@ declare
   one_score_point integer := 0;
 begin
   if predicted_home = final_home and predicted_away = final_away then
-    return 5;
+    return 7;
   end if;
 
   if sign(predicted_home - predicted_away) = sign(final_home - final_away) then
@@ -132,6 +132,10 @@ begin
 
   if predicted_home = final_home or predicted_away = final_away then
     one_score_point := 1;
+  end if;
+
+  if outcome_points = 3 and one_score_point = 1 then
+    return 5;
   end if;
 
   return outcome_points + one_score_point;
@@ -195,7 +199,7 @@ as $$
     p.id as user_id,
     p.display_name,
     coalesce(sum(pr.points), 0)::bigint as total_points,
-    count(*) filter (where pr.points = 5)::bigint as exact_scores,
+    count(*) filter (where pr.points = 7)::bigint as exact_scores,
     count(pr.match_id)::bigint as predictions_count
   from public.profiles p
   left join public.predictions pr on pr.user_id = p.id

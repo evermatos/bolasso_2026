@@ -13,12 +13,15 @@ export function calculatePoints(prediction: Score, result: Score) {
     prediction.home === result.home &&
     prediction.away === result.away
   ) {
-    return 5
+    return 7
   }
 
-  const outcomePoints = outcome(prediction) === outcome(result) ? 3 : 0
-  const oneScorePoint =
-    prediction.home === result.home || prediction.away === result.away ? 1 : 0
+  const correctOutcome = outcome(prediction) === outcome(result)
+  const oneExactTeamScore =
+    prediction.home === result.home || prediction.away === result.away
 
-  return outcomePoints + oneScorePoint
+  if (correctOutcome && oneExactTeamScore) return 5
+  if (correctOutcome) return 3
+  if (oneExactTeamScore) return 1
+  return 0
 }

@@ -59,15 +59,32 @@ h2 { letter-spacing: -0.035em; }
   position: relative;
   overflow: hidden;
   padding: clamp(40px, 7vw, 100px);
+  background: var(--ink);
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+.auth-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--ink) 0%,
+    rgb(10 36 27 / 98%) 34%,
+    rgb(10 36 27 / 72%) 58%,
+    rgb(10 36 27 / 18%) 100%
+  );
+}
+
 .auth-hero::after {
   content: '';
   position: absolute;
+  z-index: 0;
   width: 520px;
   height: 520px;
   right: -170px;
@@ -93,7 +110,7 @@ h2 { letter-spacing: -0.035em; }
 .eyebrow { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; }
 .auth-hero h1 { max-width: 700px; font-size: clamp(3.4rem, 7vw, 7rem); line-height: 0.9; margin: 18px 0 28px; }
 .auth-hero p { max-width: 520px; color: #aebdb6; font-size: 1.08rem; line-height: 1.7; }
-.auth-hero > :not(.supporters-art) { position: relative; z-index: 1; }
+.auth-hero > :not(.supporters-art) { position: relative; z-index: 3; }
 
 .supporters-art {
   position: absolute;
@@ -111,6 +128,7 @@ h2 { letter-spacing: -0.035em; }
   bottom: 0;
   width: clamp(330px, 42vw, 650px);
   max-height: 68vh;
+  opacity: 0.48;
 }
 
 .score-preview {
@@ -250,7 +268,15 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .auth-hero { min-height: 45vh; padding: 36px 24px 60px; }
   .auth-hero h1 { font-size: 3.8rem; }
   .auth-hero p, .score-preview { display: none; }
-  .auth-supporters-art { right: -70px; width: 310px; max-height: 88%; opacity: 0.82; }
+  .auth-hero::before {
+    background: linear-gradient(
+      90deg,
+      var(--ink) 0%,
+      rgb(10 36 27 / 92%) 42%,
+      rgb(10 36 27 / 36%) 100%
+    );
+  }
+  .auth-supporters-art { right: -70px; width: 310px; max-height: 88%; opacity: 0.42; }
   .auth-panel { margin-top: -26px; padding: 30px 24px 50px; background: #103328; color: white; border: 1px solid rgb(255 255 255 / 8%); border-bottom: 0; border-radius: 28px 28px 0 0; z-index: 2; }
   .auth-card { color: white; }
   .auth-card h2, .auth-card label { color: white; }

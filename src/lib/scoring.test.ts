@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { calculatePoints } from './scoring'
 
 describe('calculatePoints', () => {
-  it('gives 5 points for the exact score', () => {
-    expect(calculatePoints({ home: 2, away: 1 }, { home: 2, away: 1 })).toBe(5)
+  it('gives 7 points for the exact score', () => {
+    expect(calculatePoints({ home: 2, away: 1 }, { home: 2, away: 1 })).toBe(7)
   })
 
-  it('gives 4 points for outcome plus one exact team score', () => {
-    expect(calculatePoints({ home: 2, away: 0 }, { home: 2, away: 1 })).toBe(4)
+  it('gives 5 points for outcome plus one exact team score', () => {
+    expect(calculatePoints({ home: 2, away: 0 }, { home: 2, away: 1 })).toBe(5)
   })
 
   it('gives 3 points for the correct outcome', () => {

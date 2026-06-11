@@ -152,6 +152,18 @@ O banco rejeita inserções e alterações de palpites a partir de cinco minutos
 antes do início da partida. Esse controle é aplicado por Row Level Security,
 portanto não pode ser contornado modificando o JavaScript no navegador.
 
+## Atualizar a pontuação no projeto existente
+
+Para usar a regra de `7` pontos no placar exato e `5` pontos no resultado com
+os gols de uma seleção, abra o **SQL Editor** do Supabase e execute todo o
+conteúdo de:
+
+`supabase/migrations/20260612_update_scoring.sql`
+
+Execute essa migração apenas uma vez. Não execute novamente o
+`supabase/schema.sql`, pois ele serve para configurar um projeto novo. A
+migração também recalcula automaticamente os palpites de jogos já finalizados.
+
 ## Publicar no GitHub Pages
 
 1. No repositório do GitHub, abra **Settings > Secrets and variables >
