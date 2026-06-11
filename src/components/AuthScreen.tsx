@@ -5,41 +5,53 @@ import { supabase } from '../lib/supabase'
 export function AuthScreen() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     if (!supabase) return
 
+    if (mode === 'signup' && password !== passwordConfirmation) {
+      setIsError(true)
+      setMessage('As senhas não coincidem.')
+      return
+    }
+
     setLoading(true)
     setMessage('')
+    setIsError(false)
 
-    const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`
     const result =
       mode === 'signup'
-        ? await supabase.auth.signInWithOtp({
+        ? await supabase.auth.signUp({
             email,
+            password,
             options: {
-              emailRedirectTo: redirectTo,
               data: { display_name: name.trim() },
             },
           })
-        : await supabase.auth.signInWithOtp({
+        : await supabase.auth.signInWithPassword({
             email,
-            options: {
-              emailRedirectTo: redirectTo,
-              shouldCreateUser: false,
-            },
+            password,
           })
 
     setLoading(false)
-    setMessage(
-      result.error
-        ? result.error.message
-        : 'Enviamos um link de acesso para o seu e-mail.',
-    )
+    setIsError(Boolean(result.error))
+
+    if (result.error) {
+      setMessage(result.error.message)
+    } else if (mode === 'signup' && !result.data.session) {
+      setMessage(
+        'Conta criada. Confirme o e-mail antes de entrar, ou desative essa exigência no Supabase.',
+      )
+    } else {
+      setMessage(mode === 'signup' ? 'Conta criada com sucesso.' : '')
+    }
   }
 
   return (
@@ -84,7 +96,9 @@ export function AuthScreen() {
 
           <h2>{mode === 'login' ? 'Bem-vindo de volta' : 'Entre no bolão'}</h2>
           <p className="muted">
-            Você receberá um link seguro. Sem senha para esquecer.
+            {mode === 'login'
+              ? 'Use seu e-mail e sua senha para acessar.'
+              : 'Crie uma conta para registrar seus palpites.'}
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -103,6 +117,7 @@ export function AuthScreen() {
             <label>
               E-mail
               <input
+                autoComplete="email"
                 type="email"
                 required
                 value={email}
@@ -110,13 +125,41 @@ export function AuthScreen() {
                 placeholder="voce@exemplo.com"
               />
             </label>
+            <label>
+              Senha
+              <input
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                minLength={8}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="No mínimo 8 caracteres"
+                required
+                type="password"
+                value={password}
+              />
+            </label>
+            {mode === 'signup' && (
+              <label>
+                Confirme a senha
+                <input
+                  autoComplete="new-password"
+                  minLength={8}
+                  onChange={(event) => setPasswordConfirmation(event.target.value)}
+                  placeholder="Digite a senha novamente"
+                  required
+                  type="password"
+                  value={passwordConfirmation}
+                />
+              </label>
+            )}
             <button className="primary-button" disabled={loading} type="submit">
               {loading && <LoaderCircle className="spin" size={18} />}
-              Enviar link de acesso
+              {mode === 'login' ? 'Entrar' : 'Criar conta'}
             </button>
           </form>
 
-          {message && <p className="form-message">{message}</p>}
+          {message && (
+            <p className={`form-message ${isError ? 'error' : ''}`}>{message}</p>
+          )}
 
         </div>
       </section>

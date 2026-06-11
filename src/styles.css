@@ -125,6 +125,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 12px; padding: 15px; background: var(--green); color: white; font-weight: 800; }
 .primary-button:disabled { opacity: 0.7; }
 .form-message { margin-top: 16px; padding: 12px; border-radius: 10px; color: var(--green); background: rgb(6 122 80 / 8%); font-size: 0.88rem; }
+.form-message.error { color: #a32626; background: rgb(163 38 38 / 8%); }
 .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 

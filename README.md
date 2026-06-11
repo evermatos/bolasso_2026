@@ -5,7 +5,7 @@ gratuitamente no GitHub Pages e os dados ficam no Supabase.
 
 ## O que já funciona
 
-- Cadastro e login por link enviado ao e-mail
+- Cadastro e login com e-mail e senha
 - 72 jogos da fase de grupos já cadastrados
 - Datas e horários exibidos no horário de Abu Dhabi (`Asia/Dubai`, UTC+4)
 - Palpites editáveis até cinco minutos antes do início de cada jogo
@@ -58,8 +58,11 @@ o site mostra uma tela de indisponibilidade e não aceita dados locais.
    - Site URL: `https://evermatos.github.io/bolasso_2026/`
    - Redirect URL: `https://evermatos.github.io/bolasso_2026/**`
    - Para desenvolvimento, adicione também `http://localhost:5173/**`.
-4. Em **Project Settings > API**, copie a URL e a chave pública `anon`.
-5. Preencha `.env.local`:
+4. Em **Authentication > Sign In / Providers > Email**, mantenha o provedor
+   de e-mail ativo e desative **Confirm email**. Isso permite cadastro
+   imediato sem envio de mensagens.
+5. Em **Project Settings > API**, copie a URL e a chave `Publishable`.
+6. Preencha `.env.local`:
 
 ```dotenv
 VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
@@ -79,6 +82,20 @@ where id = (
 Nunca coloque uma chave `secret` ou `service_role` no projeto ou no GitHub.
 A chave `Publishable` é própria para uso no navegador e é protegida pelas
 políticas RLS do banco.
+
+### Contas antigas criadas por magic link
+
+Uma conta criada anteriormente por magic link pode não possuir senha. Para
+um projeto ainda sem palpites reais, a migração mais simples é:
+
+1. Abra **Authentication > Users** no Supabase.
+2. Exclua a conta antiga.
+3. Crie a conta novamente pelo site usando uma senha.
+4. Execute novamente o SQL que define `is_admin = true`.
+
+Excluir um usuário também exclui seu perfil e seus palpites. Não faça isso
+depois que o bolão já estiver em uso. Nesse caso, configure SMTP e use a
+recuperação de senha.
 
 ## Administrador e resultados
 
