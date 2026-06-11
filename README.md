@@ -11,6 +11,7 @@ gratuitamente no GitHub Pages e os dados ficam no Supabase.
 - Palpites editáveis até cinco minutos antes do início de cada jogo
 - Pontuação e ranking calculados no banco
 - Área de administrador para publicar ou corrigir resultados
+- Área de perfil para definir ou trocar a senha
 - Layout responsivo para celular e computador
 - Deploy automático no GitHub Pages
 
@@ -85,8 +86,13 @@ políticas RLS do banco.
 
 ### Contas antigas criadas por magic link
 
-Uma conta criada anteriormente por magic link pode não possuir senha. Para
-um projeto ainda sem palpites reais, a migração mais simples é:
+Uma conta criada anteriormente por magic link pode não possuir senha.
+
+Se a sessão ainda estiver ativa, abra **Perfil** no site, defina uma senha e
+salve. Isso associa a senha à conta existente sem enviar e-mail.
+
+Se a sessão já tiver expirado e a conta não tiver senha, para um projeto ainda
+sem palpites reais a migração mais simples é:
 
 1. Abra **Authentication > Users** no Supabase.
 2. Exclua a conta antiga.
@@ -96,6 +102,9 @@ um projeto ainda sem palpites reais, a migração mais simples é:
 Excluir um usuário também exclui seu perfil e seus palpites. Não faça isso
 depois que o bolão já estiver em uso. Nesse caso, configure SMTP e use a
 recuperação de senha.
+
+Senhas nunca são enviadas por e-mail nem armazenadas em texto legível. O
+Supabase armazena somente o hash seguro da senha.
 
 ## Administrador e resultados
 

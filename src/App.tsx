@@ -11,11 +11,12 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
 import { MatchCard } from './components/MatchCard'
+import { ProfileScreen } from './components/ProfileScreen'
 import { Ranking } from './components/Ranking'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import type { Match, Prediction, Profile, RankingRow } from './types'
 
-type Tab = 'matches' | 'ranking' | 'admin'
+type Tab = 'matches' | 'ranking' | 'admin' | 'profile'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -199,6 +200,9 @@ export default function App() {
               Administração
             </button>
           )}
+          <button className={tab === 'profile' ? 'active' : ''} onClick={() => setTab('profile')}>
+            Perfil
+          </button>
         </nav>
 
         <div className="user-menu">
@@ -292,6 +296,13 @@ export default function App() {
             </div>
           </section>
         )}
+
+        {tab === 'profile' && session && (
+          <ProfileScreen
+            displayName={displayName}
+            email={session.user.email ?? ''}
+          />
+        )}
       </main>
 
       <nav className="mobile-nav">
@@ -306,7 +317,7 @@ export default function App() {
             <Settings size={21} /><span>Admin</span>
           </button>
         )}
-        <button>
+        <button className={tab === 'profile' ? 'active' : ''} onClick={() => setTab('profile')}>
           <UserRound size={21} /><span>Perfil</span>
         </button>
       </nav>
