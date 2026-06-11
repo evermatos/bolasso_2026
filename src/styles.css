@@ -109,9 +109,10 @@ h2 { letter-spacing: -0.035em; }
 
 .score-preview strong { font-size: 1.75rem; color: var(--lime); }
 .score-preview small { color: #718079; }
-.auth-panel { display: grid; place-items: center; padding: 32px; background: #f2f3ec; border-radius: 34px 0 0 34px; }
-.auth-card { width: min(440px, 100%); }
+.auth-panel { display: grid; place-items: center; padding: 32px; background: #f2f3ec; color: var(--ink); border-radius: 34px 0 0 34px; color-scheme: light; }
+.auth-card { width: min(440px, 100%); color: var(--ink); }
 .auth-card h2 { font-size: 2rem; margin: 30px 0 8px; }
+.auth-card label { color: var(--ink); }
 .muted { color: var(--muted); line-height: 1.5; }
 
 .segmented { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 13px; background: #e4e7df; }
@@ -121,6 +122,14 @@ h2 { letter-spacing: -0.035em; }
 form { display: grid; gap: 18px; margin-top: 30px; }
 label { display: grid; gap: 8px; font-size: 0.86rem; font-weight: 700; }
 input { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); padding: 14px 15px; outline: none; }
+input::placeholder { color: #84908a; opacity: 1; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--paper) inset;
+  caret-color: var(--ink);
+}
 input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 10%); }
 .primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 12px; padding: 15px; background: var(--green); color: white; font-weight: 800; }
 .primary-button:disabled { opacity: 0.7; }
@@ -208,7 +217,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .auth-hero { min-height: 45vh; padding: 36px 24px 60px; }
   .auth-hero h1 { font-size: 3.8rem; }
   .auth-hero p, .score-preview { display: none; }
-  .auth-panel { margin-top: -26px; padding: 30px 24px 50px; border-radius: 28px 28px 0 0; z-index: 2; }
+  .auth-panel { margin-top: -26px; padding: 30px 24px 50px; background: var(--paper); color: var(--ink); border-radius: 28px 28px 0 0; z-index: 2; }
+  .auth-card h2, .auth-card label { color: var(--ink); }
+  .auth-card input { background: #fff; color: var(--ink); -webkit-text-fill-color: var(--ink); }
   .topbar { height: 66px; padding: 0 18px; }
   .desktop-nav, .user-name { display: none; }
   .content { width: min(100% - 28px, 600px); margin-top: 18px; padding-bottom: 72px; }
