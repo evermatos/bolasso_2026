@@ -192,7 +192,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .prediction-result { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 0.72rem; }
 .locked-label { color: var(--muted); font-size: 0.75rem; }
 
-.ranking-card { max-width: 850px; margin: 0 auto; padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
+.ranking-page { max-width: 850px; margin: 0 auto; display: grid; gap: 22px; }
+.ranking-card, .scoring-card { padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
 .ranking-row { display: grid; grid-template-columns: 36px 42px 1fr auto; align-items: center; gap: 14px; padding: 16px 14px; border-top: 1px solid var(--line); }
 .ranking-row.current-user { margin: 4px -10px; border: 0; border-radius: 14px; background: #eaf6ef; }
 .position { font: 800 1rem 'Manrope'; color: var(--muted); text-align: center; }
@@ -202,6 +203,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .ranking-name { min-width: 0; display: flex; flex-direction: column; }
 .ranking-name small { color: var(--muted); margin-top: 3px; }
 .ranking-points { color: var(--green); font: 800 1.05rem 'Manrope'; }
+.scoring-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.scoring-grid div { min-height: 116px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 16px; border-radius: 14px; background: #f1f5ee; }
+.scoring-grid strong { color: var(--green); font: 800 1.35rem 'Manrope'; }
+.scoring-grid span { color: var(--ink); font-size: 0.78rem; line-height: 1.4; font-weight: 600; }
+.scoring-note { margin: 18px 0 0; color: var(--muted); font-size: 0.82rem; line-height: 1.55; }
 .profile-card { max-width: 620px; margin: 0 auto; padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
 .profile-username { margin-bottom: 8px; color: var(--green); font-weight: 700; }
 .profile-form { max-width: 430px; }
@@ -244,7 +250,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .flag { font-size: 1.6rem; }
   .flag-image { width: 29px; height: 18px; }
   .score-inputs input { width: 48px; height: 48px; }
-  .ranking-card { padding: 6px 14px 18px; }
+  .ranking-card, .scoring-card { padding: 6px 14px 18px; }
+  .scoring-grid { grid-template-columns: 1fr; gap: 8px; }
+  .scoring-grid div { min-height: 0; flex-direction: row; align-items: center; padding: 13px 14px; }
+  .scoring-grid strong { min-width: 54px; font-size: 1.05rem; }
+  .scoring-grid span { flex: 1; }
   .profile-card { padding: 6px 20px 24px; }
   .ranking-row { grid-template-columns: 28px 38px 1fr auto; gap: 8px; padding: 14px 5px; }
   .ranking-name small { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
