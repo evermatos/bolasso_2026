@@ -1,5 +1,5 @@
 import { Eye, LoaderCircle, Medal, Target, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { ParticipantPrediction, RankingRow } from '../types'
 import { TeamFlag } from './MatchCard'
@@ -17,6 +17,24 @@ export function Ranking({ rows, currentUserId }: Props) {
   >([])
   const [loadingPredictions, setLoadingPredictions] = useState(false)
   const [predictionsError, setPredictionsError] = useState('')
+  const predictionsPanelRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!selectedParticipant) return
+
+    const frame = window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+
+      predictionsPanelRef.current?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [selectedParticipant])
 
   async function showPredictions(participant: RankingRow) {
     if (!supabase) return
@@ -75,7 +93,10 @@ export function Ranking({ rows, currentUserId }: Props) {
       </section>
 
       {selectedParticipant && (
-        <section className="participant-predictions-card">
+        <section
+          className="participant-predictions-card"
+          ref={predictionsPanelRef}
+        >
           <div className="section-heading">
             <div>
               <span className="eyebrow">PALPITES LIBERADOS</span>
