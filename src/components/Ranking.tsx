@@ -2,7 +2,7 @@ import { Eye, LoaderCircle, Medal, Target, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { ParticipantPrediction, RankingRow } from '../types'
-import { TeamFlag } from './MatchCard'
+import { TeamFlag } from './TeamFlag'
 
 type Props = {
   rows: RankingRow[]
@@ -137,7 +137,7 @@ export function Ranking({ rows, currentUserId }: Props) {
                   <div className="participant-prediction-score">
                     <span>
                       <TeamFlag
-                        flag={prediction.home_flag}
+                        fallback={prediction.home_flag}
                         team={prediction.home_team}
                       />
                       {prediction.home_team}
@@ -149,7 +149,7 @@ export function Ranking({ rows, currentUserId }: Props) {
                     <span>
                       {prediction.away_team}
                       <TeamFlag
-                        flag={prediction.away_flag}
+                        fallback={prediction.away_flag}
                         team={prediction.away_team}
                       />
                     </span>

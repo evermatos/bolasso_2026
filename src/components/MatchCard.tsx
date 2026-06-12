@@ -1,13 +1,19 @@
-import { Check, Clock3, Save } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Check, Clock3, LoaderCircle, Save } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { isPredictionLocked } from '../lib/predictionDeadline'
 import type { Match, Prediction } from '../types'
+import { TeamFlag } from './TeamFlag'
 
 type Props = {
   match: Match
   prediction?: Prediction
   isAdmin?: boolean
-  onSave: (matchId: number, home: number, away: number) => Promise<boolean>
+  onSave: (
+    matchId: number,
+    home: number,
+    away: number,
+    options?: { silent?: boolean },
+  ) => Promise<boolean>
 }
 
 const formatter = new Intl.DateTimeFormat('pt-BR', {
@@ -19,20 +25,6 @@ const formatter = new Intl.DateTimeFormat('pt-BR', {
   timeZoneName: 'short',
 })
 
-export function TeamFlag({ team, flag }: { team: string; flag: string }) {
-  const localFlags: Record<string, string> = {
-    Escócia: `${import.meta.env.BASE_URL}flags/scotland.svg`,
-    Inglaterra: `${import.meta.env.BASE_URL}flags/england.svg`,
-  }
-  const localFlag = localFlags[team]
-
-  return localFlag ? (
-    <img alt={`Bandeira de ${team}`} className="flag-image" src={localFlag} />
-  ) : (
-    <span aria-hidden="true" className="flag">{flag}</span>
-  )
-}
-
 export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
   const showFinalScore = isAdmin || match.status === 'finished'
   const initialHome = showFinalScore ? match.home_score : prediction?.home_score
@@ -42,6 +34,10 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [now, setNow] = useState(Date.now())
+  const lastSavedScore = useRef(
+    prediction ? `${prediction.home_score}:${prediction.away_score}` : '',
+  )
+  const savingRef = useRef(false)
   const kickoffStarted = now >= new Date(match.kickoff_at).getTime()
   const locked = !isAdmin && isPredictionLocked(match.kickoff_at, now)
   const adminLocked = Boolean(isAdmin && !kickoffStarted)
@@ -49,7 +45,10 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
     setAway(initialAway?.toString() ?? '')
-  }, [initialAway, initialHome])
+    if (!isAdmin && prediction) {
+      lastSavedScore.current = `${prediction.home_score}:${prediction.away_score}`
+    }
+  }, [initialAway, initialHome, isAdmin, prediction])
 
   useEffect(() => {
     if ((!isAdmin && locked) || (isAdmin && kickoffStarted)) return
@@ -58,20 +57,45 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
     return () => window.clearInterval(timer)
   }, [isAdmin, kickoffStarted, locked])
 
-  async function save() {
-    if (home === '' || away === '') return
+  const save = useCallback(async (silent = false) => {
+    if (home === '' || away === '' || savingRef.current) return
+    savingRef.current = true
     setSaving(true)
     setSaved(false)
-    const succeeded = await onSave(match.id, Number(home), Number(away))
+    const succeeded = await onSave(match.id, Number(home), Number(away), {
+      silent,
+    })
+    savingRef.current = false
     setSaving(false)
     if (succeeded) {
+      lastSavedScore.current = `${home}:${away}`
       setSaved(true)
       window.setTimeout(() => setSaved(false), 1800)
     }
-  }
+  }, [away, home, match.id, onSave])
+
+  useEffect(() => {
+    if (isAdmin || locked || home === '' || away === '') return
+
+    const score = `${home}:${away}`
+    if (score === lastSavedScore.current) return
+
+    const timer = window.setTimeout(() => {
+      void save(true)
+    }, 900)
+
+    return () => window.clearTimeout(timer)
+  }, [away, home, isAdmin, locked, save])
+
+  const isBrazilMatch =
+    match.home_team === 'Brasil' || match.away_team === 'Brasil'
 
   return (
-    <article className={`match-card ${match.status === 'finished' ? 'finished' : ''}`}>
+    <article
+      className={`match-card ${match.status === 'finished' ? 'finished' : ''} ${
+        isBrazilMatch ? 'brazil-match' : ''
+      }`}
+    >
       <div className="match-meta">
         <span>{match.stage}</span>
         <span>
@@ -82,7 +106,7 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
 
       <div className="match-teams">
         <div className="team home-team">
-          <TeamFlag flag={match.home_flag} team={match.home_team} />
+          <TeamFlag fallback={match.home_flag} team={match.home_team} />
           <strong>{match.home_team}</strong>
         </div>
 
@@ -111,7 +135,7 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
         </div>
 
         <div className="team away-team">
-          <TeamFlag flag={match.away_flag} team={match.away_team} />
+          <TeamFlag fallback={match.away_flag} team={match.away_team} />
           <strong>{match.away_team}</strong>
         </div>
       </div>
@@ -137,11 +161,23 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
           <button
             className="save-button"
             disabled={saving || home === '' || away === ''}
-            onClick={save}
+            onClick={() => save(false)}
             type="button"
           >
-            {saved ? <Check size={16} /> : <Save size={16} />}
-            {saved ? 'Salvo' : isAdmin ? 'Publicar resultado' : 'Salvar palpite'}
+            {saving ? (
+              <LoaderCircle className="spin" size={16} />
+            ) : saved ? (
+              <Check size={16} />
+            ) : (
+              <Save size={16} />
+            )}
+            {saving
+              ? 'Salvando...'
+              : saved
+                ? 'Confirmado'
+                : isAdmin
+                  ? 'Publicar resultado'
+                  : 'Confirmar palpite'}
           </button>
         )}
       </div>

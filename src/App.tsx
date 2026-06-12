@@ -89,7 +89,12 @@ export default function App() {
     [predictions],
   )
 
-  async function savePrediction(matchId: number, home: number, away: number) {
+  async function savePrediction(
+    matchId: number,
+    home: number,
+    away: number,
+    options?: { silent?: boolean },
+  ) {
     if (!supabase || !session) return false
 
     const { error } = await supabase.from('predictions').upsert(
@@ -107,7 +112,7 @@ export default function App() {
       return false
     }
     await loadData(session.user.id)
-    showNotice('Palpite salvo.')
+    if (!options?.silent) showNotice('Palpite confirmado.')
     return true
   }
 

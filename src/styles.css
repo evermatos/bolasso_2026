@@ -217,6 +217,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .match-card { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 10px 30px rgb(10 36 27 / 3%); }
 .match-card.finished { background: #f9f9f4; }
+.match-card.brazil-match { border-color: #e0b900; box-shadow: inset 5px 0 0 #078449, 0 12px 32px rgb(7 132 73 / 10%); background: linear-gradient(135deg, #fffef8 0%, #fffceb 100%); }
+.match-card.brazil-match.finished { background: linear-gradient(135deg, #f8faf4 0%, #fff9dd 100%); }
 .match-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.73rem; font-weight: 700; }
 .match-meta span:last-child { display: flex; align-items: center; gap: 5px; }
 .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 26px 0; }
@@ -224,7 +226,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .away-team { flex-direction: row-reverse; text-align: right; }
 .team strong { overflow: hidden; text-overflow: ellipsis; }
 .flag { font-size: 1.75rem; }
-.flag-image { width: 31px; height: 21px; flex: 0 0 auto; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgb(10 36 27 / 12%); }
+.flag-image { width: 31px; height: 21px; flex: 0 0 auto; border-radius: 2px; box-shadow: 0 0 0 1px rgb(10 36 27 / 12%); }
 .score-inputs { display: flex; align-items: center; gap: 7px; color: #9aa39f; }
 .score-inputs input { width: 52px; height: 50px; padding: 0; text-align: center; font: 800 1.25rem 'Manrope'; appearance: textfield; }
 .score-inputs input::-webkit-inner-spin-button { appearance: none; }
