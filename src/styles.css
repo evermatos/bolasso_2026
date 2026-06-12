@@ -187,6 +187,10 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .desktop-nav button.active::after { content: ''; position: absolute; height: 3px; left: 0; right: 0; bottom: 0; background: var(--green); border-radius: 3px 3px 0 0; }
 .user-menu { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 700; }
 .user-menu button { display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); padding: 8px; }
+.live-status { display: flex; align-items: center; gap: 6px; color: #8a9590; font-size: 0.68rem; font-weight: 700; }
+.live-status > span { width: 7px; height: 7px; border-radius: 50%; background: #a6afab; }
+.live-status.connected { color: var(--green); }
+.live-status.connected > span { background: #16a268; box-shadow: 0 0 0 4px rgb(22 162 104 / 12%); }
 .avatar { width: 42px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: #dff2e8; color: var(--green); font-weight: 800; font-size: 0.78rem; }
 .avatar.small { width: 34px; height: 34px; font-size: 0.68rem; }
 
@@ -337,7 +341,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .auth-card .segmented button.active { background: var(--lime); color: var(--ink); box-shadow: none; }
   .auth-card input { background: #fff; color: var(--ink); -webkit-text-fill-color: var(--ink); }
   .topbar { height: 66px; padding: 0 18px; }
-  .desktop-nav, .user-name { display: none; }
+  .desktop-nav, .user-name, .live-status { display: none; }
   .content { width: min(100% - 28px, 600px); margin-top: 18px; padding-bottom: 72px; }
   .hero-card { min-height: 225px; padding: 28px 24px; border-radius: 20px; }
   .hero-card h1 { font-size: 2.75rem; }

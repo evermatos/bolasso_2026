@@ -443,6 +443,10 @@ grant execute on function public.update_profile_avatar(text) to authenticated;
 revoke all on function public.get_participant_predictions(uuid) from public;
 grant execute on function public.get_participant_predictions(uuid) to authenticated;
 
+alter publication supabase_realtime add table public.profiles;
+alter publication supabase_realtime add table public.matches;
+alter publication supabase_realtime add table public.predictions;
+
 -- Depois de criar sua própria conta, torne-a administradora pelo username:
 -- update public.profiles
 -- set is_admin = true

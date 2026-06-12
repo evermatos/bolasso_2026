@@ -29,6 +29,7 @@ export default function App() {
   const [ranking, setRanking] = useState<RankingRow[]>([])
   const [notice, setNotice] = useState('')
   const [dataError, setDataError] = useState('')
+  const [realtimeConnected, setRealtimeConnected] = useState(false)
 
   const loadData = useCallback(async (userId: string) => {
     if (!supabase) return
@@ -84,6 +85,60 @@ export default function App() {
 
     return () => data.subscription.unsubscribe()
   }, [loadData])
+
+  useEffect(() => {
+    if (!supabase || !session) return
+
+    const client = supabase
+    const userId = session.user.id
+    let refreshTimer: number | undefined
+
+    function scheduleRefresh() {
+      window.clearTimeout(refreshTimer)
+      refreshTimer = window.setTimeout(() => {
+        void loadData(userId)
+      }, 350)
+    }
+
+    const channel = client
+      .channel(`bolasso-live-${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        scheduleRefresh,
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'matches' },
+        scheduleRefresh,
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'predictions' },
+        scheduleRefresh,
+      )
+      .subscribe((status) => {
+        setRealtimeConnected(status === 'SUBSCRIBED')
+      })
+
+    const fallbackInterval = window.setInterval(() => {
+      if (document.visibilityState === 'visible') scheduleRefresh()
+    }, 60_000)
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === 'visible') scheduleRefresh()
+    }
+
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => {
+      window.clearTimeout(refreshTimer)
+      window.clearInterval(fallbackInterval)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+      setRealtimeConnected(false)
+      void client.removeChannel(channel)
+    }
+  }, [loadData, session])
 
   const predictionMap = useMemo(
     () => new Map(predictions.map((prediction) => [prediction.match_id, prediction])),
@@ -212,6 +267,17 @@ export default function App() {
         </nav>
 
         <div className="user-menu">
+          <span
+            className={`live-status ${realtimeConnected ? 'connected' : ''}`}
+            title={
+              realtimeConnected
+                ? 'Atualizações automáticas ativas'
+                : 'Reconectando atualizações'
+            }
+          >
+            <span aria-hidden="true" />
+            {realtimeConnected ? 'Ao vivo' : 'Reconectando'}
+          </span>
           <ProfileAvatar
             avatarKey={profile?.avatar_key}
             displayName={displayName}
