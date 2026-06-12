@@ -2,6 +2,7 @@ import { Eye, LoaderCircle, Medal, Target, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { ParticipantPrediction, RankingRow } from '../types'
+import { ProfileAvatar } from './ProfileAvatar'
 import { TeamFlag } from './TeamFlag'
 
 type Props = {
@@ -76,9 +77,10 @@ export function Ranking({ rows, currentUserId }: Props) {
               type="button"
             >
               <span className={`position position-${index + 1}`}>{index + 1}</span>
-              <div className="avatar">
-                {row.display_name.slice(0, 2).toUpperCase()}
-              </div>
+              <ProfileAvatar
+                avatarKey={row.avatar_key}
+                displayName={row.display_name}
+              />
               <div className="ranking-name">
                 <strong>{row.display_name}</strong>
                 <small>

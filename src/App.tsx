@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
 import { MatchCard } from './components/MatchCard'
+import { ProfileAvatar } from './components/ProfileAvatar'
 import { ProfileScreen } from './components/ProfileScreen'
 import { Ranking } from './components/Ranking'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
@@ -36,7 +37,7 @@ export default function App() {
       await Promise.all([
         supabase
           .from('profiles')
-          .select('id, display_name, is_admin')
+          .select('id, display_name, avatar_key, is_admin')
           .eq('id', userId)
           .single(),
         supabase.from('matches').select('*').order('kickoff_at'),
@@ -211,7 +212,11 @@ export default function App() {
         </nav>
 
         <div className="user-menu">
-          <span className="avatar small">{displayName.slice(0, 2).toUpperCase()}</span>
+          <ProfileAvatar
+            avatarKey={profile?.avatar_key}
+            displayName={displayName}
+            size="small"
+          />
           <span className="user-name">{displayName}</span>
           <button aria-label="Sair" onClick={signOut} title="Sair"><LogOut size={18} /></button>
         </div>
@@ -310,8 +315,9 @@ export default function App() {
 
         {tab === 'profile' && session && (
           <ProfileScreen
+            avatarKey={profile?.avatar_key ?? 'classic-ball'}
             displayName={displayName}
-            onUsernameUpdated={() => loadData(session.user.id)}
+            onProfileUpdated={() => loadData(session.user.id)}
           />
         )}
       </main>

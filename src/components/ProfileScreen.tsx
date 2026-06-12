@@ -2,13 +2,29 @@ import { FormEvent, useEffect, useState } from 'react'
 import { KeyRound, LoaderCircle, UserRound } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { isValidUsername } from '../lib/username'
+import {
+  PROFILE_AVATARS,
+  ProfileAvatar,
+  type ProfileAvatarKey,
+} from './ProfileAvatar'
 
 type Props = {
+  avatarKey: string
   displayName: string
-  onUsernameUpdated: () => Promise<void>
+  onProfileUpdated: () => Promise<void>
 }
 
-export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
+export function ProfileScreen({
+  avatarKey,
+  displayName,
+  onProfileUpdated,
+}: Props) {
+  const [selectedAvatar, setSelectedAvatar] = useState<ProfileAvatarKey>(
+    avatarKey as ProfileAvatarKey,
+  )
+  const [avatarMessage, setAvatarMessage] = useState('')
+  const [avatarError, setAvatarError] = useState(false)
+  const [avatarLoading, setAvatarLoading] = useState(false)
   const [username, setUsername] = useState(displayName)
   const [usernameMessage, setUsernameMessage] = useState('')
   const [usernameError, setUsernameError] = useState(false)
@@ -20,6 +36,29 @@ export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
   const [passwordLoading, setPasswordLoading] = useState(false)
 
   useEffect(() => setUsername(displayName), [displayName])
+  useEffect(
+    () => setSelectedAvatar(avatarKey as ProfileAvatarKey),
+    [avatarKey],
+  )
+
+  async function updateAvatar(event: FormEvent) {
+    event.preventDefault()
+    if (!supabase) return
+
+    setAvatarLoading(true)
+    setAvatarMessage('')
+    setAvatarError(false)
+
+    const { error } = await supabase.rpc('update_profile_avatar', {
+      new_avatar_key: selectedAvatar,
+    })
+
+    setAvatarLoading(false)
+    setAvatarError(Boolean(error))
+    setAvatarMessage(error ? error.message : 'Imagem de perfil atualizada.')
+
+    if (!error) await onProfileUpdated()
+  }
 
   async function updateUsername(event: FormEvent) {
     event.preventDefault()
@@ -49,7 +88,7 @@ export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
         : 'Username atualizado. Use o novo nome no próximo login.',
     )
 
-    if (!error) await onUsernameUpdated()
+    if (!error) await onProfileUpdated()
   }
 
   async function updatePassword(event: FormEvent) {
@@ -98,7 +137,50 @@ export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
         visualizada pelo administrador.
       </p>
 
-      <form className="profile-form" onSubmit={updateUsername}>
+      <form className="profile-form avatar-form" onSubmit={updateAvatar}>
+        <div className="profile-form-heading">
+          <UserRound size={20} />
+          <strong>Escolha sua imagem</strong>
+        </div>
+        <p className="avatar-form-description">
+          Selecione um avatar inspirado em futebol e Copa do Mundo.
+        </p>
+        <div className="avatar-picker">
+          {PROFILE_AVATARS.map((avatar) => (
+            <button
+              aria-label={avatar.label}
+              aria-pressed={selectedAvatar === avatar.key}
+              className={selectedAvatar === avatar.key ? 'selected' : ''}
+              key={avatar.key}
+              onClick={() => setSelectedAvatar(avatar.key)}
+              title={avatar.label}
+              type="button"
+            >
+              <ProfileAvatar
+                avatarKey={avatar.key}
+                displayName={displayName}
+                size="large"
+              />
+              <span>{avatar.label}</span>
+            </button>
+          ))}
+        </div>
+        <button
+          className="primary-button"
+          disabled={avatarLoading || selectedAvatar === avatarKey}
+          type="submit"
+        >
+          {avatarLoading && <LoaderCircle className="spin" size={18} />}
+          Salvar imagem
+        </button>
+        {avatarMessage && (
+          <p className={`form-message ${avatarError ? 'error' : ''}`}>
+            {avatarMessage}
+          </p>
+        )}
+      </form>
+
+      <form className="profile-form profile-section-form" onSubmit={updateUsername}>
         <div className="profile-form-heading">
           <UserRound size={20} />
           <strong>Alterar username</strong>
@@ -131,7 +213,7 @@ export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
         )}
       </form>
 
-      <form className="profile-form profile-password-form" onSubmit={updatePassword}>
+      <form className="profile-form profile-section-form" onSubmit={updatePassword}>
         <div className="profile-form-heading">
           <KeyRound size={20} />
           <strong>Alterar senha</strong>

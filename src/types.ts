@@ -1,6 +1,7 @@
 export type Profile = {
   id: string
   display_name: string
+  avatar_key: string
   is_admin: boolean
 }
 
@@ -29,6 +30,7 @@ export type Prediction = {
 export type RankingRow = {
   user_id: string
   display_name: string
+  avatar_key: string
   total_points: number
   exact_scores: number
   predictions_count: number

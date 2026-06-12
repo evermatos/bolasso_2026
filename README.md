@@ -44,8 +44,9 @@ pode ser alterado.
 
 ## Perfil e administração
 
-Cada participante pode alterar seu username e sua senha na página de perfil.
-Trocar o username não altera pontos, palpites ou permissões.
+Cada participante pode escolher um avatar temático, alterar seu username e
+sua senha na página de perfil. Trocar a imagem ou o username não altera
+pontos, palpites ou permissões.
 
 Somente administradores podem publicar resultados. Quando um resultado é
 registrado ou corrigido, os pontos e o ranking são recalculados

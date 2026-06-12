@@ -215,10 +215,15 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .page-heading svg, .section-heading svg { color: var(--green); }
 
 .match-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-.match-card { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 10px 30px rgb(10 36 27 / 3%); }
+.match-card { position: relative; overflow: hidden; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 10px 30px rgb(10 36 27 / 3%); }
 .match-card.finished { background: #f9f9f4; }
-.match-card.brazil-match { border-color: #e0b900; box-shadow: inset 5px 0 0 #078449, 0 12px 32px rgb(7 132 73 / 10%); background: linear-gradient(135deg, #fffef8 0%, #fffceb 100%); }
-.match-card.brazil-match.finished { background: linear-gradient(135deg, #f8faf4 0%, #fff9dd 100%); }
+.match-card.brazil-match { border: 2px solid #f2c500; box-shadow: inset 7px 0 0 #078449, 0 14px 34px rgb(7 132 73 / 16%); background: linear-gradient(135deg, #fff9bf 0%, #fffef8 48%, #e3f6e9 100%); }
+.match-card.brazil-match::before { content: ''; position: absolute; width: 115px; height: 115px; right: -52px; top: -52px; border-radius: 50%; background: #078449; box-shadow: 0 0 0 13px #f2c500, 0 0 0 26px rgb(7 132 73 / 14%); }
+.match-card.brazil-match > * { position: relative; z-index: 1; }
+.match-card.brazil-match.finished { background: linear-gradient(135deg, #f8efac 0%, #fffef8 48%, #d9efdf 100%); }
+.match-card.brazil-match .match-meta { color: #05623a; }
+.match-card.brazil-match .score-inputs input { border-color: #e2b900; background: #fffef2; box-shadow: 0 0 0 3px rgb(7 132 73 / 8%); }
+.match-card.brazil-match .save-button { background: #067a50; color: #fff; box-shadow: 0 0 0 2px #f2c500; }
 .match-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.73rem; font-weight: 700; }
 .match-meta span:last-child { display: flex; align-items: center; gap: 5px; }
 .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 26px 0; }
@@ -277,7 +282,24 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .profile-form { max-width: 430px; }
 .profile-form-heading { display: flex; align-items: center; gap: 8px; color: var(--ink); }
 .profile-form-heading svg { color: var(--green); }
-.profile-password-form { padding-top: 28px; margin-top: 30px; border-top: 1px solid var(--line); }
+.profile-section-form { padding-top: 28px; margin-top: 30px; border-top: 1px solid var(--line); }
+.avatar-form-description { margin: -6px 0 0; color: var(--muted); font-size: 0.82rem; }
+.avatar-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.avatar-picker button { display: grid; justify-items: center; gap: 7px; padding: 10px 5px; border: 2px solid transparent; border-radius: 14px; color: var(--muted); background: #f1f4ee; font-size: 0.66rem; font-weight: 700; }
+.avatar-picker button:hover { border-color: #b8d7c6; }
+.avatar-picker button.selected { border-color: var(--green); color: var(--ink); background: #e4f3ea; box-shadow: 0 0 0 3px rgb(6 122 80 / 8%); }
+.profile-avatar { flex: 0 0 auto; display: inline-grid; place-items: center; overflow: hidden; border-radius: 50%; line-height: 1; box-shadow: inset 0 0 0 2px rgb(255 255 255 / 52%), 0 3px 9px rgb(10 36 27 / 12%); }
+.profile-avatar-small { width: 34px; height: 34px; font-size: 1.15rem; }
+.profile-avatar-medium { width: 42px; height: 42px; font-size: 1.45rem; }
+.profile-avatar-large { width: 58px; height: 58px; font-size: 2rem; }
+.profile-avatar-classic-ball { background: linear-gradient(145deg, #fff, #dfe5df); }
+.profile-avatar-golden-cup { background: linear-gradient(145deg, #fff7a8, #e0a900); }
+.profile-avatar-goalkeeper { background: linear-gradient(145deg, #c6f3ff, #1f8db3); }
+.profile-avatar-football-boot { background: linear-gradient(145deg, #ffcabd, #cc5031); }
+.profile-avatar-supporter-horn { background: linear-gradient(145deg, #e6d2ff, #7650c7); }
+.profile-avatar-stadium-drum { background: linear-gradient(145deg, #ffe3bc, #dd7831); }
+.profile-avatar-goal-net { background: linear-gradient(145deg, #d9ffd3, #42a847); }
+.profile-avatar-brazil { background: linear-gradient(145deg, #fff36a, #0b9d59); }
 .admin-header { display: flex; justify-content: space-between; gap: 20px; padding: 32px; margin-bottom: 26px; border-radius: 20px; color: white; background: var(--ink); }
 .admin-header h1 { margin: 8px 0; font-size: 2.2rem; }
 .admin-header p { margin: 0; color: #aebdb6; }
@@ -333,6 +355,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .scoring-grid strong { min-width: 54px; font-size: 1.05rem; }
   .scoring-grid span { flex: 1; }
   .profile-card { padding: 6px 20px 24px; }
+  .avatar-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ranking-row { grid-template-columns: 28px 38px 1fr auto 18px; gap: 8px; padding: 14px 5px; }
   .ranking-name small { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .participant-prediction-score { gap: 7px; }
