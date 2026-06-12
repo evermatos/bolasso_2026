@@ -317,6 +317,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .admin-header svg { color: var(--lime); }
 .mobile-nav { display: none; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 30; padding: 12px 18px; border-radius: 10px; color: white; background: var(--ink); box-shadow: 0 12px 32px rgb(0 0 0 / 20%); font-size: 0.85rem; font-weight: 700; }
+.update-banner { position: fixed; right: 22px; bottom: 22px; z-index: 40; width: min(410px, calc(100% - 44px)); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; border: 1px solid rgb(184 243 74 / 28%); border-radius: 16px; color: white; background: var(--ink); box-shadow: 0 16px 44px rgb(0 0 0 / 24%); }
+.update-banner > div { display: grid; gap: 3px; }
+.update-banner strong { font-family: 'Manrope', sans-serif; font-size: 0.88rem; }
+.update-banner span { color: #b9c9c2; font-size: 0.72rem; line-height: 1.4; }
+.update-banner button { flex: 0 0 auto; border: 0; border-radius: 10px; padding: 10px 12px; color: var(--ink); background: var(--lime); font-size: 0.72rem; font-weight: 800; }
 
 @media (max-width: 760px) {
   .auth-shell { grid-template-columns: 1fr; background: var(--ink); }
@@ -378,6 +383,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .mobile-nav button { min-width: 60px; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; color: #8a9590; font-size: 0.65rem; font-weight: 700; }
   .mobile-nav button.active { color: var(--green); }
   .toast { bottom: 84px; width: calc(100% - 36px); text-align: center; }
+  .update-banner { right: 14px; bottom: 84px; width: calc(100% - 28px); }
 }
 
 @media (max-width: 430px) {
@@ -386,4 +392,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .predictions-supporters-art { right: -22px; width: 58%; opacity: 0.72; }
   .match-footer { align-items: flex-end; }
   .venue { max-width: 40%; }
+  .update-banner { align-items: stretch; flex-direction: column; gap: 12px; }
+  .update-banner button { width: 100%; }
 }

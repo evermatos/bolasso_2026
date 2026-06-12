@@ -30,6 +30,7 @@ export default function App() {
   const [notice, setNotice] = useState('')
   const [dataError, setDataError] = useState('')
   const [realtimeConnected, setRealtimeConnected] = useState(false)
+  const [updateAvailable, setUpdateAvailable] = useState(false)
 
   const loadData = useCallback(async (userId: string) => {
     if (!supabase) return
@@ -139,6 +140,82 @@ export default function App() {
       void client.removeChannel(channel)
     }
   }, [loadData, session])
+
+  useEffect(() => {
+    const currentScript = document.querySelector<HTMLScriptElement>(
+      'script[type="module"][src]',
+    )?.src
+
+    if (!currentScript || import.meta.env.DEV) return
+    const currentScriptPath = new URL(currentScript).pathname
+
+    let checking = false
+
+    function isEditing() {
+      const activeElement = document.activeElement
+      return (
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute('contenteditable') === 'true'
+      )
+    }
+
+    async function checkForNewVersion() {
+      if (checking) return
+      checking = true
+
+      try {
+        const indexUrl = new URL(import.meta.env.BASE_URL, window.location.origin)
+        indexUrl.searchParams.set('version-check', Date.now().toString())
+
+        const response = await fetch(indexUrl, { cache: 'no-store' })
+        if (!response.ok) return
+
+        const html = await response.text()
+        const documentCopy = new DOMParser().parseFromString(html, 'text/html')
+        const latestScriptSource = documentCopy.querySelector<HTMLScriptElement>(
+          'script[type="module"][src]',
+        )?.getAttribute('src')
+        const latestScriptPath = latestScriptSource
+          ? new URL(latestScriptSource, window.location.origin).pathname
+          : ''
+
+        if (latestScriptPath && latestScriptPath !== currentScriptPath) {
+          if (!isEditing()) {
+            window.location.reload()
+          } else {
+            setUpdateAvailable(true)
+          }
+        }
+      } catch {
+        // A próxima verificação tenta novamente sem interromper o uso do site.
+      } finally {
+        checking = false
+      }
+    }
+
+    const versionInterval = window.setInterval(() => {
+      void checkForNewVersion()
+    }, 60_000)
+
+    function checkWhenVisible() {
+      if (document.visibilityState === 'visible') {
+        if (updateAvailable && !isEditing()) {
+          window.location.reload()
+          return
+        }
+        void checkForNewVersion()
+      }
+    }
+
+    document.addEventListener('visibilitychange', checkWhenVisible)
+
+    return () => {
+      window.clearInterval(versionInterval)
+      document.removeEventListener('visibilitychange', checkWhenVisible)
+    }
+  }, [updateAvailable])
 
   const predictionMap = useMemo(
     () => new Map(predictions.map((prediction) => [prediction.match_id, prediction])),
@@ -406,6 +483,17 @@ export default function App() {
       </nav>
 
       {notice && <div className="toast">{notice}</div>}
+      {updateAvailable && (
+        <div className="update-banner" role="status">
+          <div>
+            <strong>Nova versão disponível</strong>
+            <span>Atualize para receber as últimas melhorias do Bolasso.</span>
+          </div>
+          <button onClick={() => window.location.reload()} type="button">
+            Atualizar agora
+          </button>
+        </div>
+      )}
     </div>
   )
 }
