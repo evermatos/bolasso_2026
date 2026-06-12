@@ -306,6 +306,7 @@ export default function App() {
         {tab === 'profile' && session && (
           <ProfileScreen
             displayName={displayName}
+            onUsernameUpdated={() => loadData(session.user.id)}
           />
         )}
       </main>

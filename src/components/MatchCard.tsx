@@ -19,7 +19,7 @@ const formatter = new Intl.DateTimeFormat('pt-BR', {
   timeZoneName: 'short',
 })
 
-function TeamFlag({ team, flag }: { team: string; flag: string }) {
+export function TeamFlag({ team, flag }: { team: string; flag: string }) {
   const localFlags: Record<string, string> = {
     Escócia: `${import.meta.env.BASE_URL}flags/scotland.svg`,
     Inglaterra: `${import.meta.env.BASE_URL}flags/england.svg`,

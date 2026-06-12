@@ -1,37 +1,76 @@
-import { FormEvent, useState } from 'react'
-import { KeyRound, LoaderCircle } from 'lucide-react'
+import { FormEvent, useEffect, useState } from 'react'
+import { KeyRound, LoaderCircle, UserRound } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { isValidUsername } from '../lib/username'
 
 type Props = {
   displayName: string
+  onUsernameUpdated: () => Promise<void>
 }
 
-export function ProfileScreen({ displayName }: Props) {
+export function ProfileScreen({ displayName, onUsernameUpdated }: Props) {
+  const [username, setUsername] = useState(displayName)
+  const [usernameMessage, setUsernameMessage] = useState('')
+  const [usernameError, setUsernameError] = useState(false)
+  const [usernameLoading, setUsernameLoading] = useState(false)
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
-  const [message, setMessage] = useState('')
-  const [isError, setIsError] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+
+  useEffect(() => setUsername(displayName), [displayName])
+
+  async function updateUsername(event: FormEvent) {
+    event.preventDefault()
+    if (!supabase) return
+
+    if (!isValidUsername(username)) {
+      setUsernameError(true)
+      setUsernameMessage(
+        'Use de 3 a 24 caracteres: letras sem acento, números, espaços, ponto, hífen ou sublinhado.',
+      )
+      return
+    }
+
+    setUsernameLoading(true)
+    setUsernameMessage('')
+    setUsernameError(false)
+
+    const { error } = await supabase.rpc('update_username', {
+      new_username: username.trim(),
+    })
+
+    setUsernameLoading(false)
+    setUsernameError(Boolean(error))
+    setUsernameMessage(
+      error
+        ? error.message
+        : 'Username atualizado. Use o novo nome no próximo login.',
+    )
+
+    if (!error) await onUsernameUpdated()
+  }
 
   async function updatePassword(event: FormEvent) {
     event.preventDefault()
     if (!supabase) return
 
     if (password !== confirmation) {
-      setIsError(true)
-      setMessage('As senhas não coincidem.')
+      setPasswordError(true)
+      setPasswordMessage('As senhas não coincidem.')
       return
     }
 
-    setLoading(true)
-    setMessage('')
-    setIsError(false)
+    setPasswordLoading(true)
+    setPasswordMessage('')
+    setPasswordError(false)
 
     const { error } = await supabase.auth.updateUser({ password })
 
-    setLoading(false)
-    setIsError(Boolean(error))
-    setMessage(
+    setPasswordLoading(false)
+    setPasswordError(Boolean(error))
+    setPasswordMessage(
       error
         ? error.message
         : 'Senha definida com sucesso. Use-a no próximo acesso.',
@@ -59,7 +98,44 @@ export function ProfileScreen({ displayName }: Props) {
         visualizada pelo administrador.
       </p>
 
-      <form className="profile-form" onSubmit={updatePassword}>
+      <form className="profile-form" onSubmit={updateUsername}>
+        <div className="profile-form-heading">
+          <UserRound size={20} />
+          <strong>Alterar username</strong>
+        </div>
+        <label>
+          Username
+          <input
+            autoCapitalize="none"
+            autoComplete="username"
+            maxLength={24}
+            minLength={3}
+            onChange={(event) => setUsername(event.target.value)}
+            placeholder="Ex.: Gilberto Barros"
+            required
+            value={username}
+          />
+        </label>
+        <button
+          className="primary-button"
+          disabled={usernameLoading || username.trim() === displayName}
+          type="submit"
+        >
+          {usernameLoading && <LoaderCircle className="spin" size={18} />}
+          Salvar username
+        </button>
+        {usernameMessage && (
+          <p className={`form-message ${usernameError ? 'error' : ''}`}>
+            {usernameMessage}
+          </p>
+        )}
+      </form>
+
+      <form className="profile-form profile-password-form" onSubmit={updatePassword}>
+        <div className="profile-form-heading">
+          <KeyRound size={20} />
+          <strong>Alterar senha</strong>
+        </div>
         <label>
           Nova senha
           <input
@@ -84,15 +160,16 @@ export function ProfileScreen({ displayName }: Props) {
             value={confirmation}
           />
         </label>
-        <button className="primary-button" disabled={loading} type="submit">
-          {loading && <LoaderCircle className="spin" size={18} />}
+        <button className="primary-button" disabled={passwordLoading} type="submit">
+          {passwordLoading && <LoaderCircle className="spin" size={18} />}
           Salvar senha
         </button>
+        {passwordMessage && (
+          <p className={`form-message ${passwordError ? 'error' : ''}`}>
+            {passwordMessage}
+          </p>
+        )}
       </form>
-
-      {message && (
-        <p className={`form-message ${isError ? 'error' : ''}`}>{message}</p>
-      )}
     </section>
   )
 }

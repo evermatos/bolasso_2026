@@ -33,3 +33,19 @@ export type RankingRow = {
   exact_scores: number
   predictions_count: number
 }
+
+export type ParticipantPrediction = {
+  match_id: number
+  match_number: number
+  home_team: string
+  away_team: string
+  home_flag: string
+  away_flag: string
+  kickoff_at: string
+  status: 'scheduled' | 'finished'
+  final_home_score: number | null
+  final_away_score: number | null
+  predicted_home_score: number
+  predicted_away_score: number
+  points: number | null
+}

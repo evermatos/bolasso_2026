@@ -19,7 +19,7 @@ export function AuthScreen() {
     if (!isValidUsername(username)) {
       setIsError(true)
       setMessage(
-        'Use de 3 a 24 caracteres: letras sem acento, números, ponto, hífen ou sublinhado.',
+        'Use de 3 a 24 caracteres: letras sem acento, números, espaços, ponto, hífen ou sublinhado.',
       )
       return
     }
@@ -127,7 +127,7 @@ export function AuthScreen() {
                 required
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
-                placeholder="Ex.: gilberto_barros"
+                placeholder="Ex.: Gilberto Barros"
               />
             </label>
             <label>

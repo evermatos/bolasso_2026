@@ -1,7 +1,7 @@
 const USERNAME_PATTERN = /^[a-z0-9][a-z0-9._-]{2,23}$/
 
 export function normalizeUsername(value: string) {
-  return value.trim().toLowerCase()
+  return value.trim().toLowerCase().replace(/\s+/g, '_')
 }
 
 export function isValidUsername(value: string) {

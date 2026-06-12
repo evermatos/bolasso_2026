@@ -238,8 +238,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .locked-label { color: var(--muted); font-size: 0.75rem; }
 
 .ranking-page { max-width: 850px; margin: 0 auto; display: grid; gap: 22px; }
-.ranking-card, .scoring-card { padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
-.ranking-row { display: grid; grid-template-columns: 36px 42px 1fr auto; align-items: center; gap: 14px; padding: 16px 14px; border-top: 1px solid var(--line); }
+.ranking-card, .scoring-card, .participant-predictions-card { padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
+.ranking-row { width: 100%; display: grid; grid-template-columns: 36px 42px 1fr auto 22px; align-items: center; gap: 14px; padding: 16px 14px; border: 0; border-top: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
+.ranking-row:hover { background: #f2f7f3; }
 .ranking-row.current-user { margin: 4px -10px; border: 0; border-radius: 14px; background: #eaf6ef; }
 .position { font: 800 1rem 'Manrope'; color: var(--muted); text-align: center; }
 .position-1 { color: #c49317; }
@@ -248,6 +249,21 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .ranking-name { min-width: 0; display: flex; flex-direction: column; }
 .ranking-name small { color: var(--muted); margin-top: 3px; }
 .ranking-points { color: var(--green); font: 800 1.05rem 'Manrope'; }
+.ranking-eye { color: #94a09b; }
+.close-predictions { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--muted); background: #edf1eb; }
+.predictions-privacy-note { margin: -8px 0 20px; color: var(--muted); font-size: 0.82rem; }
+.predictions-loading, .empty-predictions { min-height: 100px; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--muted); }
+.participant-predictions-list { display: grid; gap: 10px; }
+.participant-prediction { padding: 15px 16px; border-radius: 14px; background: #f3f6f1; }
+.prediction-match-number { display: block; margin-bottom: 10px; color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.participant-prediction-score { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.participant-prediction-score > span { min-width: 0; display: flex; align-items: center; gap: 7px; font-size: 0.82rem; font-weight: 700; }
+.participant-prediction-score > span:last-child { justify-content: flex-end; text-align: right; }
+.participant-prediction-score strong { font: 800 1.2rem 'Manrope'; }
+.participant-prediction-score .flag { font-size: 1.3rem; }
+.participant-prediction-score .flag-image { width: 25px; height: 16px; }
+.participant-prediction-result { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; }
+.participant-prediction-result strong { color: var(--green); }
 .scoring-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .scoring-grid div { min-height: 116px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 16px; border-radius: 14px; background: #f1f5ee; }
 .scoring-grid strong { color: var(--green); font: 800 1.35rem 'Manrope'; }
@@ -256,6 +272,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .profile-card { max-width: 620px; margin: 0 auto; padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
 .profile-username { margin-bottom: 8px; color: var(--green); font-weight: 700; }
 .profile-form { max-width: 430px; }
+.profile-form-heading { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.profile-form-heading svg { color: var(--green); }
+.profile-password-form { padding-top: 28px; margin-top: 30px; border-top: 1px solid var(--line); }
 .admin-header { display: flex; justify-content: space-between; gap: 20px; padding: 32px; margin-bottom: 26px; border-radius: 20px; color: white; background: var(--ink); }
 .admin-header h1 { margin: 8px 0; font-size: 2.2rem; }
 .admin-header p { margin: 0; color: #aebdb6; }
@@ -305,14 +324,17 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .flag { font-size: 1.6rem; }
   .flag-image { width: 29px; height: 18px; }
   .score-inputs input { width: 48px; height: 48px; }
-  .ranking-card, .scoring-card { padding: 6px 14px 18px; }
+  .ranking-card, .scoring-card, .participant-predictions-card { padding: 6px 14px 18px; }
   .scoring-grid { grid-template-columns: 1fr; gap: 8px; }
   .scoring-grid div { min-height: 0; flex-direction: row; align-items: center; padding: 13px 14px; }
   .scoring-grid strong { min-width: 54px; font-size: 1.05rem; }
   .scoring-grid span { flex: 1; }
   .profile-card { padding: 6px 20px 24px; }
-  .ranking-row { grid-template-columns: 28px 38px 1fr auto; gap: 8px; padding: 14px 5px; }
+  .ranking-row { grid-template-columns: 28px 38px 1fr auto 18px; gap: 8px; padding: 14px 5px; }
   .ranking-name small { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .participant-prediction-score { gap: 7px; }
+  .participant-prediction-score > span { flex-direction: column; gap: 3px; font-size: 0.72rem; text-align: center; }
+  .participant-prediction-score > span:last-child { flex-direction: column-reverse; text-align: center; }
   .admin-header { padding: 25px 22px; }
   .admin-header h1 { font-size: 1.8rem; }
   .admin-header svg { display: none; }

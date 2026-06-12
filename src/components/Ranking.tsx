@@ -1,5 +1,8 @@
-import { Medal, Target } from 'lucide-react'
-import type { RankingRow } from '../types'
+import { Eye, LoaderCircle, Medal, Target, X } from 'lucide-react'
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
+import type { ParticipantPrediction, RankingRow } from '../types'
+import { TeamFlag } from './MatchCard'
 
 type Props = {
   rows: RankingRow[]
@@ -7,6 +10,31 @@ type Props = {
 }
 
 export function Ranking({ rows, currentUserId }: Props) {
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<RankingRow | null>(null)
+  const [participantPredictions, setParticipantPredictions] = useState<
+    ParticipantPrediction[]
+  >([])
+  const [loadingPredictions, setLoadingPredictions] = useState(false)
+  const [predictionsError, setPredictionsError] = useState('')
+
+  async function showPredictions(participant: RankingRow) {
+    if (!supabase) return
+
+    setSelectedParticipant(participant)
+    setParticipantPredictions([])
+    setPredictionsError('')
+    setLoadingPredictions(true)
+
+    const { data, error } = await supabase.rpc('get_participant_predictions', {
+      target_user_id: participant.user_id,
+    })
+
+    setLoadingPredictions(false)
+    setPredictionsError(error?.message ?? '')
+    if (data) setParticipantPredictions(data)
+  }
+
   return (
     <div className="ranking-page">
       <section className="ranking-card">
@@ -20,11 +48,14 @@ export function Ranking({ rows, currentUserId }: Props) {
 
         <div className="ranking-list">
           {rows.map((row, index) => (
-            <div
+            <button
+              aria-label={`Ver palpites de ${row.display_name}`}
               className={`ranking-row ${
                 row.user_id === currentUserId ? 'current-user' : ''
               }`}
               key={row.user_id}
+              onClick={() => showPredictions(row)}
+              type="button"
             >
               <span className={`position position-${index + 1}`}>{index + 1}</span>
               <div className="avatar">
@@ -37,10 +68,90 @@ export function Ranking({ rows, currentUserId }: Props) {
                 </small>
               </div>
               <strong className="ranking-points">{row.total_points} pts</strong>
-            </div>
+              <Eye className="ranking-eye" size={18} />
+            </button>
           ))}
         </div>
       </section>
+
+      {selectedParticipant && (
+        <section className="participant-predictions-card">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">PALPITES LIBERADOS</span>
+              <h2>{selectedParticipant.display_name}</h2>
+            </div>
+            <button
+              aria-label="Fechar palpites do participante"
+              className="close-predictions"
+              onClick={() => setSelectedParticipant(null)}
+              type="button"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <p className="predictions-privacy-note">
+            Apenas jogos cujo prazo de palpite já encerrou são exibidos.
+          </p>
+
+          {loadingPredictions ? (
+            <div className="predictions-loading">
+              <LoaderCircle className="spin" size={22} />
+              Carregando palpites...
+            </div>
+          ) : predictionsError ? (
+            <p className="form-message error">{predictionsError}</p>
+          ) : participantPredictions.length === 0 ? (
+            <p className="empty-predictions">
+              Nenhum palpite liberado até o momento.
+            </p>
+          ) : (
+            <div className="participant-predictions-list">
+              {participantPredictions.map((prediction) => (
+                <article className="participant-prediction" key={prediction.match_id}>
+                  <span className="prediction-match-number">
+                    Jogo {prediction.match_number}
+                  </span>
+                  <div className="participant-prediction-score">
+                    <span>
+                      <TeamFlag
+                        flag={prediction.home_flag}
+                        team={prediction.home_team}
+                      />
+                      {prediction.home_team}
+                    </span>
+                    <strong>
+                      {prediction.predicted_home_score} ×{' '}
+                      {prediction.predicted_away_score}
+                    </strong>
+                    <span>
+                      {prediction.away_team}
+                      <TeamFlag
+                        flag={prediction.away_flag}
+                        team={prediction.away_team}
+                      />
+                    </span>
+                  </div>
+                  <div className="participant-prediction-result">
+                    {prediction.status === 'finished' ? (
+                      <>
+                        <span>
+                          Resultado: {prediction.final_home_score} ×{' '}
+                          {prediction.final_away_score}
+                        </span>
+                        <strong>+{prediction.points ?? 0} pts</strong>
+                      </>
+                    ) : (
+                      <span>Aguardando resultado</span>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="scoring-card">
         <div className="section-heading">
