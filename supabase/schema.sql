@@ -12,7 +12,14 @@ create table public.profiles (
       'supporter-horn',
       'stadium-drum',
       'goal-net',
-      'brazil'
+      'brazil',
+      'argentina-ten',
+      'portugal-seven',
+      'penguin-striker',
+      'var-alien',
+      'capybara-fan',
+      'ball-wizard',
+      'angry-referee'
     )),
   is_admin boolean not null default false,
   created_at timestamptz not null default now()
@@ -174,7 +181,14 @@ begin
     'supporter-horn',
     'stadium-drum',
     'goal-net',
-    'brazil'
+    'brazil',
+    'argentina-ten',
+    'portugal-seven',
+    'penguin-striker',
+    'var-alien',
+    'capybara-fan',
+    'ball-wizard',
+    'angry-referee'
   ) then
     raise exception 'Imagem de perfil inválida.';
   end if;

@@ -143,27 +143,29 @@ export function ProfileScreen({
           <strong>Escolha sua imagem</strong>
         </div>
         <p className="avatar-form-description">
-          Selecione um avatar inspirado em futebol e Copa do Mundo.
+          Escolha entre craques, bichos e figuras completamente aleatórias.
         </p>
-        <div className="avatar-picker">
-          {PROFILE_AVATARS.map((avatar) => (
-            <button
-              aria-label={avatar.label}
-              aria-pressed={selectedAvatar === avatar.key}
-              className={selectedAvatar === avatar.key ? 'selected' : ''}
-              key={avatar.key}
-              onClick={() => setSelectedAvatar(avatar.key)}
-              title={avatar.label}
-              type="button"
+        <div className="avatar-select-row">
+          <ProfileAvatar
+            avatarKey={selectedAvatar}
+            displayName={displayName}
+            size="large"
+          />
+          <label>
+            Personagem
+            <select
+              onChange={(event) =>
+                setSelectedAvatar(event.target.value as ProfileAvatarKey)
+              }
+              value={selectedAvatar}
             >
-              <ProfileAvatar
-                avatarKey={avatar.key}
-                displayName={displayName}
-                size="large"
-              />
-              <span>{avatar.label}</span>
-            </button>
-          ))}
+              {PROFILE_AVATARS.map((avatar) => (
+                <option key={avatar.key} value={avatar.key}>
+                  {avatar.emoji} {avatar.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         <button
           className="primary-button"

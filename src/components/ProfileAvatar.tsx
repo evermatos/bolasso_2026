@@ -1,12 +1,19 @@
 export const PROFILE_AVATARS = [
   { key: 'classic-ball', label: 'Bola clássica', emoji: '⚽' },
   { key: 'golden-cup', label: 'Taça dourada', emoji: '🏆' },
-  { key: 'goalkeeper', label: 'Luva de goleiro', emoji: '🧤' },
-  { key: 'football-boot', label: 'Chuteira', emoji: '👟' },
-  { key: 'supporter-horn', label: 'Corneta da torcida', emoji: '📣' },
-  { key: 'stadium-drum', label: 'Tambor', emoji: '🥁' },
-  { key: 'goal-net', label: 'Gol', emoji: '🥅' },
-  { key: 'brazil', label: 'Brasil', emoji: '🇧🇷' },
+  { key: 'goalkeeper', label: 'Goleiro mão de alface', emoji: '🧤' },
+  { key: 'football-boot', label: 'Chuteira assassina', emoji: '👟' },
+  { key: 'supporter-horn', label: 'Corneteiro oficial', emoji: '📣' },
+  { key: 'stadium-drum', label: 'Batuqueiro da torcida', emoji: '🥁' },
+  { key: 'goal-net', label: 'Inimigo do gol', emoji: '🥅' },
+  { key: 'brazil', label: 'Canarinho pistola', emoji: '🇧🇷' },
+  { key: 'argentina-ten', label: 'Camisa 10 argentina', emoji: '🐐' },
+  { key: 'portugal-seven', label: 'Camisa 7 portuguesa', emoji: '🤖' },
+  { key: 'penguin-striker', label: 'Pinguim artilheiro', emoji: '🐧' },
+  { key: 'var-alien', label: 'Alienígena do VAR', emoji: '👽' },
+  { key: 'capybara-fan', label: 'Capivara torcedora', emoji: '🦫' },
+  { key: 'ball-wizard', label: 'Mago da bola', emoji: '🧙' },
+  { key: 'angry-referee', label: 'Juiz bravo', emoji: '🟥' },
 ] as const
 
 export type ProfileAvatarKey = (typeof PROFILE_AVATARS)[number]['key']
