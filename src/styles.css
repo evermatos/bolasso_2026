@@ -276,7 +276,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .participant-predictions-card { scroll-margin-top: 98px; }
 .ranking-row { width: 100%; display: grid; grid-template-columns: 48px 42px 1fr auto 22px; align-items: center; gap: 14px; padding: 16px 14px; border: 0; border-top: 1px solid var(--line); color: inherit; background: transparent; text-align: left; }
 .ranking-row:hover { background: var(--surface-hover); }
-.ranking-row.current-user { margin: 4px -10px; border: 0; border-radius: 14px; background: var(--surface-current); }
+.ranking-row.current-user { border-radius: 12px; background: var(--surface-current); box-shadow: inset 4px 0 0 var(--green); }
 .position { font: 800 1rem 'Manrope'; color: var(--muted); text-align: center; }
 .position-1 { color: #c49317; }
 .position-2 { color: #7c8582; }
