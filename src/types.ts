@@ -31,6 +31,7 @@ export type RankingRow = {
   user_id: string
   display_name: string
   avatar_key: string
+  position_change: number
   total_points: number
   exact_scores: number
   predictions_count: number

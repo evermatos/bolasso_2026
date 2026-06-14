@@ -1,4 +1,12 @@
-import { Eye, LoaderCircle, Medal, Target, X } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  Eye,
+  LoaderCircle,
+  Medal,
+  Target,
+  X,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { ParticipantPrediction, RankingRow } from '../types'
@@ -54,6 +62,15 @@ export function Ranking({ rows, currentUserId }: Props) {
     if (data) setParticipantPredictions(data)
   }
 
+  function movementLabel(change: number) {
+    if (change > 0) return `Subiu ${change} ${change === 1 ? 'posição' : 'posições'}`
+    if (change < 0) {
+      const positions = Math.abs(change)
+      return `Desceu ${positions} ${positions === 1 ? 'posição' : 'posições'}`
+    }
+    return 'Permaneceu na mesma posição'
+  }
+
   return (
     <div className="ranking-page">
       <section className="ranking-card">
@@ -76,7 +93,28 @@ export function Ranking({ rows, currentUserId }: Props) {
               onClick={() => showPredictions(row)}
               type="button"
             >
-              <span className={`position position-${index + 1}`}>{index + 1}</span>
+              <span className="ranking-position">
+                <span className={`position position-${index + 1}`}>{index + 1}</span>
+                <span
+                  aria-label={movementLabel(row.position_change)}
+                  className={`ranking-movement ${
+                    row.position_change > 0
+                      ? 'up'
+                      : row.position_change < 0
+                        ? 'down'
+                        : 'same'
+                  }`}
+                  title={movementLabel(row.position_change)}
+                >
+                  {row.position_change > 0 ? (
+                    <ArrowUp size={13} strokeWidth={3} />
+                  ) : row.position_change < 0 ? (
+                    <ArrowDown size={13} strokeWidth={3} />
+                  ) : (
+                    <span aria-hidden="true" />
+                  )}
+                </span>
+              </span>
               <ProfileAvatar
                 avatarKey={row.avatar_key}
                 displayName={row.display_name}

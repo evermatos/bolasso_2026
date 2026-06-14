@@ -4,12 +4,14 @@ import {
   CalendarDays,
   LogOut,
   Settings,
+  Table2,
   Target,
   Trophy,
   UserRound,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
+import { GroupStandings } from './components/GroupStandings'
 import { MatchCard } from './components/MatchCard'
 import { ProfileAvatar } from './components/ProfileAvatar'
 import { ProfileScreen } from './components/ProfileScreen'
@@ -17,7 +19,7 @@ import { Ranking } from './components/Ranking'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import type { Match, Prediction, Profile, RankingRow } from './types'
 
-type Tab = 'matches' | 'ranking' | 'admin' | 'profile'
+type Tab = 'matches' | 'standings' | 'ranking' | 'admin' | 'profile'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -333,6 +335,9 @@ export default function App() {
           <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
             Ranking
           </button>
+          <button className={tab === 'standings' ? 'active' : ''} onClick={() => setTab('standings')}>
+            Tabela
+          </button>
           {isAdmin && (
             <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>
               Administração
@@ -433,6 +438,8 @@ export default function App() {
           <Ranking rows={ranking} currentUserId={session?.user.id} />
         )}
 
+        {tab === 'standings' && <GroupStandings matches={matches} />}
+
         {tab === 'admin' && isAdmin && (
           <section>
             <div className="admin-header">
@@ -471,6 +478,9 @@ export default function App() {
         </button>
         <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
           <BarChart3 size={21} /><span>Ranking</span>
+        </button>
+        <button className={tab === 'standings' ? 'active' : ''} onClick={() => setTab('standings')}>
+          <Table2 size={21} /><span>Tabela</span>
         </button>
         {isAdmin && (
           <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>
