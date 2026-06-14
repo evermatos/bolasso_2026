@@ -463,6 +463,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .mobile-standings-list { display: grid; }
   .mobile-standings-list article { border-top: 1px solid var(--line); background: var(--paper); }
   .mobile-standing-main { min-width: 0; display: grid; grid-template-columns: 30px minmax(0, 1fr) 48px; align-items: center; gap: 8px; padding: 14px 14px 10px 10px; }
+  .mobile-standing-main .standing-position { border-left: 0; }
   .mobile-standing-team { min-width: 0; display: flex; align-items: center; gap: 8px; }
   .mobile-standing-team strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.86rem; }
   .mobile-standing-team .flag-image { width: 27px; height: 18px; }
