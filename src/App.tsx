@@ -479,16 +479,58 @@ export default function App() {
               </div>
               <Settings size={34} />
             </div>
-            <div className="match-grid">
-              {matches.map((match) => (
-                <MatchCard
-                  isAdmin
-                  key={match.id}
-                  match={match}
-                  onSave={saveResult}
-                />
-              ))}
-            </div>
+
+            <section className="admin-match-section">
+              <div className="admin-section-heading">
+                <div>
+                  <span className="eyebrow">PENDENTES</span>
+                  <h2>Jogos para publicar</h2>
+                </div>
+                <span>{futureMatches.length}</span>
+              </div>
+
+              {futureMatches.length > 0 ? (
+                <div className="match-grid">
+                  {futureMatches.map((match) => (
+                    <MatchCard
+                      isAdmin
+                      key={match.id}
+                      match={match}
+                      onSave={saveResult}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="admin-empty-state">
+                  Todos os resultados disponíveis já foram publicados.
+                </div>
+              )}
+            </section>
+
+            {finishedMatches.length > 0 && (
+              <section className="admin-match-section published-results">
+                <div className="admin-section-heading">
+                  <div>
+                    <span className="eyebrow">HISTÓRICO</span>
+                    <h2>Resultados publicados</h2>
+                  </div>
+                  <span>{finishedMatches.length}</span>
+                </div>
+                <p className="admin-section-description">
+                  Os placares abaixo continuam disponíveis para eventuais correções.
+                </p>
+                <div className="match-grid">
+                  {finishedMatches.map((match) => (
+                    <MatchCard
+                      isAdmin
+                      key={match.id}
+                      match={match}
+                      onSave={saveResult}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </section>
         )}
 

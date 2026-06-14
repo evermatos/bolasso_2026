@@ -176,7 +176,9 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
               : saved
                 ? 'Confirmado'
                 : isAdmin
-                  ? 'Publicar resultado'
+                  ? match.status === 'finished'
+                    ? 'Atualizar resultado'
+                    : 'Publicar resultado'
                   : 'Confirmar palpite'}
           </button>
         )}
