@@ -525,6 +525,28 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   background: #14291f;
 }
 
+[data-theme='dark'] .save-button {
+  border: 1px solid #6be0ae;
+  color: #061a14;
+  background: #50d39b;
+  box-shadow: 0 4px 12px rgb(80 211 155 / 18%);
+}
+
+[data-theme='dark'] .save-button:hover:not(:disabled) {
+  background: #6be0ae;
+}
+
+[data-theme='dark'] .save-button:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+[data-theme='dark'] .match-card.brazil-match .save-button {
+  border-color: #f2c500;
+  background: #50d39b;
+  box-shadow: 0 0 0 2px #f2c500, 0 4px 12px rgb(80 211 155 / 18%);
+}
+
 [data-theme='dark'] .points-badge,
 [data-theme='dark'] .ranking-movement.up {
   color: #75e9b5;
