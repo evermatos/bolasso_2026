@@ -16,12 +16,24 @@ import { MatchCard } from './components/MatchCard'
 import { ProfileAvatar } from './components/ProfileAvatar'
 import { ProfileScreen } from './components/ProfileScreen'
 import { Ranking } from './components/Ranking'
+import { ThemeToggle } from './components/ThemeToggle'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import type { Match, Prediction, Profile, RankingRow } from './types'
 
 type Tab = 'matches' | 'standings' | 'ranking' | 'admin' | 'profile'
+type Theme = 'light' | 'dark'
+
+function getInitialTheme(): Theme {
+  const savedTheme = window.localStorage.getItem('bolasso-theme')
+  if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
+}
 
 export default function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(isSupabaseConfigured)
   const [tab, setTab] = useState<Tab>('matches')
@@ -33,6 +45,16 @@ export default function App() {
   const [dataError, setDataError] = useState('')
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [updateAvailable, setUpdateAvailable] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    window.localStorage.setItem('bolasso-theme', theme)
+
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'dark' ? '#081510' : '#f4f5ef')
+  }, [theme])
 
   const loadData = useCallback(async (userId: string) => {
     if (!supabase) return
@@ -279,6 +301,12 @@ export default function App() {
     setSession(null)
   }
 
+  function toggleTheme() {
+    setTheme((currentTheme) =>
+      currentTheme === 'dark' ? 'light' : 'dark',
+    )
+  }
+
   if (!isSupabaseConfigured) {
     return (
       <main className="configuration-screen">
@@ -294,7 +322,7 @@ export default function App() {
   }
 
   if (!session && !loading) {
-    return <AuthScreen />
+    return <AuthScreen onThemeToggle={toggleTheme} theme={theme} />
   }
 
   if (loading) {
@@ -366,6 +394,7 @@ export default function App() {
             size="small"
           />
           <span className="user-name">{displayName}</span>
+          <ThemeToggle onToggle={toggleTheme} theme={theme} />
           <button aria-label="Sair" onClick={signOut} title="Sair"><LogOut size={18} /></button>
         </div>
       </header>

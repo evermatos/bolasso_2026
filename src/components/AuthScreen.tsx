@@ -2,8 +2,14 @@ import { FormEvent, useState } from 'react'
 import { LoaderCircle, Trophy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { isValidUsername, usernameToAuthEmail } from '../lib/username'
+import { ThemeToggle } from './ThemeToggle'
 
-export function AuthScreen() {
+type Props = {
+  theme: 'light' | 'dark'
+  onThemeToggle: () => void
+}
+
+export function AuthScreen({ theme, onThemeToggle }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
@@ -65,6 +71,11 @@ export function AuthScreen() {
 
   return (
     <main className="auth-shell">
+      <ThemeToggle
+        className="auth-theme-toggle"
+        onToggle={onThemeToggle}
+        theme={theme}
+      />
       <section className="auth-hero">
         <div className="brand-mark">
           <Trophy size={30} strokeWidth={2.4} />

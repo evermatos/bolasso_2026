@@ -15,6 +15,19 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#061a14" />
+    <script>
+      (() => {
+        const savedTheme = localStorage.getItem('bolasso-theme')
+        const theme =
+          savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+      })()
+    </script>
     <meta
       name="description"
       content="Bolão entre amigos para a Copa do Mundo de 2026."
