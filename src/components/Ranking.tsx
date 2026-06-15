@@ -245,6 +245,16 @@ export function Ranking({ rows, currentUserId }: Props) {
           Vale sempre a maior categoria atingida. Exemplo: palpite 2 × 0 e
           resultado 2 × 1 valem 5 pontos.
         </p>
+
+        <div className="tiebreak-rules">
+          <strong>Critérios de desempate</strong>
+          <p>
+            Em caso de igualdade nos pontos totais, vale primeiro o número de
+            placares exatos. Depois, a quantidade de palpites que renderam 5,
+            3 e 1 ponto, nessa ordem. Se todos os critérios forem iguais, os
+            participantes dividem a mesma posição, indicada por um asterisco.
+          </p>
+        </div>
       </section>
     </div>
   )

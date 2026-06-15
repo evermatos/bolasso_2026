@@ -311,6 +311,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .scoring-grid strong { color: var(--green); font: 800 1.35rem 'Manrope'; }
 .scoring-grid span { color: var(--text); font-size: 0.78rem; line-height: 1.4; font-weight: 600; }
 .scoring-note { margin: 18px 0 0; color: var(--muted); font-size: 0.82rem; line-height: 1.55; }
+.tiebreak-rules { margin-top: 20px; padding: 16px 18px; border-left: 4px solid var(--green); border-radius: 10px; background: var(--surface-soft); }
+.tiebreak-rules strong { color: var(--text); font: 800 0.84rem 'Manrope'; }
+.tiebreak-rules p { margin: 6px 0 0; color: var(--muted); font-size: 0.8rem; line-height: 1.55; }
 .profile-card { max-width: 620px; margin: 0 auto; padding: 12px 28px 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
 .profile-username { margin-bottom: 8px; color: var(--green); font-weight: 700; }
 .profile-form { max-width: 430px; }
