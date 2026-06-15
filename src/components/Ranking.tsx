@@ -82,11 +82,6 @@ export function Ranking({ rows, currentUserId }: Props) {
           <Medal size={28} />
         </div>
 
-        <p className="ranking-tiebreak-note">
-          Desempates: placares exatos, depois resultados de 5, 3 e 1 ponto.
-          O asterisco indica posição compartilhada.
-        </p>
-
         <div className="ranking-list">
           {rows.map((row) => (
             <button
@@ -136,9 +131,8 @@ export function Ranking({ rows, currentUserId }: Props) {
               />
               <div className="ranking-name">
                 <strong>{row.display_name}</strong>
-                <small title={`${row.predictions_count} palpites registrados`}>
-                  7: {row.exact_scores} · 5: {row.five_point_scores} · 3:{' '}
-                  {row.three_point_scores} · 1: {row.one_point_scores}
+                <small>
+                  {row.exact_scores} placares exatos · {row.predictions_count} palpites
                 </small>
               </div>
               <strong className="ranking-points">{row.total_points} pts</strong>
