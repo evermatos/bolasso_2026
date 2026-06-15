@@ -82,8 +82,13 @@ export function Ranking({ rows, currentUserId }: Props) {
           <Medal size={28} />
         </div>
 
+        <p className="ranking-tiebreak-note">
+          Desempates: placares exatos, depois resultados de 5, 3 e 1 ponto.
+          O asterisco indica posição compartilhada.
+        </p>
+
         <div className="ranking-list">
-          {rows.map((row, index) => (
+          {rows.map((row) => (
             <button
               aria-label={`Ver palpites de ${row.display_name}`}
               className={`ranking-row ${
@@ -94,7 +99,17 @@ export function Ranking({ rows, currentUserId }: Props) {
               type="button"
             >
               <span className="ranking-position">
-                <span className={`position position-${index + 1}`}>{index + 1}</span>
+                <span
+                  className={`position position-${row.ranking_position}`}
+                  title={
+                    row.is_tied
+                      ? 'Posição compartilhada: todos os critérios estão empatados'
+                      : undefined
+                  }
+                >
+                  {row.ranking_position}
+                  {row.is_tied && <sup>*</sup>}
+                </span>
                 <span
                   aria-label={movementLabel(row.position_change)}
                   className={`ranking-movement ${
@@ -121,8 +136,9 @@ export function Ranking({ rows, currentUserId }: Props) {
               />
               <div className="ranking-name">
                 <strong>{row.display_name}</strong>
-                <small>
-                  {row.exact_scores} placares exatos · {row.predictions_count} palpites
+                <small title={`${row.predictions_count} palpites registrados`}>
+                  7: {row.exact_scores} · 5: {row.five_point_scores} · 3:{' '}
+                  {row.three_point_scores} · 1: {row.one_point_scores}
                 </small>
               </div>
               <strong className="ranking-points">{row.total_points} pts</strong>

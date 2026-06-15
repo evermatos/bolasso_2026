@@ -278,6 +278,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .ranking-row:hover { background: var(--surface-hover); }
 .ranking-row.current-user { border-radius: 12px; background: var(--surface-current); box-shadow: inset 4px 0 0 var(--green); }
 .position { font: 800 1rem 'Manrope'; color: var(--muted); text-align: center; }
+.position sup { margin-left: 1px; color: var(--green); font-size: 0.62rem; vertical-align: super; }
 .position-1 { color: #c49317; }
 .position-2 { color: #7c8582; }
 .position-3 { color: #aa653b; }
@@ -289,6 +290,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .ranking-movement.same span { width: 6px; height: 6px; border-radius: 1px; background: #7d8984; }
 .ranking-name { min-width: 0; display: flex; flex-direction: column; }
 .ranking-name small { color: var(--muted); margin-top: 3px; }
+.ranking-tiebreak-note { margin: -8px 0 18px; padding: 10px 12px; border-radius: 10px; color: var(--muted); background: var(--surface-soft); font-size: 0.75rem; line-height: 1.45; }
 .ranking-points { color: var(--green); font: 800 1.05rem 'Manrope'; }
 .ranking-eye { color: #94a09b; }
 .close-predictions { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--muted); background: var(--surface-soft); }

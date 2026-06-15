@@ -307,6 +307,21 @@ export default function App() {
     )
   }
 
+  function navigateToTab(nextTab: Tab) {
+    setTab(nextTab)
+
+    window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+
+      document.getElementById('app-top')?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
   if (!isSupabaseConfigured) {
     return (
       <main className="configuration-screen">
@@ -349,29 +364,29 @@ export default function App() {
   const finishedMatches = matches.filter((match) => match.status === 'finished')
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" id="app-top">
       <header className="topbar">
-        <button className="brand" onClick={() => setTab('matches')} type="button">
+        <button className="brand" onClick={() => navigateToTab('matches')} type="button">
           <span className="brand-mark small"><Trophy size={20} /></span>
           <span><strong>Bolasso</strong><small>2026</small></span>
         </button>
 
         <nav className="desktop-nav">
-          <button className={tab === 'matches' ? 'active' : ''} onClick={() => setTab('matches')}>
+          <button className={tab === 'matches' ? 'active' : ''} onClick={() => navigateToTab('matches')}>
             Jogos
           </button>
-          <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
+          <button className={tab === 'ranking' ? 'active' : ''} onClick={() => navigateToTab('ranking')}>
             Ranking
           </button>
-          <button className={tab === 'standings' ? 'active' : ''} onClick={() => setTab('standings')}>
+          <button className={tab === 'standings' ? 'active' : ''} onClick={() => navigateToTab('standings')}>
             Tabela
           </button>
           {isAdmin && (
-            <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>
+            <button className={tab === 'admin' ? 'active' : ''} onClick={() => navigateToTab('admin')}>
               Administração
             </button>
           )}
-          <button className={tab === 'profile' ? 'active' : ''} onClick={() => setTab('profile')}>
+          <button className={tab === 'profile' ? 'active' : ''} onClick={() => navigateToTab('profile')}>
             Perfil
           </button>
         </nav>
@@ -544,21 +559,21 @@ export default function App() {
       </main>
 
       <nav className="mobile-nav">
-        <button className={tab === 'matches' ? 'active' : ''} onClick={() => setTab('matches')}>
+        <button className={tab === 'matches' ? 'active' : ''} onClick={() => navigateToTab('matches')}>
           <CalendarDays size={21} /><span>Jogos</span>
         </button>
-        <button className={tab === 'ranking' ? 'active' : ''} onClick={() => setTab('ranking')}>
+        <button className={tab === 'ranking' ? 'active' : ''} onClick={() => navigateToTab('ranking')}>
           <BarChart3 size={21} /><span>Ranking</span>
         </button>
-        <button className={tab === 'standings' ? 'active' : ''} onClick={() => setTab('standings')}>
+        <button className={tab === 'standings' ? 'active' : ''} onClick={() => navigateToTab('standings')}>
           <Table2 size={21} /><span>Tabela</span>
         </button>
         {isAdmin && (
-          <button className={tab === 'admin' ? 'active' : ''} onClick={() => setTab('admin')}>
+          <button className={tab === 'admin' ? 'active' : ''} onClick={() => navigateToTab('admin')}>
             <Settings size={21} /><span>Admin</span>
           </button>
         )}
-        <button className={tab === 'profile' ? 'active' : ''} onClick={() => setTab('profile')}>
+        <button className={tab === 'profile' ? 'active' : ''} onClick={() => navigateToTab('profile')}>
           <UserRound size={21} /><span>Perfil</span>
         </button>
       </nav>
