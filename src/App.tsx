@@ -362,6 +362,10 @@ export default function App() {
   const isAdmin = Boolean(profile?.is_admin)
   const futureMatches = matches.filter((match) => match.status !== 'finished')
   const finishedMatches = matches.filter((match) => match.status === 'finished')
+  const futureMatchIds = new Set(futureMatches.map((match) => match.id))
+  const futurePredictionsCount = predictions.filter((prediction) =>
+    futureMatchIds.has(prediction.match_id),
+  ).length
 
   return (
     <div className="app-shell" id="app-top">
@@ -425,8 +429,8 @@ export default function App() {
               </div>
               <div className="hero-stat">
                 <Target size={30} />
-                <strong>{predictions.length}/{futureMatches.length}</strong>
-                <span>palpites feitos</span>
+                <strong>{futurePredictionsCount}/{futureMatches.length}</strong>
+                <span>Palpites feitos</span>
               </div>
               <img
                 className="supporters-art predictions-supporters-art"
