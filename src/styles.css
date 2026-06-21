@@ -254,8 +254,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 0.73rem; font-weight: 700; }
 .match-meta > div { display: flex; align-items: center; justify-content: flex-end; gap: 8px; text-align: right; }
 .match-meta > div > span { display: flex; align-items: center; gap: 5px; }
-.match-info-button { width: 24px; height: 24px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 50%; color: var(--green); background: var(--surface-soft); }
-.match-info-button:hover { background: var(--surface-hover); }
+.match-info-button { min-height: 28px; display: flex; align-items: center; gap: 5px; flex: 0 0 auto; border: 1px solid rgb(6 122 80 / 22%); border-radius: 999px; padding: 5px 9px; color: var(--green); background: #dff2e8; font-size: 0.68rem; font-weight: 800; }
+.match-info-button:hover { background: #cdebdc; }
+.match-info-button svg { flex: 0 0 auto; }
 .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 26px 0; }
 .team { min-width: 0; display: flex; align-items: center; gap: 10px; }
 .away-team { flex-direction: row-reverse; text-align: right; }
@@ -476,6 +477,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .match-card { padding: 17px; }
   .match-meta { align-items: flex-start; }
   .match-meta > div { align-items: flex-end; flex-direction: column; gap: 5px; }
+  .match-info-button { padding: 5px 8px; font-size: 0.62rem; }
   .match-teams { gap: 8px; padding: 23px 0; }
   .team { flex-direction: column; gap: 4px; font-size: 0.8rem; text-align: center; }
   .away-team { flex-direction: column; }
@@ -577,6 +579,16 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 [data-theme='dark'] .match-card.brazil-match .score-inputs input {
   color: #f4fbf7;
   background: #14291f;
+}
+
+[data-theme='dark'] .match-info-button {
+  border-color: #50d39b;
+  color: #061a14;
+  background: #50d39b;
+}
+
+[data-theme='dark'] .match-info-button:hover {
+  background: #6be0ae;
 }
 
 [data-theme='dark'] .save-button {

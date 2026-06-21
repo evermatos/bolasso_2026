@@ -114,6 +114,7 @@ export function MatchCard({
               type="button"
             >
               <Info size={14} />
+              <span>Info do grupo</span>
             </button>
           )}
           <span>
