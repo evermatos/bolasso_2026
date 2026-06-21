@@ -260,16 +260,16 @@ begin
 
   insert into public.oracle_predictions (user_id, match_id, pick)
   values (auth.uid(), target_match_id, selected_pick)
-  on conflict (user_id, match_id) do nothing;
+  on conflict on constraint oracle_predictions_pkey do nothing;
 
   return query
   select
-    oracle_predictions.match_id,
-    oracle_predictions.pick,
-    oracle_predictions.created_at
-  from public.oracle_predictions
-  where oracle_predictions.user_id = auth.uid()
-    and oracle_predictions.match_id = target_match_id;
+    op.match_id,
+    op.pick,
+    op.created_at
+  from public.oracle_predictions op
+  where op.user_id = auth.uid()
+    and op.match_id = target_match_id;
 end;
 $$;
 
