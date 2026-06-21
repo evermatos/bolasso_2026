@@ -583,12 +583,13 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 
 [data-theme='dark'] .match-info-button {
   border-color: #50d39b;
-  color: #061a14;
-  background: #50d39b;
+  color: #75e9b5;
+  background: rgb(80 211 155 / 12%);
 }
 
 [data-theme='dark'] .match-info-button:hover {
-  background: #6be0ae;
+  color: #061a14;
+  background: #75e9b5;
 }
 
 [data-theme='dark'] .save-button {
