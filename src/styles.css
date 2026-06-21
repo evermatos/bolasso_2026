@@ -277,9 +277,17 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .oracle-button svg { flex: 0 0 auto; }
 
 @media (min-width: 761px) {
-  .match-footer { align-items: flex-end; }
-  .match-footer-side { align-items: flex-end; }
-  .save-button, .oracle-button { min-height: 38px; }
+  .match-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: end;
+  }
+  .match-footer-side { display: contents; }
+  .venue { min-width: 0; align-self: center; }
+  .save-button, .oracle-button, .prediction-result, .locked-label {
+    min-height: 38px;
+    align-self: end;
+  }
   .oracle-button { padding: 9px 12px; }
 }
 
