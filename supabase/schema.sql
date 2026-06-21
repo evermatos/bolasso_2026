@@ -243,6 +243,8 @@ security definer set search_path = ''
 as $$
 declare
   selected_pick text;
+  hash_value text;
+  hash_slot integer;
 begin
   if auth.uid() is null then
     raise exception 'Usuário não autenticado.';
@@ -254,9 +256,13 @@ begin
     raise exception 'Jogo não encontrado.';
   end if;
 
-  selected_pick := (
-    array['home', 'draw', 'away']
-  )[1 + floor(random() * 3)::integer];
+  hash_value := md5(auth.uid()::text || ':' || target_match_id::text);
+  hash_slot := mod(
+    ((position(substr(hash_value, 1, 1) in '0123456789abcdef') - 1) * 16)
+    + (position(substr(hash_value, 2, 1) in '0123456789abcdef') - 1),
+    3
+  );
+  selected_pick := (array['home', 'draw', 'away'])[hash_slot + 1];
 
   insert into public.oracle_predictions (user_id, match_id, pick)
   values (auth.uid(), target_match_id, selected_pick)
