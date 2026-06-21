@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
+import { GroupInfoModal } from './components/GroupInfoModal'
 import { GroupStandings } from './components/GroupStandings'
 import { MatchCard } from './components/MatchCard'
 import { ProfileAvatar } from './components/ProfileAvatar'
@@ -41,6 +42,7 @@ export default function App() {
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [ranking, setRanking] = useState<RankingRow[]>([])
+  const [infoMatch, setInfoMatch] = useState<Match | null>(null)
   const [notice, setNotice] = useState('')
   const [dataError, setDataError] = useState('')
   const [realtimeConnected, setRealtimeConnected] = useState(false)
@@ -453,6 +455,7 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
+                  onShowInfo={setInfoMatch}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}
                 />
@@ -472,6 +475,7 @@ export default function App() {
                     <MatchCard
                       key={match.id}
                       match={match}
+                      onShowInfo={setInfoMatch}
                       onSave={savePrediction}
                       prediction={predictionMap.get(match.id)}
                     />
@@ -515,6 +519,7 @@ export default function App() {
                       isAdmin
                       key={match.id}
                       match={match}
+                      onShowInfo={setInfoMatch}
                       onSave={saveResult}
                     />
                   ))}
@@ -544,6 +549,7 @@ export default function App() {
                       isAdmin
                       key={match.id}
                       match={match}
+                      onShowInfo={setInfoMatch}
                       onSave={saveResult}
                     />
                   ))}
@@ -583,6 +589,13 @@ export default function App() {
       </nav>
 
       {notice && <div className="toast">{notice}</div>}
+      {infoMatch && (
+        <GroupInfoModal
+          match={infoMatch}
+          matches={matches}
+          onClose={() => setInfoMatch(null)}
+        />
+      )}
       {updateAvailable && (
         <div className="update-banner" role="status">
           <div>

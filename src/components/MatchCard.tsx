@@ -1,4 +1,4 @@
-import { Check, Clock3, LoaderCircle, Save } from 'lucide-react'
+import { Check, Clock3, Info, LoaderCircle, Save } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { isPredictionLocked } from '../lib/predictionDeadline'
 import type { Match, Prediction } from '../types'
@@ -8,6 +8,7 @@ type Props = {
   match: Match
   prediction?: Prediction
   isAdmin?: boolean
+  onShowInfo?: (match: Match) => void
   onSave: (
     matchId: number,
     home: number,
@@ -25,7 +26,13 @@ const formatter = new Intl.DateTimeFormat('pt-BR', {
   timeZoneName: 'short',
 })
 
-export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
+export function MatchCard({
+  match,
+  prediction,
+  isAdmin,
+  onSave,
+  onShowInfo,
+}: Props) {
   const showFinalScore = isAdmin || match.status === 'finished'
   const initialHome = showFinalScore ? match.home_score : prediction?.home_score
   const initialAway = showFinalScore ? match.away_score : prediction?.away_score
@@ -98,10 +105,22 @@ export function MatchCard({ match, prediction, isAdmin, onSave }: Props) {
     >
       <div className="match-meta">
         <span>{match.stage}</span>
-        <span>
-          <Clock3 size={14} />
-          {formatter.format(new Date(match.kickoff_at))} · Abu Dhabi
-        </span>
+        <div>
+          {onShowInfo && (
+            <button
+              aria-label={`Ver classificação e resultados do ${match.stage}`}
+              className="match-info-button"
+              onClick={() => onShowInfo(match)}
+              type="button"
+            >
+              <Info size={14} />
+            </button>
+          )}
+          <span>
+            <Clock3 size={14} />
+            {formatter.format(new Date(match.kickoff_at))} · Abu Dhabi
+          </span>
+        </div>
       </div>
 
       <div className="match-teams">
