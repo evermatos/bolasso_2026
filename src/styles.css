@@ -275,6 +275,14 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .oracle-button { display: flex; align-items: center; gap: 5px; border: 1px solid rgb(184 243 74 / 42%); border-radius: 999px; padding: 7px 10px; color: var(--ink); background: var(--lime); font-size: 0.7rem; font-weight: 900; box-shadow: 0 4px 12px rgb(184 243 74 / 16%); }
 .oracle-button:hover { transform: translateY(-1px); }
 .oracle-button svg { flex: 0 0 auto; }
+
+@media (min-width: 761px) {
+  .match-footer { align-items: flex-end; }
+  .match-footer-side { align-items: flex-end; }
+  .save-button, .oracle-button { min-height: 38px; }
+  .oracle-button { padding: 9px 12px; }
+}
+
 .points-badge { padding: 6px 9px; border-radius: 8px; color: var(--green); background: #dff2e8; font-size: 0.78rem; }
 .prediction-result { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 0.72rem; }
 .locked-label { color: var(--muted); font-size: 0.75rem; }
