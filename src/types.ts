@@ -27,6 +27,14 @@ export type Prediction = {
   points: number | null
 }
 
+export type OraclePick = 'home' | 'draw' | 'away'
+
+export type OraclePrediction = {
+  match_id: number
+  pick: OraclePick
+  created_at: string
+}
+
 export type RankingRow = {
   user_id: string
   display_name: string

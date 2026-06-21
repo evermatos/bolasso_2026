@@ -14,6 +14,7 @@ import { AuthScreen } from './components/AuthScreen'
 import { GroupInfoModal } from './components/GroupInfoModal'
 import { GroupStandings } from './components/GroupStandings'
 import { MatchCard } from './components/MatchCard'
+import { OraclePredictionModal } from './components/OraclePredictionModal'
 import { ProfileAvatar } from './components/ProfileAvatar'
 import { ProfileScreen } from './components/ProfileScreen'
 import { Ranking } from './components/Ranking'
@@ -43,6 +44,7 @@ export default function App() {
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [ranking, setRanking] = useState<RankingRow[]>([])
   const [infoMatch, setInfoMatch] = useState<Match | null>(null)
+  const [oracleMatch, setOracleMatch] = useState<Match | null>(null)
   const [notice, setNotice] = useState('')
   const [dataError, setDataError] = useState('')
   const [realtimeConnected, setRealtimeConnected] = useState(false)
@@ -455,6 +457,7 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
+                  onAskOracle={setOracleMatch}
                   onShowInfo={setInfoMatch}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}
@@ -594,6 +597,12 @@ export default function App() {
           match={infoMatch}
           matches={matches}
           onClose={() => setInfoMatch(null)}
+        />
+      )}
+      {oracleMatch && (
+        <OraclePredictionModal
+          match={oracleMatch}
+          onClose={() => setOracleMatch(null)}
         />
       )}
       {updateAvailable && (

@@ -268,9 +268,13 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .score-inputs input::-webkit-inner-spin-button { appearance: none; }
 .score-inputs input:disabled { opacity: 1; color: var(--text); background: var(--surface-soft); }
 .match-footer { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 15px; border-top: 1px solid var(--line); }
+.match-footer-side { min-width: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .venue { color: var(--muted); font-size: 0.75rem; }
 .save-button { display: flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; padding: 9px 12px; background: var(--ink); color: white; font-size: 0.75rem; font-weight: 700; }
 .save-button:disabled { opacity: 0.38; cursor: not-allowed; }
+.oracle-button { display: flex; align-items: center; gap: 5px; border: 1px solid rgb(184 243 74 / 42%); border-radius: 999px; padding: 7px 10px; color: var(--ink); background: var(--lime); font-size: 0.7rem; font-weight: 900; box-shadow: 0 4px 12px rgb(184 243 74 / 16%); }
+.oracle-button:hover { transform: translateY(-1px); }
+.oracle-button svg { flex: 0 0 auto; }
 .points-badge { padding: 6px 9px; border-radius: 8px; color: var(--green); background: #dff2e8; font-size: 0.78rem; }
 .prediction-result { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 0.72rem; }
 .locked-label { color: var(--muted); font-size: 0.75rem; }
@@ -420,6 +424,38 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .group-info-match-teams > span:last-child { justify-content: flex-end; text-align: right; }
 .group-info-match-teams strong { font: 800 1.05rem 'Manrope'; }
 .group-info-match-meta { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.7rem; }
+.oracle-overlay { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 20px; }
+.oracle-backdrop { position: absolute; inset: 0; border: 0; background: radial-gradient(circle at center, rgb(6 122 80 / 22%), rgb(5 15 11 / 78%)); }
+.oracle-modal { position: relative; z-index: 1; width: min(620px, 100%); max-height: min(88vh, 760px); overflow: auto; padding: 24px; border: 1px solid rgb(184 243 74 / 22%); border-radius: 26px; color: white; background: linear-gradient(145deg, #061a14 0%, #0e3226 58%, #143b2d 100%); box-shadow: 0 22px 80px rgb(0 0 0 / 38%); }
+.oracle-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.oracle-header h2 { margin: 6px 0 7px; color: white; font-size: 2rem; }
+.oracle-header p { margin: 0; color: #b9c9c2; font-size: 0.84rem; line-height: 1.5; }
+.oracle-close { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 auto; border: 0; border-radius: 50%; color: #dceae3; background: rgb(255 255 255 / 8%); }
+.oracle-stage { position: relative; display: grid; justify-items: center; gap: 16px; padding: 24px 0 20px; text-align: center; }
+.oracle-orb { position: relative; width: 154px; height: 154px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 42% 35%, rgb(184 243 74 / 32%), rgb(80 211 155 / 16%) 45%, rgb(255 255 255 / 5%) 72%); box-shadow: inset 0 0 32px rgb(184 243 74 / 16%), 0 16px 38px rgb(0 0 0 / 26%); }
+.oracle-octopus { position: relative; z-index: 2; font-size: 4.6rem; filter: drop-shadow(0 14px 14px rgb(0 0 0 / 22%)); animation: oracle-float 2.4s ease-in-out infinite; }
+.oracle-bubble { position: absolute; border-radius: 50%; background: rgb(184 243 74 / 35%); animation: oracle-bubble 2s ease-in-out infinite; }
+.bubble-one { width: 15px; height: 15px; left: 20px; top: 35px; }
+.bubble-two { width: 10px; height: 10px; right: 28px; top: 24px; animation-delay: 0.45s; }
+.bubble-three { width: 12px; height: 12px; right: 22px; bottom: 34px; animation-delay: 0.9s; }
+.oracle-matchup { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.oracle-matchup span { min-width: 0; display: flex; align-items: center; gap: 7px; font-weight: 800; }
+.oracle-matchup span:last-child { justify-content: flex-end; text-align: right; }
+.oracle-matchup strong { color: var(--lime); font: 900 1.2rem 'Manrope'; }
+.oracle-thinking { display: flex; align-items: center; gap: 8px; color: #dceae3; font-size: 0.84rem; font-weight: 800; }
+.oracle-result { display: grid; justify-items: center; gap: 4px; color: #dceae3; animation: oracle-reveal 420ms ease-out both; }
+.oracle-result svg { color: var(--lime); }
+.oracle-result span { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.oracle-result strong { color: var(--lime); font: 900 1.7rem 'Manrope'; }
+.oracle-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.oracle-choices > div { min-width: 0; display: grid; justify-items: center; gap: 7px; padding: 15px 10px; border: 1px solid rgb(255 255 255 / 9%); border-radius: 16px; background: rgb(255 255 255 / 7%); color: #dceae3; }
+.oracle-consulting .oracle-choices > div { animation: oracle-card-pulse 1.2s ease-in-out infinite; }
+.oracle-consulting .oracle-choices > div:nth-child(2) { animation-delay: 0.16s; }
+.oracle-consulting .oracle-choices > div:nth-child(3) { animation-delay: 0.32s; }
+.oracle-choices > div.selected { border-color: var(--lime); color: var(--lime); background: rgb(184 243 74 / 14%); box-shadow: 0 0 0 3px rgb(184 243 74 / 8%); animation: oracle-selected 520ms ease-out both; }
+.oracle-choices strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; }
+.oracle-choices small { color: #9fb1a9; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
+.oracle-draw-icon { display: grid; place-items: center; width: 30px; height: 21px; color: var(--lime); font: 900 1.25rem 'Manrope'; }
 .admin-header { display: flex; justify-content: space-between; gap: 20px; padding: 32px; margin-bottom: 26px; border-radius: 20px; color: white; background: var(--ink); }
 .admin-header h1 { margin: 8px 0; font-size: 2.2rem; }
 .admin-header p { margin: 0; color: #aebdb6; }
@@ -547,8 +583,45 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .predictions-supporters-art { right: -22px; width: 58%; opacity: 0.72; }
   .match-footer { align-items: flex-end; }
   .venue { max-width: 40%; }
+  .oracle-button { padding: 7px 9px; }
+  .oracle-overlay { padding: 10px; align-items: end; }
+  .oracle-modal { width: 100%; max-height: 88vh; padding: 20px 16px; border-radius: 24px 24px 0 0; }
+  .oracle-header h2 { font-size: 1.55rem; }
+  .oracle-orb { width: 132px; height: 132px; }
+  .oracle-octopus { font-size: 4rem; }
+  .oracle-matchup span { flex-direction: column; font-size: 0.78rem; text-align: center; }
+  .oracle-matchup span:last-child { flex-direction: column-reverse; }
+  .oracle-choices { gap: 7px; }
+  .oracle-choices > div { padding: 12px 7px; }
+  .oracle-choices strong { font-size: 0.72rem; }
   .update-banner { align-items: stretch; flex-direction: column; gap: 12px; }
   .update-banner button { width: 100%; }
+}
+
+@keyframes oracle-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes oracle-bubble {
+  0%, 100% { opacity: 0.35; transform: translateY(6px) scale(0.9); }
+  50% { opacity: 0.95; transform: translateY(-8px) scale(1.08); }
+}
+
+@keyframes oracle-card-pulse {
+  0%, 100% { transform: translateY(0); opacity: 0.72; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes oracle-reveal {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes oracle-selected {
+  0% { transform: scale(0.96); }
+  55% { transform: scale(1.04); }
+  100% { transform: scale(1); }
 }
 
 [data-theme='dark'] .auth-panel {
@@ -597,6 +670,12 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   color: #061a14;
   background: #50d39b;
   box-shadow: 0 4px 12px rgb(80 211 155 / 18%);
+}
+
+[data-theme='dark'] .oracle-button {
+  border-color: rgb(184 243 74 / 36%);
+  color: var(--ink);
+  background: var(--lime);
 }
 
 [data-theme='dark'] .save-button:hover:not(:disabled) {

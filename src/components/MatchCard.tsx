@@ -1,4 +1,4 @@
-import { Check, Clock3, Info, LoaderCircle, Save } from 'lucide-react'
+import { Check, Clock3, Info, LoaderCircle, Save, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { isPredictionLocked } from '../lib/predictionDeadline'
 import type { Match, Prediction } from '../types'
@@ -8,6 +8,7 @@ type Props = {
   match: Match
   prediction?: Prediction
   isAdmin?: boolean
+  onAskOracle?: (match: Match) => void
   onShowInfo?: (match: Match) => void
   onSave: (
     matchId: number,
@@ -30,6 +31,7 @@ export function MatchCard({
   match,
   prediction,
   isAdmin,
+  onAskOracle,
   onSave,
   onShowInfo,
 }: Props) {
@@ -161,7 +163,20 @@ export function MatchCard({
       </div>
 
       <div className="match-footer">
-        <span className="venue">{match.venue}</span>
+        <div className="match-footer-side">
+          <span className="venue">{match.venue}</span>
+          {onAskOracle && (
+            <button
+              aria-label={`Consultar o polvo vidente para ${match.home_team} contra ${match.away_team}`}
+              className="oracle-button"
+              onClick={() => onAskOracle(match)}
+              type="button"
+            >
+              <Sparkles size={14} />
+              Polvo vidente
+            </button>
+          )}
+        </div>
         {match.status === 'finished' && !isAdmin ? (
           prediction ? (
             <div className="prediction-result">
