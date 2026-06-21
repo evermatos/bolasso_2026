@@ -178,11 +178,6 @@ export function OraclePredictionModal({ match, onClose }: Props) {
                   <strong>{match.away_team}</strong>
                 </>
               )}
-              <small>
-                {pick === 'home' && `Vitória de ${match.home_team}`}
-                {pick === 'draw' && 'Empate'}
-                {pick === 'away' && `Vitória de ${match.away_team}`}
-              </small>
             </div>
           ))}
         </div>

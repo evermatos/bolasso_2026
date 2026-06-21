@@ -454,7 +454,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .oracle-consulting .oracle-choices > div:nth-child(3) { animation-delay: 0.32s; }
 .oracle-choices > div.selected { border-color: var(--lime); color: var(--lime); background: rgb(184 243 74 / 14%); box-shadow: 0 0 0 3px rgb(184 243 74 / 8%); animation: oracle-selected 520ms ease-out both; }
 .oracle-choices strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; }
-.oracle-choices small { color: #9fb1a9; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; }
 .oracle-draw-icon { display: grid; place-items: center; width: 30px; height: 21px; color: var(--lime); font: 900 1.25rem 'Manrope'; }
 .admin-header { display: flex; justify-content: space-between; gap: 20px; padding: 32px; margin-bottom: 26px; border-radius: 20px; color: white; background: var(--ink); }
 .admin-header h1 { margin: 8px 0; font-size: 2.2rem; }
