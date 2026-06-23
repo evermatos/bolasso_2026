@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "odds:list-sports": "node scripts/sync-match-odds.mjs --list-sports",
+    "odds:sync": "node scripts/sync-match-odds.mjs",
+    "odds:sync:dry": "node scripts/sync-match-odds.mjs --dry-run",
     "test": "vitest run",
     "preview": "vite preview"
   },

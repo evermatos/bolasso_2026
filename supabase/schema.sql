@@ -70,8 +70,28 @@ create table public.oracle_predictions (
   primary key (user_id, match_id)
 );
 
+create table public.match_odds (
+  match_id bigint primary key references public.matches(id) on delete cascade,
+  provider text not null default 'the-odds-api',
+  provider_sport_key text,
+  provider_event_id text,
+  home_odds numeric(8,3),
+  draw_odds numeric(8,3),
+  away_odds numeric(8,3),
+  favorite_pick text check (favorite_pick in ('home', 'draw', 'away')),
+  favorite_odds numeric(8,3),
+  implied_home_probability numeric(8,6),
+  implied_draw_probability numeric(8,6),
+  implied_away_probability numeric(8,6),
+  bookmakers_count integer not null default 0 check (bookmakers_count >= 0),
+  fetched_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  raw jsonb
+);
+
 create index predictions_match_id_idx on public.predictions(match_id);
 create index oracle_predictions_match_id_idx on public.oracle_predictions(match_id);
+create index match_odds_favorite_pick_idx on public.match_odds(favorite_pick);
 create index matches_kickoff_at_idx on public.matches(kickoff_at);
 create unique index profiles_username_idx
   on public.profiles (
@@ -556,6 +576,7 @@ alter table public.matches enable row level security;
 alter table public.predictions enable row level security;
 alter table public.ranking_movements enable row level security;
 alter table public.oracle_predictions enable row level security;
+alter table public.match_odds enable row level security;
 
 create policy "Authenticated users can see profiles"
   on public.profiles for select
@@ -607,6 +628,11 @@ create policy "Users can see their oracle predictions"
   on public.oracle_predictions for select
   to authenticated
   using (auth.uid() = user_id);
+
+create policy "Admins can see match odds"
+  on public.match_odds for select
+  to authenticated
+  using (public.is_admin());
 
 revoke all on function public.finish_match(bigint, integer, integer) from public;
 grant execute on function public.finish_match(bigint, integer, integer) to authenticated;

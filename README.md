@@ -52,6 +52,21 @@ Somente administradores podem publicar resultados. Quando um resultado é
 registrado ou corrigido, os pontos e o ranking são recalculados
 automaticamente.
 
+## Odds do Polvo
+
+As odds ficam em `public.match_odds` e devem ser sincronizadas por script
+administrativo, usando chaves secretas apenas no ambiente local/servidor.
+
+1. Rode `supabase/migrations/20260623_match_odds.sql` no SQL Editor.
+2. Adicione `SUPABASE_SERVICE_ROLE_KEY` e `THE_ODDS_API_KEY` no `.env.local`.
+3. Confira os esportes disponíveis com `npm run odds:list-sports`.
+4. Teste o casamento dos jogos com `npm run odds:sync:dry`.
+5. Grave as odds no banco com `npm run odds:sync`.
+
+O script usa `ODDS_SPORT_KEY=soccer_fifa_world_cup` por padrão. Se a API ainda
+não disponibilizar odds da Copa, use `npm run odds:list-sports` para descobrir
+qual chave está ativa.
+
 ## Sobre
 
 O Bolasso 2026 foi criado para uma competição informal entre amigos. Não
