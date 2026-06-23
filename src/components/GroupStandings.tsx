@@ -371,9 +371,9 @@ export function GroupStandings({ matches }: Props) {
             <div className="group-table-title">
               <div>
                 <span className="eyebrow">SE ACABASSE AGORA</span>
-                <h2 id="knockout-title">Mata-mata oficial projetado</h2>
+                <h2 id="knockout-title">Mata-mata projetado</h2>
               </div>
-              <span>Final no centro · 16 avos divididos em esquerda e direita</span>
+              <span>Final no centro · 16 avos divididos nos lados</span>
             </div>
 
             <div className="knockout-bracket">
