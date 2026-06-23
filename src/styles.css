@@ -450,6 +450,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .oracle-stage { position: relative; display: grid; justify-items: center; gap: 16px; padding: 24px 0 20px; text-align: center; }
 .oracle-orb { position: relative; width: 154px; height: 154px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 42% 35%, rgb(184 243 74 / 32%), rgb(80 211 155 / 16%) 45%, rgb(255 255 255 / 5%) 72%); box-shadow: inset 0 0 32px rgb(184 243 74 / 16%), 0 16px 38px rgb(0 0 0 / 26%); }
 .oracle-octopus { position: relative; z-index: 2; font-size: 4.6rem; filter: drop-shadow(0 14px 14px rgb(0 0 0 / 22%)); animation: oracle-float 2.4s ease-in-out infinite; }
+.oracle-crown { position: absolute; z-index: 4; top: 14px; left: 50%; font-size: 2rem; filter: drop-shadow(0 5px 5px rgb(0 0 0 / 22%)); transform: translateX(-50%) rotate(-8deg); animation: oracle-crown-glow 1.8s ease-in-out infinite; }
+.oracle-staff { position: absolute; z-index: 3; right: 16px; bottom: 30px; font-size: 2.1rem; filter: drop-shadow(0 6px 7px rgb(0 0 0 / 24%)); transform: rotate(18deg); animation: oracle-staff-spark 2.1s ease-in-out infinite; }
 .oracle-bubble { position: absolute; border-radius: 50%; background: rgb(184 243 74 / 35%); animation: oracle-bubble 2s ease-in-out infinite; }
 .bubble-one { width: 15px; height: 15px; left: 20px; top: 35px; }
 .bubble-two { width: 10px; height: 10px; right: 28px; top: 24px; animation-delay: 0.45s; }
@@ -604,6 +606,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .oracle-header h2 { font-size: 1.55rem; }
   .oracle-orb { width: 132px; height: 132px; }
   .oracle-octopus { font-size: 4rem; }
+  .oracle-crown { top: 10px; font-size: 1.65rem; }
+  .oracle-staff { right: 12px; bottom: 25px; font-size: 1.75rem; }
   .oracle-matchup span { flex-direction: column; font-size: 0.78rem; text-align: center; }
   .oracle-matchup span:last-child { flex-direction: column-reverse; }
   .oracle-choices { gap: 7px; }
@@ -616,6 +620,16 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 @keyframes oracle-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes oracle-crown-glow {
+  0%, 100% { transform: translateX(-50%) translateY(0) rotate(-8deg) scale(1); }
+  50% { transform: translateX(-50%) translateY(-3px) rotate(7deg) scale(1.06); }
+}
+
+@keyframes oracle-staff-spark {
+  0%, 100% { opacity: 0.78; transform: rotate(18deg) translateY(0); }
+  50% { opacity: 1; transform: rotate(28deg) translateY(-4px); }
 }
 
 @keyframes oracle-bubble {

@@ -98,10 +98,11 @@ export function OraclePredictionModal({ match, onClose }: Props) {
         <div className="oracle-header">
           <div>
             <span className="eyebrow">ORÁCULO DO BOLASSO</span>
-            <h2 id="oracle-title">Palpite do polvo</h2>
+            <h2 id="oracle-title">Polvo Místico Superior</h2>
             <p>
-              Ele escolhe apenas vitória de um lado ou empate. O placar ainda
-              é por sua conta.
+              Ele consulta as marés das odds, mistura um pouco de caos e
+              escolhe apenas vitória de um lado ou empate. O placar ainda é
+              por sua conta.
             </p>
           </div>
           <button
@@ -119,6 +120,8 @@ export function OraclePredictionModal({ match, onClose }: Props) {
             <span className="oracle-bubble bubble-one" />
             <span className="oracle-bubble bubble-two" />
             <span className="oracle-bubble bubble-three" />
+            <span className="oracle-crown" aria-hidden="true">👑</span>
+            <span className="oracle-staff" aria-hidden="true">🪄</span>
             <span className="oracle-octopus" aria-hidden="true">🐙</span>
           </div>
 
@@ -137,7 +140,7 @@ export function OraclePredictionModal({ match, onClose }: Props) {
           {phase === 'consulting' && (
             <div className="oracle-thinking">
               <LoaderCircle className="spin" size={18} />
-              O polvo está escolhendo...
+              O polvo místico está lendo as odds...
             </div>
           )}
 
@@ -148,7 +151,7 @@ export function OraclePredictionModal({ match, onClose }: Props) {
           {phase === 'revealed' && oraclePrediction && (
             <div className="oracle-result">
               <Sparkles size={20} />
-              <span>O polvo escolheu</span>
+              <span>O Polvo Místico cravou</span>
               <strong>{selectedLabel}</strong>
             </div>
           )}
