@@ -18,6 +18,54 @@ type ProjectedTeam = StandingRow & {
   seed: number
 }
 
+type OfficialSlot = {
+  matchNumber: number
+  round: string
+  placeholderA: string
+  placeholderB: string
+}
+
+type BracketTeam = {
+  label: string
+  team?: ProjectedTeam
+  note?: string
+}
+
+const OFFICIAL_KNOCKOUT_SLOTS: OfficialSlot[] = [
+  { matchNumber: 73, round: '16 avos', placeholderA: '2A', placeholderB: '2B' },
+  { matchNumber: 74, round: '16 avos', placeholderA: '1E', placeholderB: '3ABCDF' },
+  { matchNumber: 75, round: '16 avos', placeholderA: '1F', placeholderB: '2C' },
+  { matchNumber: 76, round: '16 avos', placeholderA: '1C', placeholderB: '2F' },
+  { matchNumber: 77, round: '16 avos', placeholderA: '1I', placeholderB: '3CDFGH' },
+  { matchNumber: 78, round: '16 avos', placeholderA: '2E', placeholderB: '2I' },
+  { matchNumber: 79, round: '16 avos', placeholderA: '1A', placeholderB: '3CEFHI' },
+  { matchNumber: 80, round: '16 avos', placeholderA: '1L', placeholderB: '3EHIJK' },
+  { matchNumber: 81, round: '16 avos', placeholderA: '1D', placeholderB: '3BEFIJ' },
+  { matchNumber: 82, round: '16 avos', placeholderA: '1G', placeholderB: '3AEHIJ' },
+  { matchNumber: 83, round: '16 avos', placeholderA: '2K', placeholderB: '2L' },
+  { matchNumber: 84, round: '16 avos', placeholderA: '1H', placeholderB: '2J' },
+  { matchNumber: 85, round: '16 avos', placeholderA: '1B', placeholderB: '3EFGIJ' },
+  { matchNumber: 86, round: '16 avos', placeholderA: '1J', placeholderB: '2H' },
+  { matchNumber: 87, round: '16 avos', placeholderA: '1K', placeholderB: '3DEIJL' },
+  { matchNumber: 88, round: '16 avos', placeholderA: '2D', placeholderB: '2G' },
+  { matchNumber: 89, round: 'Oitavas', placeholderA: 'W74', placeholderB: 'W77' },
+  { matchNumber: 90, round: 'Oitavas', placeholderA: 'W73', placeholderB: 'W75' },
+  { matchNumber: 91, round: 'Oitavas', placeholderA: 'W76', placeholderB: 'W78' },
+  { matchNumber: 92, round: 'Oitavas', placeholderA: 'W79', placeholderB: 'W80' },
+  { matchNumber: 93, round: 'Oitavas', placeholderA: 'W83', placeholderB: 'W84' },
+  { matchNumber: 94, round: 'Oitavas', placeholderA: 'W81', placeholderB: 'W82' },
+  { matchNumber: 95, round: 'Oitavas', placeholderA: 'W86', placeholderB: 'W88' },
+  { matchNumber: 96, round: 'Oitavas', placeholderA: 'W85', placeholderB: 'W87' },
+  { matchNumber: 97, round: 'Quartas', placeholderA: 'W89', placeholderB: 'W90' },
+  { matchNumber: 98, round: 'Quartas', placeholderA: 'W93', placeholderB: 'W94' },
+  { matchNumber: 99, round: 'Quartas', placeholderA: 'W91', placeholderB: 'W92' },
+  { matchNumber: 100, round: 'Quartas', placeholderA: 'W95', placeholderB: 'W96' },
+  { matchNumber: 101, round: 'Semis', placeholderA: 'W97', placeholderB: 'W98' },
+  { matchNumber: 102, round: 'Semis', placeholderA: 'W99', placeholderB: 'W100' },
+  { matchNumber: 103, round: '3º lugar', placeholderA: 'RU101', placeholderB: 'RU102' },
+  { matchNumber: 104, round: 'Final', placeholderA: 'W101', placeholderB: 'W102' },
+]
+
 function compareProjectedTeams(a: ProjectedTeam, b: ProjectedTeam) {
   return (
     b.points - a.points ||
@@ -51,19 +99,100 @@ function projectedQualifiedTeams(groups: GroupStanding[]) {
     .map((team, index) => ({ ...team, seed: index + 1 }))
 }
 
-function pairRoundOf32(teams: ProjectedTeam[]) {
-  const pairings = []
-  for (let index = 0; index < teams.length / 2; index += 1) {
-    pairings.push({
-      home: teams[index],
-      away: teams[teams.length - 1 - index],
-    })
+function teamByGroupPosition(groups: GroupStanding[], groupLetter: string, position: number) {
+  const group = groups.find((candidate) => candidate.group === `Grupo ${groupLetter}`)
+  const row = group?.rows[position - 1]
+  if (!row) return undefined
+
+  return {
+    ...row,
+    group: `Grupo ${groupLetter}`,
+    groupPosition: position,
+    seed: 0,
   }
-  return pairings
 }
 
-function roundPlaceholders(roundSize: number) {
-  return Array.from({ length: roundSize }, (_, index) => `Vencedor ${index + 1}`)
+function officialThirdLabel(placeholder: string) {
+  return `3º ${placeholder.slice(1).split('').join('/')}`
+}
+
+function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: ProjectedTeam[]) {
+  const bestThirds = qualifiedTeams
+    .filter((team) => team.groupPosition === 3)
+    .sort(compareProjectedTeams)
+  const allocatedThirds = new Set<string>()
+
+  function resolvePlaceholder(placeholder: string): BracketTeam {
+    const directMatch = placeholder.match(/^([12])([A-L])$/)
+    if (directMatch) {
+      const team = teamByGroupPosition(
+        groups,
+        directMatch[2],
+        Number(directMatch[1]),
+      )
+
+      return {
+        label: team ? team.team : placeholder,
+        team,
+        note: placeholder,
+      }
+    }
+
+    const thirdMatch = placeholder.match(/^3([A-L]+)$/)
+    if (thirdMatch) {
+      const allowedGroups = new Set(
+        thirdMatch[1].split('').map((letter) => `Grupo ${letter}`),
+      )
+      const team = bestThirds.find(
+        (candidate) =>
+          allowedGroups.has(candidate.group) && !allocatedThirds.has(candidate.team),
+      )
+
+      if (team) {
+        allocatedThirds.add(team.team)
+        return {
+          label: team.team,
+          team,
+          note: officialThirdLabel(placeholder),
+        }
+      }
+
+      return {
+        label: officialThirdLabel(placeholder),
+        note: 'Slot oficial FIFA',
+      }
+    }
+
+    if (placeholder.startsWith('W')) {
+      return {
+        label: `Vencedor Jogo ${placeholder.slice(1)}`,
+        note: placeholder,
+      }
+    }
+
+    if (placeholder.startsWith('RU')) {
+      return {
+        label: `Perdedor Jogo ${placeholder.slice(2)}`,
+        note: placeholder,
+      }
+    }
+
+    return { label: placeholder }
+  }
+
+  return OFFICIAL_KNOCKOUT_SLOTS.map((slot) => ({
+    ...slot,
+    home: resolvePlaceholder(slot.placeholderA),
+    away: resolvePlaceholder(slot.placeholderB),
+  }))
+}
+
+function groupedOfficialSlots(groups: GroupStanding[], qualifiedTeams: ProjectedTeam[]) {
+  const slots = resolveOfficialSlots(groups, qualifiedTeams)
+  return [...new Set(slots.map((slot) => slot.round))].map((round) => ({
+    round,
+    matches: slots.filter((slot) => slot.round === round),
+  }))
 }
 
 export function GroupStandings({ matches }: Props) {
@@ -79,13 +208,10 @@ export function GroupStandings({ matches }: Props) {
       ),
     [qualifiedTeams],
   )
-  const roundOf32 = useMemo(() => pairRoundOf32(qualifiedTeams), [qualifiedTeams])
-  const placeholderRounds = [
-    { title: 'Oitavas', teams: roundPlaceholders(8) },
-    { title: 'Quartas', teams: roundPlaceholders(4) },
-    { title: 'Semis', teams: roundPlaceholders(2) },
-    { title: 'Final', teams: roundPlaceholders(1) },
-  ]
+  const knockoutRounds = useMemo(
+    () => groupedOfficialSlots(groups, qualifiedTeams),
+    [groups, qualifiedTeams],
+  )
 
   return (
     <section className="standings-page">
@@ -102,9 +228,10 @@ export function GroupStandings({ matches }: Props) {
         <GitBranch size={18} />
         <p>
           O mata-mata abaixo é uma projeção baseada na classificação atual:
-          2 primeiros de cada grupo + 8 melhores terceiros. A ordem dos
-          confrontos é uma simulação por seed atual, não a chave oficial final
-          da FIFA.
+          2 primeiros de cada grupo + 8 melhores terceiros. Os slots e o
+          caminho dos vencedores seguem a tabela oficial da FIFA; os terceiros
+          colocados são encaixados provisoriamente entre os grupos permitidos
+          para cada confronto.
         </p>
       </div>
 
@@ -118,34 +245,37 @@ export function GroupStandings({ matches }: Props) {
         </div>
 
         <div className="knockout-bracket">
-          <div className="knockout-round">
-            <h3>16 avos</h3>
-            <div className="knockout-games">
-              {roundOf32.map(({ home, away }) => (
-                <article className="knockout-game" key={`${home.team}-${away.team}`}>
-                  <span>
-                    <small>#{home.seed}</small>
-                    <TeamFlag fallback={home.flag} team={home.team} />
-                    <strong>{home.team}</strong>
-                  </span>
-                  <span>
-                    <small>#{away.seed}</small>
-                    <TeamFlag fallback={away.flag} team={away.team} />
-                    <strong>{away.team}</strong>
-                  </span>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          {placeholderRounds.map((round) => (
-            <div className="knockout-round muted-round" key={round.title}>
-              <h3>{round.title}</h3>
+          {knockoutRounds.map(({ round, matches }) => (
+            <div
+              className={`knockout-round ${round !== '16 avos' ? 'muted-round' : ''}`}
+              key={round}
+            >
+              <h3>{round}</h3>
               <div className="knockout-games">
-                {round.teams.map((team) => (
-                  <article className="knockout-game placeholder-game" key={team}>
-                    <span>{team}</span>
-                    <span>A definir</span>
+                {matches.map((match) => (
+                  <article
+                    className={`knockout-game ${
+                      round !== '16 avos' ? 'placeholder-game' : ''
+                    }`}
+                    key={match.matchNumber}
+                  >
+                    <small className="knockout-match-number">Jogo {match.matchNumber}</small>
+                    {[match.home, match.away].map((side) => (
+                      <span key={`${match.matchNumber}-${side.label}`}>
+                        {side.team ? (
+                          <>
+                            <small>{side.note}</small>
+                            <TeamFlag fallback={side.team.flag} team={side.team.team} />
+                            <strong>{side.team.team}</strong>
+                          </>
+                        ) : (
+                          <>
+                            <small>{side.note}</small>
+                            <strong>{side.label}</strong>
+                          </>
+                        )}
+                      </span>
+                    ))}
                   </article>
                 ))}
               </div>
