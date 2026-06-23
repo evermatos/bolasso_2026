@@ -387,7 +387,7 @@ export default function App() {
             Ranking
           </button>
           <button className={tab === 'standings' ? 'active' : ''} onClick={() => navigateToTab('standings')}>
-            Tabela
+            Copa
           </button>
           {isAdmin && (
             <button className={tab === 'admin' ? 'active' : ''} onClick={() => navigateToTab('admin')}>
@@ -579,7 +579,7 @@ export default function App() {
           <BarChart3 size={21} /><span>Ranking</span>
         </button>
         <button className={tab === 'standings' ? 'active' : ''} onClick={() => navigateToTab('standings')}>
-          <Table2 size={21} /><span>Tabela</span>
+          <Table2 size={21} /><span>Copa</span>
         </button>
         {isAdmin && (
           <button className={tab === 'admin' ? 'active' : ''} onClick={() => navigateToTab('admin')}>

@@ -1,6 +1,10 @@
-import { Info, Table2 } from 'lucide-react'
+import { GitBranch, Info, Table2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { calculateGroupStandings } from '../lib/groupStandings'
+import {
+  calculateGroupStandings,
+  type GroupStanding,
+  type StandingRow,
+} from '../lib/groupStandings'
 import type { Match } from '../types'
 import { TeamFlag } from './TeamFlag'
 
@@ -8,20 +12,147 @@ type Props = {
   matches: Match[]
 }
 
+type ProjectedTeam = StandingRow & {
+  group: string
+  groupPosition: number
+  seed: number
+}
+
+function compareProjectedTeams(a: ProjectedTeam, b: ProjectedTeam) {
+  return (
+    b.points - a.points ||
+    b.goalDifference - a.goalDifference ||
+    b.goalsFor - a.goalsFor ||
+    a.groupPosition - b.groupPosition ||
+    a.team.localeCompare(b.team, 'pt-BR')
+  )
+}
+
+function projectedQualifiedTeams(groups: GroupStanding[]) {
+  const directQualified = groups.flatMap(({ group, rows }) =>
+    rows.slice(0, 2).map((row, index) => ({
+      ...row,
+      group,
+      groupPosition: index + 1,
+      seed: 0,
+    })),
+  )
+
+  const bestThirds = groups
+    .flatMap(({ group, rows }) => {
+      const row = rows[2]
+      return row ? [{ ...row, group, groupPosition: 3, seed: 0 }] : []
+    })
+    .sort(compareProjectedTeams)
+    .slice(0, 8)
+
+  return [...directQualified, ...bestThirds]
+    .sort(compareProjectedTeams)
+    .map((team, index) => ({ ...team, seed: index + 1 }))
+}
+
+function pairRoundOf32(teams: ProjectedTeam[]) {
+  const pairings = []
+  for (let index = 0; index < teams.length / 2; index += 1) {
+    pairings.push({
+      home: teams[index],
+      away: teams[teams.length - 1 - index],
+    })
+  }
+  return pairings
+}
+
+function roundPlaceholders(roundSize: number) {
+  return Array.from({ length: roundSize }, (_, index) => `Vencedor ${index + 1}`)
+}
+
 export function GroupStandings({ matches }: Props) {
   const groups = useMemo(() => calculateGroupStandings(matches), [matches])
   const [selectedGroup, setSelectedGroup] = useState('Grupo A')
+  const qualifiedTeams = useMemo(() => projectedQualifiedTeams(groups), [groups])
+  const bestThirdTeamNames = useMemo(
+    () =>
+      new Set(
+        qualifiedTeams
+          .filter((team) => team.groupPosition === 3)
+          .map((team) => team.team),
+      ),
+    [qualifiedTeams],
+  )
+  const roundOf32 = useMemo(() => pairRoundOf32(qualifiedTeams), [qualifiedTeams])
+  const placeholderRounds = [
+    { title: 'Oitavas', teams: roundPlaceholders(8) },
+    { title: 'Quartas', teams: roundPlaceholders(4) },
+    { title: 'Semis', teams: roundPlaceholders(2) },
+    { title: 'Final', teams: roundPlaceholders(1) },
+  ]
 
   return (
     <section className="standings-page">
       <div className="standings-header">
         <div>
           <span className="eyebrow">COPA DO MUNDO 2026</span>
-          <h1>Tabela dos grupos</h1>
-          <p>Classificação recalculada a cada resultado publicado.</p>
+          <h1>Classificação e mata-mata</h1>
+          <p>Grupos e projeção de chave recalculados a cada resultado publicado.</p>
         </div>
         <Table2 size={34} />
       </div>
+
+      <div className="standings-note knockout-note">
+        <GitBranch size={18} />
+        <p>
+          O mata-mata abaixo é uma projeção baseada na classificação atual:
+          2 primeiros de cada grupo + 8 melhores terceiros. A ordem dos
+          confrontos é uma simulação por seed atual, não a chave oficial final
+          da FIFA.
+        </p>
+      </div>
+
+      <section className="knockout-card" aria-labelledby="knockout-title">
+        <div className="group-table-title">
+          <div>
+            <span className="eyebrow">SE ACABASSE AGORA</span>
+            <h2 id="knockout-title">Mata-mata projetado</h2>
+          </div>
+          <span>Terceiros classificados entram apenas se estiverem no top 8</span>
+        </div>
+
+        <div className="knockout-bracket">
+          <div className="knockout-round">
+            <h3>16 avos</h3>
+            <div className="knockout-games">
+              {roundOf32.map(({ home, away }) => (
+                <article className="knockout-game" key={`${home.team}-${away.team}`}>
+                  <span>
+                    <small>#{home.seed}</small>
+                    <TeamFlag fallback={home.flag} team={home.team} />
+                    <strong>{home.team}</strong>
+                  </span>
+                  <span>
+                    <small>#{away.seed}</small>
+                    <TeamFlag fallback={away.flag} team={away.team} />
+                    <strong>{away.team}</strong>
+                  </span>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {placeholderRounds.map((round) => (
+            <div className="knockout-round muted-round" key={round.title}>
+              <h3>{round.title}</h3>
+              <div className="knockout-games">
+                {round.teams.map((team) => (
+                  <article className="knockout-game placeholder-game" key={team}>
+                    <span>{team}</span>
+                    <span>A definir</span>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="group-selector">
         <div className="group-selector-heading">
@@ -54,7 +185,7 @@ export function GroupStandings({ matches }: Props) {
                 <span className="eyebrow">CLASSIFICAÇÃO</span>
                 <h2>{group}</h2>
               </div>
-              <span>2 primeiros avançam · 8 melhores terceiros também</span>
+              <span>2 primeiros avançam · amarelo = terceiro no top 8 atual</span>
             </div>
 
             <div className="standings-table-wrap">
@@ -77,7 +208,9 @@ export function GroupStandings({ matches }: Props) {
                   {rows.map((row, index) => (
                     <tr
                       className={`${index < 2 ? 'qualified' : ''} ${
-                        index === 2 ? 'third-place' : ''
+                        index === 2 && bestThirdTeamNames.has(row.team)
+                          ? 'third-place'
+                          : ''
                       }`}
                       key={row.team}
                     >
@@ -111,7 +244,9 @@ export function GroupStandings({ matches }: Props) {
               {rows.map((row, index) => (
                 <article
                   className={`${index < 2 ? 'qualified' : ''} ${
-                    index === 2 ? 'third-place' : ''
+                    index === 2 && bestThirdTeamNames.has(row.team)
+                      ? 'third-place'
+                      : ''
                   }`}
                   key={row.team}
                 >

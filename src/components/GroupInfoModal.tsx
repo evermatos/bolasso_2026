@@ -31,6 +31,23 @@ export function GroupInfoModal({ match, matches, onClose }: Props) {
       ),
     [groupMatches, match.stage],
   )
+  const bestThirdTeamNames = useMemo(() => {
+    const thirdPlaces = calculateGroupStandings(matches)
+      .flatMap(({ rows }) => {
+        const row = rows[2]
+        return row ? [row] : []
+      })
+      .sort(
+        (a, b) =>
+          b.points - a.points ||
+          b.goalDifference - a.goalDifference ||
+          b.goalsFor - a.goalsFor ||
+          a.team.localeCompare(b.team, 'pt-BR'),
+      )
+      .slice(0, 8)
+
+    return new Set(thirdPlaces.map((row) => row.team))
+  }, [matches])
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
@@ -80,7 +97,9 @@ export function GroupInfoModal({ match, matches, onClose }: Props) {
               {groupStanding.rows.map((row, index) => (
                 <div
                   className={`${index < 2 ? 'qualified' : ''} ${
-                    index === 2 ? 'third-place' : ''
+                    index === 2 && bestThirdTeamNames.has(row.team)
+                      ? 'third-place'
+                      : ''
                   }`}
                   key={row.team}
                 >
