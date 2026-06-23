@@ -31,6 +31,13 @@ type BracketTeam = {
   note?: string
 }
 
+type ResolvedOfficialSlot = OfficialSlot & {
+  home: BracketTeam
+  away: BracketTeam
+}
+
+type CupView = 'table' | 'knockout'
+
 const OFFICIAL_KNOCKOUT_SLOTS: OfficialSlot[] = [
   { matchNumber: 73, round: '16 avos', placeholderA: '2A', placeholderB: '2B' },
   { matchNumber: 74, round: '16 avos', placeholderA: '1E', placeholderB: '3ABCDF' },
@@ -116,13 +123,71 @@ function officialThirdLabel(placeholder: string) {
   return `3º ${placeholder.slice(1).split('').join('/')}`
 }
 
+function thirdPlaceholderKey(matchNumber: number, placeholder: string) {
+  return `${matchNumber}:${placeholder}`
+}
+
+function allowedThirdGroups(placeholder: string) {
+  const match = placeholder.match(/^3([A-L]+)$/)
+  if (!match) return null
+
+  return new Set(match[1].split('').map((letter) => `Grupo ${letter}`))
+}
+
+function allocateThirdsToOfficialSlots(bestThirds: ProjectedTeam[]) {
+  const thirdSlots = OFFICIAL_KNOCKOUT_SLOTS
+    .filter(
+      (slot) =>
+        slot.round === '16 avos' &&
+        (slot.placeholderA.startsWith('3') || slot.placeholderB.startsWith('3')),
+    )
+    .map((slot) => {
+      const placeholder = slot.placeholderA.startsWith('3')
+        ? slot.placeholderA
+        : slot.placeholderB
+      const allowedGroups = allowedThirdGroups(placeholder) ?? new Set<string>()
+      const candidates = bestThirds.filter((team) => allowedGroups.has(team.group))
+
+      return {
+        key: thirdPlaceholderKey(slot.matchNumber, placeholder),
+        candidates,
+      }
+    })
+    .sort((a, b) => a.candidates.length - b.candidates.length)
+
+  function solve(
+    slotIndex: number,
+    usedTeams: Set<string>,
+    allocation: Map<string, ProjectedTeam>,
+  ): Map<string, ProjectedTeam> | null {
+    if (slotIndex === thirdSlots.length) return allocation
+
+    const slot = thirdSlots[slotIndex]
+    for (const candidate of slot.candidates) {
+      if (usedTeams.has(candidate.team)) continue
+
+      const nextUsedTeams = new Set(usedTeams)
+      const nextAllocation = new Map(allocation)
+      nextUsedTeams.add(candidate.team)
+      nextAllocation.set(slot.key, candidate)
+
+      const solved = solve(slotIndex + 1, nextUsedTeams, nextAllocation)
+      if (solved) return solved
+    }
+
+    return null
+  }
+
+  return solve(0, new Set(), new Map()) ?? new Map<string, ProjectedTeam>()
+}
+
 function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: ProjectedTeam[]) {
   const bestThirds = qualifiedTeams
     .filter((team) => team.groupPosition === 3)
     .sort(compareProjectedTeams)
-  const allocatedThirds = new Set<string>()
+  const thirdAllocation = allocateThirdsToOfficialSlots(bestThirds)
 
-  function resolvePlaceholder(placeholder: string): BracketTeam {
+  function resolvePlaceholder(matchNumber: number, placeholder: string): BracketTeam {
     const directMatch = placeholder.match(/^([12])([A-L])$/)
     if (directMatch) {
       const team = teamByGroupPosition(
@@ -140,16 +205,9 @@ function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: Projected
 
     const thirdMatch = placeholder.match(/^3([A-L]+)$/)
     if (thirdMatch) {
-      const allowedGroups = new Set(
-        thirdMatch[1].split('').map((letter) => `Grupo ${letter}`),
-      )
-      const team = bestThirds.find(
-        (candidate) =>
-          allowedGroups.has(candidate.group) && !allocatedThirds.has(candidate.team),
-      )
+      const team = thirdAllocation.get(thirdPlaceholderKey(matchNumber, placeholder))
 
       if (team) {
-        allocatedThirds.add(team.team)
         return {
           label: team.team,
           team,
@@ -182,22 +240,63 @@ function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: Projected
 
   return OFFICIAL_KNOCKOUT_SLOTS.map((slot) => ({
     ...slot,
-    home: resolvePlaceholder(slot.placeholderA),
-    away: resolvePlaceholder(slot.placeholderB),
+    home: resolvePlaceholder(slot.matchNumber, slot.placeholderA),
+    away: resolvePlaceholder(slot.matchNumber, slot.placeholderB),
   }))
 }
 
-function groupedOfficialSlots(groups: GroupStanding[], qualifiedTeams: ProjectedTeam[]) {
-  const slots = resolveOfficialSlots(groups, qualifiedTeams)
-  return [...new Set(slots.map((slot) => slot.round))].map((round) => ({
-    round,
-    matches: slots.filter((slot) => slot.round === round),
-  }))
+function matchesByNumber(slots: ResolvedOfficialSlot[], numbers: number[]) {
+  return numbers
+    .map((number) => slots.find((slot) => slot.matchNumber === number))
+    .filter((slot): slot is ResolvedOfficialSlot => Boolean(slot))
+}
+
+function BracketColumn({
+  matches,
+  title,
+}: {
+  matches: ResolvedOfficialSlot[]
+  title: string
+}) {
+  return (
+    <div className="knockout-round">
+      <h3>{title}</h3>
+      <div className="knockout-games">
+        {matches.map((match) => (
+          <article
+            className={`knockout-game ${
+              match.round !== '16 avos' ? 'placeholder-game' : ''
+            }`}
+            key={match.matchNumber}
+          >
+            <small className="knockout-match-number">Jogo {match.matchNumber}</small>
+            {[match.home, match.away].map((side) => (
+              <span key={`${match.matchNumber}-${side.label}`}>
+                {side.team ? (
+                  <>
+                    <small>{side.note}</small>
+                    <TeamFlag fallback={side.team.flag} team={side.team.team} />
+                    <strong>{side.team.team}</strong>
+                  </>
+                ) : (
+                  <>
+                    <small>{side.note}</small>
+                    <strong>{side.label}</strong>
+                  </>
+                )}
+              </span>
+            ))}
+          </article>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export function GroupStandings({ matches }: Props) {
   const groups = useMemo(() => calculateGroupStandings(matches), [matches])
   const [selectedGroup, setSelectedGroup] = useState('Grupo A')
+  const [cupView, setCupView] = useState<CupView>('table')
   const qualifiedTeams = useMemo(() => projectedQualifiedTeams(groups), [groups])
   const bestThirdTeamNames = useMemo(
     () =>
@@ -208,10 +307,20 @@ export function GroupStandings({ matches }: Props) {
       ),
     [qualifiedTeams],
   )
-  const knockoutRounds = useMemo(
-    () => groupedOfficialSlots(groups, qualifiedTeams),
+  const officialSlots = useMemo(
+    () => resolveOfficialSlots(groups, qualifiedTeams),
     [groups, qualifiedTeams],
   )
+  const leftRoundOf32 = matchesByNumber(officialSlots, [73, 74, 75, 76, 77, 78, 79, 80])
+  const rightRoundOf32 = matchesByNumber(officialSlots, [81, 82, 83, 84, 85, 86, 87, 88])
+  const leftRoundOf16 = matchesByNumber(officialSlots, [89, 90, 91, 92])
+  const rightRoundOf16 = matchesByNumber(officialSlots, [93, 94, 95, 96])
+  const leftQuarters = matchesByNumber(officialSlots, [97, 99])
+  const rightQuarters = matchesByNumber(officialSlots, [98, 100])
+  const leftSemis = matchesByNumber(officialSlots, [101])
+  const rightSemis = matchesByNumber(officialSlots, [102])
+  const finalMatches = matchesByNumber(officialSlots, [104])
+  const thirdPlaceMatches = matchesByNumber(officialSlots, [103])
 
   return (
     <section className="standings-page">
@@ -224,119 +333,164 @@ export function GroupStandings({ matches }: Props) {
         <Table2 size={34} />
       </div>
 
-      <div className="standings-note knockout-note">
-        <GitBranch size={18} />
-        <p>
-          O mata-mata abaixo é uma projeção baseada na classificação atual:
-          2 primeiros de cada grupo + 8 melhores terceiros. Os slots e o
-          caminho dos vencedores seguem a tabela oficial da FIFA; os terceiros
-          colocados são encaixados provisoriamente entre os grupos permitidos
-          para cada confronto.
-        </p>
+      <div className="cup-view-tabs" role="tablist" aria-label="Visualização da Copa">
+        <button
+          aria-selected={cupView === 'table'}
+          className={cupView === 'table' ? 'active' : ''}
+          onClick={() => setCupView('table')}
+          role="tab"
+          type="button"
+        >
+          Tabela
+        </button>
+        <button
+          aria-selected={cupView === 'knockout'}
+          className={cupView === 'knockout' ? 'active' : ''}
+          onClick={() => setCupView('knockout')}
+          role="tab"
+          type="button"
+        >
+          Mata-mata
+        </button>
       </div>
 
-      <section className="knockout-card" aria-labelledby="knockout-title">
-        <div className="group-table-title">
-          <div>
-            <span className="eyebrow">SE ACABASSE AGORA</span>
-            <h2 id="knockout-title">Mata-mata projetado</h2>
+      {cupView === 'knockout' && (
+        <>
+          <div className="standings-note knockout-note">
+            <GitBranch size={18} />
+            <p>
+              O mata-mata abaixo é uma projeção baseada na classificação atual:
+              2 primeiros de cada grupo + 8 melhores terceiros. Os slots e o
+              caminho dos vencedores seguem a tabela oficial da FIFA; os
+              terceiros colocados são encaixados provisoriamente entre os
+              grupos permitidos para cada confronto.
+            </p>
           </div>
-          <span>Terceiros classificados entram apenas se estiverem no top 8</span>
-        </div>
 
-        <div className="knockout-bracket">
-          {knockoutRounds.map(({ round, matches }) => (
-            <div
-              className={`knockout-round ${round !== '16 avos' ? 'muted-round' : ''}`}
-              key={round}
-            >
-              <h3>{round}</h3>
-              <div className="knockout-games">
-                {matches.map((match) => (
-                  <article
-                    className={`knockout-game ${
-                      round !== '16 avos' ? 'placeholder-game' : ''
-                    }`}
-                    key={match.matchNumber}
-                  >
-                    <small className="knockout-match-number">Jogo {match.matchNumber}</small>
-                    {[match.home, match.away].map((side) => (
-                      <span key={`${match.matchNumber}-${side.label}`}>
-                        {side.team ? (
-                          <>
-                            <small>{side.note}</small>
-                            <TeamFlag fallback={side.team.flag} team={side.team.team} />
-                            <strong>{side.team.team}</strong>
-                          </>
-                        ) : (
-                          <>
-                            <small>{side.note}</small>
-                            <strong>{side.label}</strong>
-                          </>
-                        )}
-                      </span>
-                    ))}
-                  </article>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="group-selector">
-        <div className="group-selector-heading">
-          <strong>Escolha o grupo</strong>
-          <span>{selectedGroup}</span>
-        </div>
-        <div className="group-tabs" role="tablist" aria-label="Grupos da Copa">
-          {groups.map(({ group }) => (
-            <button
-              aria-label={group}
-              aria-selected={selectedGroup === group}
-              className={selectedGroup === group ? 'active' : ''}
-              key={group}
-              onClick={() => setSelectedGroup(group)}
-              role="tab"
-              type="button"
-            >
-              {group.replace('Grupo ', '')}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {groups
-        .filter(({ group }) => group === selectedGroup)
-        .map(({ group, rows }) => (
-          <div className="group-table-card" key={group}>
+          <section className="knockout-card" aria-labelledby="knockout-title">
             <div className="group-table-title">
               <div>
-                <span className="eyebrow">CLASSIFICAÇÃO</span>
-                <h2>{group}</h2>
+                <span className="eyebrow">SE ACABASSE AGORA</span>
+                <h2 id="knockout-title">Mata-mata oficial projetado</h2>
               </div>
-              <span>2 primeiros avançam · amarelo = terceiro no top 8 atual</span>
+              <span>Final no centro · 16 avos divididos em esquerda e direita</span>
             </div>
 
-            <div className="standings-table-wrap">
-              <table className="standings-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Seleção</th>
-                    <th>Pts</th>
-                    <th>J</th>
-                    <th>V</th>
-                    <th>E</th>
-                    <th>D</th>
-                    <th>SG</th>
-                    <th>GP</th>
-                    <th>GC</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="knockout-bracket">
+              <div className="knockout-side left-side">
+                <BracketColumn matches={leftRoundOf32} title="16 avos" />
+                <BracketColumn matches={leftRoundOf16} title="Oitavas" />
+                <BracketColumn matches={leftQuarters} title="Quartas" />
+                <BracketColumn matches={leftSemis} title="Semi" />
+              </div>
+
+              <div className="knockout-center">
+                <BracketColumn matches={finalMatches} title="Final" />
+                <BracketColumn matches={thirdPlaceMatches} title="3º lugar" />
+              </div>
+
+              <div className="knockout-side right-side">
+                <BracketColumn matches={rightSemis} title="Semi" />
+                <BracketColumn matches={rightQuarters} title="Quartas" />
+                <BracketColumn matches={rightRoundOf16} title="Oitavas" />
+                <BracketColumn matches={rightRoundOf32} title="16 avos" />
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      {cupView === 'table' && (
+        <>
+          <div className="group-selector">
+            <div className="group-selector-heading">
+              <strong>Escolha o grupo</strong>
+              <span>{selectedGroup}</span>
+            </div>
+            <div className="group-tabs" role="tablist" aria-label="Grupos da Copa">
+              {groups.map(({ group }) => (
+                <button
+                  aria-label={group}
+                  aria-selected={selectedGroup === group}
+                  className={selectedGroup === group ? 'active' : ''}
+                  key={group}
+                  onClick={() => setSelectedGroup(group)}
+                  role="tab"
+                  type="button"
+                >
+                  {group.replace('Grupo ', '')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {groups
+            .filter(({ group }) => group === selectedGroup)
+            .map(({ group, rows }) => (
+              <div className="group-table-card" key={group}>
+                <div className="group-table-title">
+                  <div>
+                    <span className="eyebrow">CLASSIFICAÇÃO</span>
+                    <h2>{group}</h2>
+                  </div>
+                  <span>2 primeiros avançam · amarelo = terceiro no top 8 atual</span>
+                </div>
+
+                <div className="standings-table-wrap">
+                  <table className="standings-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Seleção</th>
+                        <th>Pts</th>
+                        <th>J</th>
+                        <th>V</th>
+                        <th>E</th>
+                        <th>D</th>
+                        <th>SG</th>
+                        <th>GP</th>
+                        <th>GC</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row, index) => (
+                        <tr
+                          className={`${index < 2 ? 'qualified' : ''} ${
+                            index === 2 && bestThirdTeamNames.has(row.team)
+                              ? 'third-place'
+                              : ''
+                          }`}
+                          key={row.team}
+                        >
+                          <td className="standing-position">
+                            {index + 1}
+                            {row.unresolvedTie && (
+                              <span title="Posição provisória: ainda depende de fair play ou ranking FIFA">
+                                *
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            <TeamFlag fallback={row.flag} team={row.team} />
+                            <strong>{row.team}</strong>
+                          </td>
+                          <td className="standing-points"><strong>{row.points}</strong></td>
+                          <td>{row.played}</td>
+                          <td>{row.won}</td>
+                          <td>{row.drawn}</td>
+                          <td>{row.lost}</td>
+                          <td>{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}</td>
+                          <td>{row.goalsFor}</td>
+                          <td>{row.goalsAgainst}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mobile-standings-list">
                   {rows.map((row, index) => (
-                    <tr
+                    <article
                       className={`${index < 2 ? 'qualified' : ''} ${
                         index === 2 && bestThirdTeamNames.has(row.team)
                           ? 'third-place'
@@ -344,104 +498,70 @@ export function GroupStandings({ matches }: Props) {
                       }`}
                       key={row.team}
                     >
-                      <td className="standing-position">
-                        {index + 1}
-                        {row.unresolvedTie && (
-                          <span title="Posição provisória: ainda depende de fair play ou ranking FIFA">
-                            *
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <TeamFlag fallback={row.flag} team={row.team} />
-                        <strong>{row.team}</strong>
-                      </td>
-                      <td className="standing-points"><strong>{row.points}</strong></td>
-                      <td>{row.played}</td>
-                      <td>{row.won}</td>
-                      <td>{row.drawn}</td>
-                      <td>{row.lost}</td>
-                      <td>{row.goalDifference > 0 ? '+' : ''}{row.goalDifference}</td>
-                      <td>{row.goalsFor}</td>
-                      <td>{row.goalsAgainst}</td>
-                    </tr>
+                      <div className="mobile-standing-main">
+                        <span className="standing-position">
+                          {index + 1}
+                          {row.unresolvedTie && (
+                            <span title="Posição provisória">*</span>
+                          )}
+                        </span>
+                        <span className="mobile-standing-team">
+                          <TeamFlag fallback={row.flag} team={row.team} />
+                          <strong>{row.team}</strong>
+                        </span>
+                        <span className="mobile-standing-points">
+                          <strong>{row.points}</strong>
+                          <small>Pts</small>
+                        </span>
+                      </div>
+                      <div className="mobile-standing-stats">
+                        <span><small>J</small><strong>{row.played}</strong></span>
+                        <span><small>V</small><strong>{row.won}</strong></span>
+                        <span><small>E</small><strong>{row.drawn}</strong></span>
+                        <span><small>D</small><strong>{row.lost}</strong></span>
+                        <span>
+                          <small>SG</small>
+                          <strong>
+                            {row.goalDifference > 0 ? '+' : ''}{row.goalDifference}
+                          </strong>
+                        </span>
+                        <span><small>GP</small><strong>{row.goalsFor}</strong></span>
+                        <span><small>GC</small><strong>{row.goalsAgainst}</strong></span>
+                      </div>
+                    </article>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            ))}
 
-            <div className="mobile-standings-list">
-              {rows.map((row, index) => (
-                <article
-                  className={`${index < 2 ? 'qualified' : ''} ${
-                    index === 2 && bestThirdTeamNames.has(row.team)
-                      ? 'third-place'
-                      : ''
-                  }`}
-                  key={row.team}
-                >
-                  <div className="mobile-standing-main">
-                    <span className="standing-position">
-                      {index + 1}
-                      {row.unresolvedTie && (
-                        <span title="Posição provisória">*</span>
-                      )}
-                    </span>
-                    <span className="mobile-standing-team">
-                      <TeamFlag fallback={row.flag} team={row.team} />
-                      <strong>{row.team}</strong>
-                    </span>
-                    <span className="mobile-standing-points">
-                      <strong>{row.points}</strong>
-                      <small>Pts</small>
-                    </span>
-                  </div>
-                  <div className="mobile-standing-stats">
-                    <span><small>J</small><strong>{row.played}</strong></span>
-                    <span><small>V</small><strong>{row.won}</strong></span>
-                    <span><small>E</small><strong>{row.drawn}</strong></span>
-                    <span><small>D</small><strong>{row.lost}</strong></span>
-                    <span>
-                      <small>SG</small>
-                      <strong>
-                        {row.goalDifference > 0 ? '+' : ''}{row.goalDifference}
-                      </strong>
-                    </span>
-                    <span><small>GP</small><strong>{row.goalsFor}</strong></span>
-                    <span><small>GC</small><strong>{row.goalsAgainst}</strong></span>
-                  </div>
-                </article>
-              ))}
+          <section className="standings-legend" aria-labelledby="standings-legend-title">
+            <div>
+              <span className="eyebrow">COMO LER</span>
+              <h2 id="standings-legend-title">Legenda da tabela</h2>
             </div>
+            <dl>
+              <div><dt>Pts</dt><dd>Pontos</dd></div>
+              <div><dt>J</dt><dd>Jogos</dd></div>
+              <div><dt>V</dt><dd>Vitórias</dd></div>
+              <div><dt>E</dt><dd>Empates</dd></div>
+              <div><dt>D</dt><dd>Derrotas</dd></div>
+              <div><dt>SG</dt><dd>Saldo de gols</dd></div>
+              <div><dt>GP</dt><dd>Gols marcados</dd></div>
+              <div><dt>GC</dt><dd>Gols sofridos</dd></div>
+            </dl>
+          </section>
+
+          <div className="standings-note">
+            <Info size={18} />
+            <p>
+              Em igualdade de pontos, o Bolasso aplica confrontos diretos,
+              saldo e gols nos confrontos diretos, reaplicação entre os ainda
+              empatados, saldo geral e gols gerais. O asterisco indica que a
+              posição ainda dependeria de fair play ou do ranking FIFA oficial.
+            </p>
           </div>
-        ))}
-
-      <section className="standings-legend" aria-labelledby="standings-legend-title">
-        <div>
-          <span className="eyebrow">COMO LER</span>
-          <h2 id="standings-legend-title">Legenda da tabela</h2>
-        </div>
-        <dl>
-          <div><dt>Pts</dt><dd>Pontos</dd></div>
-          <div><dt>J</dt><dd>Jogos</dd></div>
-          <div><dt>V</dt><dd>Vitórias</dd></div>
-          <div><dt>E</dt><dd>Empates</dd></div>
-          <div><dt>D</dt><dd>Derrotas</dd></div>
-          <div><dt>SG</dt><dd>Saldo de gols</dd></div>
-          <div><dt>GP</dt><dd>Gols marcados</dd></div>
-          <div><dt>GC</dt><dd>Gols sofridos</dd></div>
-        </dl>
-      </section>
-
-      <div className="standings-note">
-        <Info size={18} />
-        <p>
-          Em igualdade de pontos, o Bolasso aplica confrontos diretos, saldo e
-          gols nos confrontos diretos, reaplicação entre os ainda empatados,
-          saldo geral e gols gerais. O asterisco indica que a posição ainda
-          dependeria de fair play ou do ranking FIFA oficial.
-        </p>
-      </div>
+        </>
+      )}
     </section>
   )
 }
