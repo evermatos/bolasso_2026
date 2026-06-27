@@ -70,7 +70,7 @@ export default function App() {
           .select('id, display_name, avatar_key, is_admin')
           .eq('id', userId)
           .single(),
-        supabase.from('matches').select('*').order('kickoff_at'),
+        supabase.from('matches').select('*').order('match_number'),
         supabase
           .from('predictions')
           .select('match_id, home_score, away_score, points')

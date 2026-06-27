@@ -366,7 +366,7 @@ as $$
   join public.predictions pr on pr.match_id = m.id
   where pr.user_id = target_user_id
     and m.kickoff_at - interval '5 minutes' <= now()
-  order by m.kickoff_at desc;
+  order by m.match_number asc;
 $$;
 
 create or replace function public.protect_prediction()
