@@ -238,6 +238,16 @@ function formatKnockoutDate(kickoffAt?: string) {
   }).format(new Date(kickoffAt))
 }
 
+function formatMatchDate(kickoffAt: string) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Dubai',
+  }).format(new Date(kickoffAt))
+}
+
 function sideFullName(side: BracketTeam) {
   if (side.confirmed && side.team) return side.team.team
   if (side.placeholder.startsWith('W')) return `Vencedor do jogo ${side.placeholder.slice(1)}`
@@ -554,6 +564,13 @@ export function GroupStandings({ matches }: Props) {
   const rightSemis = matchesByNumber(officialSlots, [102])
   const finalMatches = matchesByNumber(officialSlots, [104])
   const thirdPlaceMatches = matchesByNumber(officialSlots, [103])
+  const selectedGroupMatches = useMemo(
+    () =>
+      matches
+        .filter((match) => match.stage === selectedGroup)
+        .sort((a, b) => a.match_number - b.match_number),
+    [matches, selectedGroup],
+  )
 
   return (
     <section className="standings-page">
@@ -804,6 +821,42 @@ export function GroupStandings({ matches }: Props) {
                     </article>
                   ))}
                 </div>
+
+                <section className="group-fixtures" aria-label={`Jogos do ${group}`}>
+                  <div className="group-fixtures-title">
+                    <span className="eyebrow">JOGOS DO GRUPO</span>
+                    <strong>Ordem dos jogos</strong>
+                  </div>
+
+                  <div className="group-fixtures-list">
+                    {selectedGroupMatches.map((match) => (
+                      <article className="group-fixture" key={match.id}>
+                        <small>Jogo {match.match_number}</small>
+                        <div className="group-fixture-teams">
+                          <span>
+                            <TeamFlag fallback={match.home_flag} team={match.home_team} />
+                            <strong>{match.home_team}</strong>
+                          </span>
+                          <b>
+                            {match.status === 'finished' &&
+                            match.home_score !== null &&
+                            match.away_score !== null
+                              ? `${match.home_score} × ${match.away_score}`
+                              : '×'}
+                          </b>
+                          <span>
+                            <TeamFlag fallback={match.away_flag} team={match.away_team} />
+                            <strong>{match.away_team}</strong>
+                          </span>
+                        </div>
+                        <div className="group-fixture-meta">
+                          <span>{formatMatchDate(match.kickoff_at)} · Abu Dhabi</span>
+                          {match.venue && <span>{match.venue}</span>}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
               </div>
             ))}
 

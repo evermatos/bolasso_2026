@@ -439,6 +439,19 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .third-place .standing-position { border-left-color: #e3b31a; }
 .standing-position span { margin-left: 2px; color: #c88600; }
 .mobile-standings-list { display: none; }
+.group-fixtures { padding: 22px 24px 24px; border-top: 1px solid var(--line); background: var(--paper); }
+.group-fixtures-title { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.group-fixtures-title strong { color: var(--text); font: 800 0.9rem 'Manrope'; }
+.group-fixtures-list { display: grid; gap: 10px; }
+.group-fixture { padding: 13px 14px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-soft); }
+.group-fixture > small { display: block; margin-bottom: 9px; color: var(--muted); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.group-fixture-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.group-fixture-teams > span { min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 800; }
+.group-fixture-teams > span:last-child { justify-content: flex-end; text-align: right; }
+.group-fixture-teams strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.group-fixture-teams b { color: var(--green); font: 900 1rem 'Manrope'; }
+.group-fixture-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.68rem; font-weight: 700; }
+.group-fixture-meta span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .standings-legend { display: grid; grid-template-columns: 180px 1fr; gap: 24px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); }
 .standings-legend h2 { margin: 5px 0 0; font-size: 1.25rem; }
 .standings-legend dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
@@ -618,6 +631,13 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .mobile-standing-stats strong { font-size: 0.75rem; }
   .mobile-standings-list article.qualified { background: #edf8f1; box-shadow: inset 4px 0 0 #087a4f; }
   .mobile-standings-list article.third-place { background: #fff9df; box-shadow: inset 4px 0 0 #e3b31a; }
+  .group-fixtures { padding: 20px 14px 18px; }
+  .group-fixtures-title { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .group-fixture { padding: 12px; }
+  .group-fixture-teams { gap: 8px; }
+  .group-fixture-teams > span { flex-direction: column; gap: 4px; font-size: 0.72rem; text-align: center; }
+  .group-fixture-teams > span:last-child { flex-direction: column-reverse; }
+  .group-fixture-meta { flex-direction: column; gap: 4px; text-align: center; }
   .standings-legend { grid-template-columns: 1fr; gap: 16px; padding: 20px 18px; }
   .standings-legend dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 8px; }
   .mobile-nav { position: fixed; display: flex; justify-content: space-around; left: 0; right: 0; bottom: 0; z-index: 20; padding: 9px 12px max(9px, env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); }
