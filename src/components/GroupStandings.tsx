@@ -361,18 +361,18 @@ function resolveOfficialSlots(
 
     if (placeholder.startsWith('W')) {
       return {
-        label: `Vencedor Jogo ${placeholder.slice(1)}`,
+        label: placeholder,
         placeholder,
-        note: placeholder,
+        note: `Vencedor do jogo ${placeholder.slice(1)}`,
         confirmed: false,
       }
     }
 
     if (placeholder.startsWith('RU')) {
       return {
-        label: `Perdedor Jogo ${placeholder.slice(2)}`,
+        label: placeholder,
         placeholder,
-        note: placeholder,
+        note: `Perdedor do jogo ${placeholder.slice(2)}`,
         confirmed: false,
       }
     }
@@ -408,7 +408,7 @@ function BracketColumn({
   title: string
 }) {
   return (
-    <div className="knockout-round">
+    <div className={`knockout-round knockout-round-${matches.length}`}>
       <h3>{title}</h3>
       <div className="knockout-games">
         {matches.map((match) => (
