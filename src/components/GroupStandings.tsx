@@ -1,4 +1,4 @@
-import { GitBranch, Info, Table2 } from 'lucide-react'
+import { CalendarClock, GitBranch, Info, MapPin, Table2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
   calculateGroupStandings,
@@ -27,16 +27,110 @@ type OfficialSlot = {
 
 type BracketTeam = {
   label: string
+  placeholder: string
   team?: ProjectedTeam
   note?: string
+  confirmed: boolean
 }
 
 type ResolvedOfficialSlot = OfficialSlot & {
   home: BracketTeam
   away: BracketTeam
+  kickoffAt?: string
+  venue?: string
+  city?: string
 }
 
 type CupView = 'table' | 'knockout'
+
+const TEAM_CODES: Record<string, string> = {
+  Alemanha: 'ALE',
+  Argentina: 'ARG',
+  Argélia: 'ALG',
+  'Arábia Saudita': 'SAU',
+  Austrália: 'AUS',
+  Áustria: 'AUT',
+  Bélgica: 'BEL',
+  'Bósnia e Herzegovina': 'BIH',
+  Brasil: 'BRA',
+  'Cabo Verde': 'CPV',
+  Canadá: 'CAN',
+  Catar: 'QAT',
+  Colômbia: 'COL',
+  'Coreia do Sul': 'KOR',
+  'Costa do Marfim': 'CIV',
+  Croácia: 'CRO',
+  Curaçao: 'CUW',
+  Egito: 'EGY',
+  Equador: 'ECU',
+  Escócia: 'SCO',
+  Espanha: 'ESP',
+  'Estados Unidos': 'USA',
+  França: 'FRA',
+  Gana: 'GHA',
+  Haiti: 'HAI',
+  Inglaterra: 'ENG',
+  Iraque: 'IRQ',
+  Irã: 'IRN',
+  Japão: 'JPN',
+  Jordânia: 'JOR',
+  Marrocos: 'MAR',
+  México: 'MEX',
+  Noruega: 'NOR',
+  'Nova Zelândia': 'NZL',
+  Panamá: 'PAN',
+  Paraguai: 'PAR',
+  'Países Baixos': 'NED',
+  Portugal: 'POR',
+  'RD Congo': 'COD',
+  Senegal: 'SEN',
+  Suécia: 'SWE',
+  Suíça: 'SUI',
+  Tchéquia: 'CZE',
+  Tunísia: 'TUN',
+  Turquia: 'TUR',
+  Uruguai: 'URU',
+  Uzbequistão: 'UZB',
+  'África do Sul': 'RSA',
+}
+
+const KNOCKOUT_MATCH_DETAILS: Record<
+  number,
+  { kickoffAt: string; venue: string; city: string }
+> = {
+  73: { kickoffAt: '2026-06-28T19:00:00Z', venue: 'Los Angeles Stadium', city: 'Los Angeles' },
+  74: { kickoffAt: '2026-06-29T20:30:00Z', venue: 'Boston Stadium', city: 'Boston' },
+  75: { kickoffAt: '2026-06-30T01:00:00Z', venue: 'Monterrey Stadium', city: 'Monterrey' },
+  76: { kickoffAt: '2026-06-29T17:00:00Z', venue: 'Houston Stadium', city: 'Houston' },
+  77: { kickoffAt: '2026-06-30T21:00:00Z', venue: 'New York/New Jersey Stadium', city: 'New Jersey' },
+  78: { kickoffAt: '2026-06-30T17:00:00Z', venue: 'Dallas Stadium', city: 'Dallas' },
+  79: { kickoffAt: '2026-07-01T01:00:00Z', venue: 'Mexico City Stadium', city: 'Mexico City' },
+  80: { kickoffAt: '2026-07-01T16:00:00Z', venue: 'Atlanta Stadium', city: 'Atlanta' },
+  81: { kickoffAt: '2026-07-02T00:00:00Z', venue: 'San Francisco Bay Area Stadium', city: 'San Francisco Bay Area' },
+  82: { kickoffAt: '2026-07-01T20:00:00Z', venue: 'Seattle Stadium', city: 'Seattle' },
+  83: { kickoffAt: '2026-07-02T23:00:00Z', venue: 'Toronto Stadium', city: 'Toronto' },
+  84: { kickoffAt: '2026-07-02T19:00:00Z', venue: 'Los Angeles Stadium', city: 'Los Angeles' },
+  85: { kickoffAt: '2026-07-03T03:00:00Z', venue: 'BC Place Vancouver', city: 'Vancouver' },
+  86: { kickoffAt: '2026-07-03T22:00:00Z', venue: 'Miami Stadium', city: 'Miami' },
+  87: { kickoffAt: '2026-07-04T01:30:00Z', venue: 'Kansas City Stadium', city: 'Kansas City' },
+  88: { kickoffAt: '2026-07-03T18:00:00Z', venue: 'Dallas Stadium', city: 'Dallas' },
+  89: { kickoffAt: '2026-07-04T21:00:00Z', venue: 'Philadelphia Stadium', city: 'Philadelphia' },
+  90: { kickoffAt: '2026-07-04T17:00:00Z', venue: 'Houston Stadium', city: 'Houston' },
+  91: { kickoffAt: '2026-07-05T20:00:00Z', venue: 'New York/New Jersey Stadium', city: 'New Jersey' },
+  92: { kickoffAt: '2026-07-06T00:00:00Z', venue: 'Mexico City Stadium', city: 'Mexico City' },
+  93: { kickoffAt: '2026-07-06T19:00:00Z', venue: 'Dallas Stadium', city: 'Dallas' },
+  94: { kickoffAt: '2026-07-07T00:00:00Z', venue: 'Seattle Stadium', city: 'Seattle' },
+  95: { kickoffAt: '2026-07-07T16:00:00Z', venue: 'Atlanta Stadium', city: 'Atlanta' },
+  96: { kickoffAt: '2026-07-07T20:00:00Z', venue: 'BC Place Vancouver', city: 'Vancouver' },
+  97: { kickoffAt: '2026-07-09T20:00:00Z', venue: 'Boston Stadium', city: 'Boston' },
+  98: { kickoffAt: '2026-07-10T19:00:00Z', venue: 'Los Angeles Stadium', city: 'Los Angeles' },
+  99: { kickoffAt: '2026-07-11T21:00:00Z', venue: 'Miami Stadium', city: 'Miami' },
+  100: { kickoffAt: '2026-07-12T01:00:00Z', venue: 'Kansas City Stadium', city: 'Kansas City' },
+  101: { kickoffAt: '2026-07-14T19:00:00Z', venue: 'Dallas Stadium', city: 'Dallas' },
+  102: { kickoffAt: '2026-07-15T19:00:00Z', venue: 'Atlanta Stadium', city: 'Atlanta' },
+  103: { kickoffAt: '2026-07-18T21:00:00Z', venue: 'Miami Stadium', city: 'Miami' },
+  104: { kickoffAt: '2026-07-19T19:00:00Z', venue: 'New York/New Jersey Stadium', city: 'New Jersey' },
+}
 
 const OFFICIAL_KNOCKOUT_SLOTS: OfficialSlot[] = [
   { matchNumber: 73, round: '16 avos', placeholderA: '2A', placeholderB: '2B' },
@@ -123,6 +217,35 @@ function officialThirdLabel(placeholder: string) {
   return `3º ${placeholder.slice(1).split('').join('/')}`
 }
 
+function normalizeTeamName(team: string) {
+  return team
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z]/g, '')
+}
+
+function teamCode(team: string) {
+  return TEAM_CODES[team] ?? normalizeTeamName(team).slice(0, 3).toUpperCase()
+}
+
+function formatKnockoutDate(kickoffAt?: string) {
+  if (!kickoffAt) return 'Horário a definir'
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Dubai',
+  }).format(new Date(kickoffAt))
+}
+
+function sideFullName(side: BracketTeam) {
+  if (side.confirmed && side.team) return side.team.team
+  if (side.placeholder.startsWith('W')) return `Vencedor do jogo ${side.placeholder.slice(1)}`
+  if (side.placeholder.startsWith('RU')) return `Perdedor do jogo ${side.placeholder.slice(2)}`
+
+  return `Slot oficial: ${side.label}`
+}
+
 function thirdPlaceholderKey(matchNumber: number, placeholder: string) {
   return `${matchNumber}:${placeholder}`
 }
@@ -181,11 +304,20 @@ function allocateThirdsToOfficialSlots(bestThirds: ProjectedTeam[]) {
   return solve(0, new Set(), new Map()) ?? new Map<string, ProjectedTeam>()
 }
 
-function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: ProjectedTeam[]) {
+function resolveOfficialSlots(
+  groups: GroupStanding[],
+  qualifiedTeams: ProjectedTeam[],
+  completedGroups: Set<string>,
+) {
   const bestThirds = qualifiedTeams
     .filter((team) => team.groupPosition === 3)
     .sort(compareProjectedTeams)
   const thirdAllocation = allocateThirdsToOfficialSlots(bestThirds)
+  const allGroupsCompleted = groups.every(({ group }) => completedGroups.has(group))
+
+  function isConfirmed(team: ProjectedTeam | undefined) {
+    return Boolean(team && completedGroups.has(team.group) && !team.unresolvedTie)
+  }
 
   function resolvePlaceholder(matchNumber: number, placeholder: string): BracketTeam {
     const directMatch = placeholder.match(/^([12])([A-L])$/)
@@ -197,9 +329,11 @@ function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: Projected
       )
 
       return {
-        label: team ? team.team : placeholder,
-        team,
+        label: team && isConfirmed(team) ? team.team : placeholder,
+        placeholder,
+        team: isConfirmed(team) ? team : undefined,
         note: placeholder,
+        confirmed: isConfirmed(team),
       }
     }
 
@@ -207,42 +341,55 @@ function resolveOfficialSlots(groups: GroupStanding[], qualifiedTeams: Projected
     if (thirdMatch) {
       const team = thirdAllocation.get(thirdPlaceholderKey(matchNumber, placeholder))
 
-      if (team) {
+      if (team && allGroupsCompleted && isConfirmed(team)) {
         return {
           label: team.team,
+          placeholder,
           team,
           note: officialThirdLabel(placeholder),
+          confirmed: true,
         }
       }
 
       return {
         label: officialThirdLabel(placeholder),
+        placeholder,
         note: 'Slot oficial FIFA',
+        confirmed: false,
       }
     }
 
     if (placeholder.startsWith('W')) {
       return {
         label: `Vencedor Jogo ${placeholder.slice(1)}`,
+        placeholder,
         note: placeholder,
+        confirmed: false,
       }
     }
 
     if (placeholder.startsWith('RU')) {
       return {
         label: `Perdedor Jogo ${placeholder.slice(2)}`,
+        placeholder,
         note: placeholder,
+        confirmed: false,
       }
     }
 
-    return { label: placeholder }
+    return { label: placeholder, placeholder, confirmed: false }
   }
 
-  return OFFICIAL_KNOCKOUT_SLOTS.map((slot) => ({
-    ...slot,
-    home: resolvePlaceholder(slot.matchNumber, slot.placeholderA),
-    away: resolvePlaceholder(slot.matchNumber, slot.placeholderB),
-  }))
+  return OFFICIAL_KNOCKOUT_SLOTS.map((slot) => {
+    const details = KNOCKOUT_MATCH_DETAILS[slot.matchNumber]
+
+    return {
+      ...slot,
+      ...details,
+      home: resolvePlaceholder(slot.matchNumber, slot.placeholderA),
+      away: resolvePlaceholder(slot.matchNumber, slot.placeholderB),
+    }
+  })
 }
 
 function matchesByNumber(slots: ResolvedOfficialSlot[], numbers: number[]) {
@@ -253,9 +400,11 @@ function matchesByNumber(slots: ResolvedOfficialSlot[], numbers: number[]) {
 
 function BracketColumn({
   matches,
+  onSelect,
   title,
 }: {
   matches: ResolvedOfficialSlot[]
+  onSelect: (match: ResolvedOfficialSlot) => void
   title: string
 }) {
   return (
@@ -263,32 +412,99 @@ function BracketColumn({
       <h3>{title}</h3>
       <div className="knockout-games">
         {matches.map((match) => (
-          <article
+          <button
+            aria-label={`Ver detalhes do jogo ${match.matchNumber}`}
             className={`knockout-game ${
               match.round !== '16 avos' ? 'placeholder-game' : ''
             }`}
             key={match.matchNumber}
+            onClick={() => onSelect(match)}
+            type="button"
           >
             <small className="knockout-match-number">Jogo {match.matchNumber}</small>
             {[match.home, match.away].map((side) => (
-              <span key={`${match.matchNumber}-${side.label}`}>
-                {side.team ? (
+              <span key={`${match.matchNumber}-${side.placeholder}`}>
+                {side.confirmed && side.team ? (
                   <>
-                    <small>{side.note}</small>
                     <TeamFlag fallback={side.team.flag} team={side.team.team} />
-                    <strong>{side.team.team}</strong>
+                    <strong>{teamCode(side.team.team)}</strong>
                   </>
                 ) : (
                   <>
-                    <small>{side.note}</small>
                     <strong>{side.label}</strong>
                   </>
                 )}
               </span>
             ))}
-          </article>
+          </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+function KnockoutMatchModal({
+  match,
+  onClose,
+}: {
+  match: ResolvedOfficialSlot
+  onClose: () => void
+}) {
+  return (
+    <div aria-modal="true" className="knockout-modal-shell" role="dialog">
+      <button
+        aria-label="Fechar detalhes do jogo"
+        className="group-info-backdrop"
+        onClick={onClose}
+        type="button"
+      />
+      <section className="knockout-modal">
+        <header>
+          <div>
+            <span className="eyebrow">{match.round}</span>
+            <h2>Jogo {match.matchNumber}</h2>
+          </div>
+          <button
+            aria-label="Fechar"
+            className="group-info-close"
+            onClick={onClose}
+            type="button"
+          >
+            <X size={18} />
+          </button>
+        </header>
+
+        <div className="knockout-modal-teams">
+          {[match.home, match.away].map((side) => (
+            <div key={side.placeholder}>
+              {side.confirmed && side.team ? (
+                <TeamFlag fallback={side.team.flag} team={side.team.team} />
+              ) : (
+                <span className="knockout-slot-chip">{side.placeholder}</span>
+              )}
+              <strong>{sideFullName(side)}</strong>
+              <small>
+                {side.confirmed && side.team
+                  ? `${side.team.groupPosition}º do ${side.team.group}`
+                  : side.note}
+              </small>
+            </div>
+          ))}
+        </div>
+
+        <div className="knockout-modal-details">
+          <span>
+            <CalendarClock size={17} />
+            {formatKnockoutDate(match.kickoffAt)} · Abu Dhabi
+          </span>
+          <span>
+            <MapPin size={17} />
+            {match.venue && match.city
+              ? `${match.venue} · ${match.city}`
+              : 'Local a definir'}
+          </span>
+        </div>
+      </section>
     </div>
   )
 }
@@ -296,7 +512,24 @@ function BracketColumn({
 export function GroupStandings({ matches }: Props) {
   const groups = useMemo(() => calculateGroupStandings(matches), [matches])
   const [selectedGroup, setSelectedGroup] = useState('Grupo A')
-  const [cupView, setCupView] = useState<CupView>('table')
+  const [cupView, setCupView] = useState<CupView>('knockout')
+  const [selectedKnockoutMatch, setSelectedKnockoutMatch] =
+    useState<ResolvedOfficialSlot | null>(null)
+  const completedGroups = useMemo(
+    () =>
+      new Set(
+        groups
+          .filter(({ group }) => {
+            const groupMatches = matches.filter((match) => match.stage === group)
+            return (
+              groupMatches.length > 0 &&
+              groupMatches.every((match) => match.status === 'finished')
+            )
+          })
+          .map(({ group }) => group),
+      ),
+    [groups, matches],
+  )
   const qualifiedTeams = useMemo(() => projectedQualifiedTeams(groups), [groups])
   const bestThirdTeamNames = useMemo(
     () =>
@@ -308,11 +541,11 @@ export function GroupStandings({ matches }: Props) {
     [qualifiedTeams],
   )
   const officialSlots = useMemo(
-    () => resolveOfficialSlots(groups, qualifiedTeams),
-    [groups, qualifiedTeams],
+    () => resolveOfficialSlots(groups, qualifiedTeams, completedGroups),
+    [completedGroups, groups, qualifiedTeams],
   )
-  const leftRoundOf32 = matchesByNumber(officialSlots, [73, 74, 75, 76, 77, 78, 79, 80])
-  const rightRoundOf32 = matchesByNumber(officialSlots, [81, 82, 83, 84, 85, 86, 87, 88])
+  const leftRoundOf32 = matchesByNumber(officialSlots, [73, 75, 74, 77, 81, 82, 83, 84])
+  const rightRoundOf32 = matchesByNumber(officialSlots, [76, 78, 79, 80, 85, 87, 86, 88])
   const leftRoundOf16 = matchesByNumber(officialSlots, [89, 90, 91, 92])
   const rightRoundOf16 = matchesByNumber(officialSlots, [93, 94, 95, 96])
   const leftQuarters = matchesByNumber(officialSlots, [97, 99])
@@ -335,15 +568,6 @@ export function GroupStandings({ matches }: Props) {
 
       <div className="cup-view-tabs" role="tablist" aria-label="Visualização da Copa">
         <button
-          aria-selected={cupView === 'table'}
-          className={cupView === 'table' ? 'active' : ''}
-          onClick={() => setCupView('table')}
-          role="tab"
-          type="button"
-        >
-          Tabela
-        </button>
-        <button
           aria-selected={cupView === 'knockout'}
           className={cupView === 'knockout' ? 'active' : ''}
           onClick={() => setCupView('knockout')}
@@ -351,6 +575,15 @@ export function GroupStandings({ matches }: Props) {
           type="button"
         >
           Mata-mata
+        </button>
+        <button
+          aria-selected={cupView === 'table'}
+          className={cupView === 'table' ? 'active' : ''}
+          onClick={() => setCupView('table')}
+          role="tab"
+          type="button"
+        >
+          Tabela
         </button>
       </div>
 
@@ -378,22 +611,62 @@ export function GroupStandings({ matches }: Props) {
 
             <div className="knockout-bracket">
               <div className="knockout-side left-side">
-                <BracketColumn matches={leftRoundOf32} title="16 avos" />
-                <BracketColumn matches={leftRoundOf16} title="Oitavas" />
-                <BracketColumn matches={leftQuarters} title="Quartas" />
-                <BracketColumn matches={leftSemis} title="Semi" />
+                <BracketColumn
+                  matches={leftRoundOf32}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="16 avos"
+                />
+                <BracketColumn
+                  matches={leftRoundOf16}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Oitavas"
+                />
+                <BracketColumn
+                  matches={leftQuarters}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Quartas"
+                />
+                <BracketColumn
+                  matches={leftSemis}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Semi"
+                />
               </div>
 
               <div className="knockout-center">
-                <BracketColumn matches={finalMatches} title="Final" />
-                <BracketColumn matches={thirdPlaceMatches} title="3º lugar" />
+                <BracketColumn
+                  matches={finalMatches}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Final"
+                />
+                <BracketColumn
+                  matches={thirdPlaceMatches}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="3º lugar"
+                />
               </div>
 
               <div className="knockout-side right-side">
-                <BracketColumn matches={rightSemis} title="Semi" />
-                <BracketColumn matches={rightQuarters} title="Quartas" />
-                <BracketColumn matches={rightRoundOf16} title="Oitavas" />
-                <BracketColumn matches={rightRoundOf32} title="16 avos" />
+                <BracketColumn
+                  matches={rightSemis}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Semi"
+                />
+                <BracketColumn
+                  matches={rightQuarters}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Quartas"
+                />
+                <BracketColumn
+                  matches={rightRoundOf16}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="Oitavas"
+                />
+                <BracketColumn
+                  matches={rightRoundOf32}
+                  onSelect={setSelectedKnockoutMatch}
+                  title="16 avos"
+                />
               </div>
             </div>
           </section>
@@ -561,6 +834,13 @@ export function GroupStandings({ matches }: Props) {
             </p>
           </div>
         </>
+      )}
+
+      {selectedKnockoutMatch && (
+        <KnockoutMatchModal
+          match={selectedKnockoutMatch}
+          onClose={() => setSelectedKnockoutMatch(null)}
+        />
       )}
     </section>
   )
