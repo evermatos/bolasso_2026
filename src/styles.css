@@ -378,23 +378,23 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .cup-view-tabs button.active { color: var(--ink); background: var(--lime); box-shadow: 0 3px 10px rgb(10 36 27 / 10%); }
 .knockout-note { border: 1px solid rgb(6 122 80 / 14%); background: #edf8f1; }
 .knockout-card { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--paper); }
-.knockout-bracket { display: grid; grid-template-columns: minmax(520px, 1fr) minmax(150px, 0.32fr) minmax(520px, 1fr); align-items: center; gap: 14px; overflow-x: auto; padding: 0 14px 20px; }
-.knockout-side { display: grid; grid-template-columns: repeat(4, minmax(112px, 1fr)); gap: 10px; align-items: start; }
-.knockout-center { display: grid; align-content: center; gap: 14px; min-width: 150px; }
+.knockout-bracket { display: grid; grid-template-columns: minmax(432px, max-content) minmax(126px, max-content) minmax(432px, max-content); justify-content: center; align-items: center; gap: 14px; overflow-x: auto; padding: 0 14px 20px; }
+.knockout-side { display: grid; grid-template-columns: repeat(4, 100px); gap: 8px; align-items: start; }
+.knockout-center { display: grid; align-content: center; gap: 14px; width: 126px; }
 .knockout-round { min-width: 0; display: grid; align-content: start; gap: 10px; }
-.knockout-round h3 { margin: 0; padding: 8px 9px; border-radius: 11px; color: var(--green); background: var(--surface-soft); font: 800 0.68rem 'Manrope'; text-transform: uppercase; letter-spacing: 0.08em; }
+.knockout-round h3 { margin: 0; padding: 8px 9px; border-radius: 11px; color: var(--green); background: var(--surface-soft); font: 800 0.72rem 'Manrope'; text-transform: uppercase; letter-spacing: 0.08em; }
 .knockout-games { display: grid; gap: 7px; }
 .knockout-round-4 .knockout-games { padding-top: 28px; gap: 62px; }
 .knockout-round-2 .knockout-games { padding-top: 83px; gap: 172px; }
 .knockout-round-1 .knockout-games { padding-top: 193px; }
 .knockout-center .knockout-round-1 .knockout-games { padding-top: 0; }
-.knockout-game { min-width: 0; min-height: 48px; display: grid; align-content: center; gap: 4px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 11px; color: inherit; background: var(--surface-soft); font: inherit; text-align: left; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+.knockout-game { min-width: 0; min-height: 46px; display: grid; align-content: center; gap: 4px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 11px; color: inherit; background: var(--surface-soft); font: inherit; text-align: left; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
 .knockout-game:hover { transform: translateY(-1px); border-color: rgb(6 122 80 / 26%); box-shadow: 0 8px 22px rgb(10 36 27 / 8%); }
-.knockout-match-number { color: var(--muted); font-size: 0.5rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-.knockout-game span { min-width: 0; display: flex; align-items: center; gap: 5px; color: var(--text); font-size: 0.68rem; font-weight: 800; }
+.knockout-match-number { color: var(--muted); font-size: 0.56rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.knockout-game span { min-width: 0; display: flex; align-items: center; gap: 5px; color: var(--text); font-size: 0.74rem; font-weight: 800; }
 .knockout-game strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.knockout-game .flag-image { width: 23px; height: 15px; }
-.knockout-game .flag { font-size: 1.25rem; }
+.knockout-game .flag-image { width: 25px; height: 16px; }
+.knockout-game .flag { font-size: 1.35rem; }
 .muted-round { opacity: 0.78; }
 .placeholder-game { color: var(--muted); border-style: dashed; background: transparent; }
 .placeholder-game span { color: var(--muted); font-weight: 700; }
@@ -592,8 +592,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .standings-header h1 { font-size: 1.8rem; }
   .standings-header svg { display: none; }
   .cup-view-tabs button { padding: 11px; }
-  .knockout-bracket { grid-template-columns: minmax(500px, 142vw) minmax(145px, 42vw) minmax(500px, 142vw); padding: 0 12px 18px; scroll-snap-type: x proximity; }
-  .knockout-side { grid-template-columns: repeat(4, minmax(108px, 1fr)); gap: 8px; }
+  .knockout-bracket { grid-template-columns: minmax(416px, max-content) minmax(122px, max-content) minmax(416px, max-content); justify-content: start; padding: 0 12px 18px; scroll-snap-type: x proximity; }
+  .knockout-side { grid-template-columns: repeat(4, 98px); gap: 8px; }
   .knockout-center { scroll-snap-align: center; }
   .knockout-round { scroll-snap-align: start; }
   .group-selector { padding: 10px; }
