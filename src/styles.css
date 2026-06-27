@@ -267,6 +267,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .score-inputs input { width: 52px; height: 50px; padding: 0; text-align: center; font: 800 1.25rem 'Manrope'; appearance: textfield; }
 .score-inputs input::-webkit-inner-spin-button { appearance: none; }
 .score-inputs input:disabled { opacity: 1; color: var(--text); background: var(--surface-soft); }
+.penalty-inputs { width: max-content; max-width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; margin: -8px auto 18px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); color: var(--muted); }
+.penalty-inputs span { font-size: 0.66rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.penalty-inputs input { width: 42px; height: 38px; padding: 0; border-radius: 9px; text-align: center; font: 800 1rem 'Manrope'; appearance: textfield; }
+.penalty-inputs input::-webkit-inner-spin-button { appearance: none; }
+.penalty-inputs strong { color: var(--muted); }
 .match-footer { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 15px; border-top: 1px solid var(--line); }
 .match-footer-side { min-width: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .venue { color: var(--muted); font-size: 0.75rem; }

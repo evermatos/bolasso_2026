@@ -14,7 +14,11 @@ type Props = {
     matchId: number,
     home: number,
     away: number,
-    options?: { silent?: boolean },
+    options?: {
+      awayPenalty?: number | null
+      homePenalty?: number | null
+      silent?: boolean
+    },
   ) => Promise<boolean>
 }
 
@@ -38,8 +42,12 @@ export function MatchCard({
   const showFinalScore = isAdmin || match.status === 'finished'
   const initialHome = showFinalScore ? match.home_score : prediction?.home_score
   const initialAway = showFinalScore ? match.away_score : prediction?.away_score
+  const initialHomePenalty = showFinalScore ? match.home_penalty_score : null
+  const initialAwayPenalty = showFinalScore ? match.away_penalty_score : null
   const [home, setHome] = useState(initialHome?.toString() ?? '')
   const [away, setAway] = useState(initialAway?.toString() ?? '')
+  const [homePenalty, setHomePenalty] = useState(initialHomePenalty?.toString() ?? '')
+  const [awayPenalty, setAwayPenalty] = useState(initialAwayPenalty?.toString() ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [now, setNow] = useState(Date.now())
@@ -50,14 +58,19 @@ export function MatchCard({
   const kickoffStarted = now >= new Date(match.kickoff_at).getTime()
   const locked = !isAdmin && isPredictionLocked(match.kickoff_at, now)
   const adminLocked = Boolean(isAdmin && !kickoffStarted)
+  const isKnockoutMatch = match.match_number >= 73
+  const needsPenaltyScore =
+    Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
 
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
     setAway(initialAway?.toString() ?? '')
+    setHomePenalty(initialHomePenalty?.toString() ?? '')
+    setAwayPenalty(initialAwayPenalty?.toString() ?? '')
     if (!isAdmin && prediction) {
       lastSavedScore.current = `${prediction.home_score}:${prediction.away_score}`
     }
-  }, [initialAway, initialHome, isAdmin, prediction])
+  }, [initialAway, initialAwayPenalty, initialHome, initialHomePenalty, isAdmin, prediction])
 
   useEffect(() => {
     if ((!isAdmin && locked) || (isAdmin && kickoffStarted)) return
@@ -71,9 +84,16 @@ export function MatchCard({
     savingRef.current = true
     setSaving(true)
     setSaved(false)
-    const succeeded = await onSave(match.id, Number(home), Number(away), {
-      silent,
-    })
+    const succeeded = await onSave(
+      match.id,
+      Number(home),
+      Number(away),
+      {
+        awayPenalty: needsPenaltyScore ? Number(awayPenalty) : null,
+        homePenalty: needsPenaltyScore ? Number(homePenalty) : null,
+        silent,
+      },
+    )
     savingRef.current = false
     setSaving(false)
     if (succeeded) {
@@ -81,7 +101,7 @@ export function MatchCard({
       setSaved(true)
       window.setTimeout(() => setSaved(false), 1800)
     }
-  }, [away, home, match.id, onSave])
+  }, [away, awayPenalty, home, homePenalty, match.id, needsPenaltyScore, onSave])
 
   useEffect(() => {
     if (isAdmin || locked || home === '' || away === '') return
@@ -125,6 +145,33 @@ export function MatchCard({
           </span>
         </div>
       </div>
+
+      {needsPenaltyScore && (
+        <div className="penalty-inputs">
+          <span>Pênaltis</span>
+          <input
+            aria-label={`Pênaltis de ${match.home_team}`}
+            disabled={adminLocked}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setHomePenalty(event.target.value)}
+            type="number"
+            value={homePenalty}
+          />
+          <strong>×</strong>
+          <input
+            aria-label={`Pênaltis de ${match.away_team}`}
+            disabled={adminLocked}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setAwayPenalty(event.target.value)}
+            type="number"
+            value={awayPenalty}
+          />
+        </div>
+      )}
 
       <div className="match-teams">
         <div className="team home-team">
@@ -195,7 +242,12 @@ export function MatchCard({
         ) : (
           <button
             className="save-button"
-            disabled={saving || home === '' || away === ''}
+            disabled={
+              saving ||
+              home === '' ||
+              away === '' ||
+              (needsPenaltyScore && (homePenalty === '' || awayPenalty === ''))
+            }
             onClick={() => save(false)}
             type="button"
           >

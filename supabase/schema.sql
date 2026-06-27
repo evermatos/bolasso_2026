@@ -39,9 +39,24 @@ create table public.matches (
     check (status in ('scheduled', 'finished')),
   home_score smallint check (home_score between 0 and 99),
   away_score smallint check (away_score between 0 and 99),
+  home_penalty_score smallint check (home_penalty_score between 0 and 99),
+  away_penalty_score smallint check (away_penalty_score between 0 and 99),
   created_at timestamptz not null default now(),
   constraint finished_match_has_score check (
     status <> 'finished' or (home_score is not null and away_score is not null)
+  ),
+  constraint knockout_penalties_are_valid check (
+    (
+      home_penalty_score is null
+      and away_penalty_score is null
+    )
+    or (
+      match_number >= 73
+      and home_score = away_score
+      and home_penalty_score is not null
+      and away_penalty_score is not null
+      and home_penalty_score <> away_penalty_score
+    )
   )
 );
 
@@ -481,12 +496,16 @@ $$;
 create or replace function public.finish_match(
   target_match_id bigint,
   final_home_score integer,
-  final_away_score integer
+  final_away_score integer,
+  final_home_penalty_score integer default null,
+  final_away_penalty_score integer default null
 )
 returns void
 language plpgsql
 security definer set search_path = ''
 as $$
+declare
+  target_match_number smallint;
 begin
   if not public.is_admin() then
     raise exception 'Apenas administradores podem publicar resultados.';
@@ -497,9 +516,50 @@ begin
     raise exception 'Placar inválido.';
   end if;
 
+  select match_number
+  into target_match_number
+  from public.matches
+  where id = target_match_id;
+
+  if target_match_number is null then
+    raise exception 'Jogo não encontrado.';
+  end if;
+
+  if target_match_number >= 73 and final_home_score = final_away_score then
+    if final_home_penalty_score is null or final_away_penalty_score is null then
+      raise exception 'Informe o placar dos pênaltis para jogo de mata-mata empatado.';
+    end if;
+
+    if final_home_penalty_score = final_away_penalty_score then
+      raise exception 'O placar dos pênaltis precisa ter um vencedor.';
+    end if;
+  end if;
+
+  if final_home_penalty_score is not null
+    and final_home_penalty_score not between 0 and 99 then
+    raise exception 'Placar de pênaltis inválido.';
+  end if;
+
+  if final_away_penalty_score is not null
+    and final_away_penalty_score not between 0 and 99 then
+    raise exception 'Placar de pênaltis inválido.';
+  end if;
+
+  if target_match_number < 73
+    and (final_home_penalty_score is not null or final_away_penalty_score is not null) then
+    raise exception 'Pênaltis só podem ser usados no mata-mata.';
+  end if;
+
+  if final_home_score <> final_away_score then
+    final_home_penalty_score := null;
+    final_away_penalty_score := null;
+  end if;
+
   update public.matches
   set home_score = final_home_score,
       away_score = final_away_score,
+      home_penalty_score = final_home_penalty_score,
+      away_penalty_score = final_away_penalty_score,
       status = 'finished'
   where id = target_match_id
     and kickoff_at <= now();
@@ -661,8 +721,8 @@ create policy "Admins can see match odds"
   to authenticated
   using (public.is_admin());
 
-revoke all on function public.finish_match(bigint, integer, integer) from public;
-grant execute on function public.finish_match(bigint, integer, integer) to authenticated;
+revoke all on function public.finish_match(bigint, integer, integer, integer, integer) from public;
+grant execute on function public.finish_match(bigint, integer, integer, integer, integer) to authenticated;
 revoke all on function public.refresh_ranking_movements() from public;
 revoke all on function public.refresh_ranking_movements() from authenticated;
 revoke all on function public.get_oracle_prediction(bigint) from public;
@@ -760,4 +820,36 @@ values
   (69, 'Colômbia', 'Portugal', '🇨🇴', '🇵🇹', 'Grupo K', '2026-06-28 03:30:00+04', 'Hard Rock Stadium · Miami Gardens, Florida'),
   (70, 'RD Congo', 'Uzbequistão', '🇨🇩', '🇺🇿', 'Grupo K', '2026-06-28 03:30:00+04', 'Mercedes-Benz Stadium · Atlanta, Georgia'),
   (71, 'Argélia', 'Áustria', '🇩🇿', '🇦🇹', 'Grupo J', '2026-06-28 06:00:00+04', 'GEHA Field at Arrowhead Stadium · Kansas City, Missouri'),
-  (72, 'Jordânia', 'Argentina', '🇯🇴', '🇦🇷', 'Grupo J', '2026-06-28 06:00:00+04', 'AT&T Stadium · Arlington, Texas');
+  (72, 'Jordânia', 'Argentina', '🇯🇴', '🇦🇷', 'Grupo J', '2026-06-28 06:00:00+04', 'AT&T Stadium · Arlington, Texas'),
+  (73, '2A', '2B', '⚽', '⚽', '16 avos', '2026-06-28 19:00:00+00', 'Los Angeles Stadium · Los Angeles'),
+  (74, '1E', '3ABCDF', '⚽', '⚽', '16 avos', '2026-06-29 20:30:00+00', 'Boston Stadium · Boston'),
+  (75, '1F', '2C', '⚽', '⚽', '16 avos', '2026-06-30 01:00:00+00', 'Monterrey Stadium · Monterrey'),
+  (76, '1C', '2F', '⚽', '⚽', '16 avos', '2026-06-29 17:00:00+00', 'Houston Stadium · Houston'),
+  (77, '1I', '3CDFGH', '⚽', '⚽', '16 avos', '2026-06-30 21:00:00+00', 'New York/New Jersey Stadium · New Jersey'),
+  (78, '2E', '2I', '⚽', '⚽', '16 avos', '2026-06-30 17:00:00+00', 'Dallas Stadium · Dallas'),
+  (79, '1A', '3CEFHI', '⚽', '⚽', '16 avos', '2026-07-01 01:00:00+00', 'Mexico City Stadium · Mexico City'),
+  (80, '1L', '3EHIJK', '⚽', '⚽', '16 avos', '2026-07-01 16:00:00+00', 'Atlanta Stadium · Atlanta'),
+  (81, '1D', '3BEFIJ', '⚽', '⚽', '16 avos', '2026-07-02 00:00:00+00', 'San Francisco Bay Area Stadium · San Francisco Bay Area'),
+  (82, '1G', '3AEHIJ', '⚽', '⚽', '16 avos', '2026-07-01 20:00:00+00', 'Seattle Stadium · Seattle'),
+  (83, '2K', '2L', '⚽', '⚽', '16 avos', '2026-07-02 23:00:00+00', 'Toronto Stadium · Toronto'),
+  (84, '1H', '2J', '⚽', '⚽', '16 avos', '2026-07-02 19:00:00+00', 'Los Angeles Stadium · Los Angeles'),
+  (85, '1B', '3EFGIJ', '⚽', '⚽', '16 avos', '2026-07-03 03:00:00+00', 'BC Place Vancouver · Vancouver'),
+  (86, '1J', '2H', '⚽', '⚽', '16 avos', '2026-07-03 22:00:00+00', 'Miami Stadium · Miami'),
+  (87, '1K', '3DEIJL', '⚽', '⚽', '16 avos', '2026-07-04 01:30:00+00', 'Kansas City Stadium · Kansas City'),
+  (88, '2D', '2G', '⚽', '⚽', '16 avos', '2026-07-03 18:00:00+00', 'Dallas Stadium · Dallas'),
+  (89, 'W74', 'W77', '⚽', '⚽', 'Oitavas', '2026-07-04 21:00:00+00', 'Philadelphia Stadium · Philadelphia'),
+  (90, 'W73', 'W75', '⚽', '⚽', 'Oitavas', '2026-07-04 17:00:00+00', 'Houston Stadium · Houston'),
+  (91, 'W76', 'W78', '⚽', '⚽', 'Oitavas', '2026-07-05 20:00:00+00', 'New York/New Jersey Stadium · New Jersey'),
+  (92, 'W79', 'W80', '⚽', '⚽', 'Oitavas', '2026-07-06 00:00:00+00', 'Mexico City Stadium · Mexico City'),
+  (93, 'W83', 'W84', '⚽', '⚽', 'Oitavas', '2026-07-06 19:00:00+00', 'Dallas Stadium · Dallas'),
+  (94, 'W81', 'W82', '⚽', '⚽', 'Oitavas', '2026-07-07 00:00:00+00', 'Seattle Stadium · Seattle'),
+  (95, 'W86', 'W88', '⚽', '⚽', 'Oitavas', '2026-07-07 16:00:00+00', 'Atlanta Stadium · Atlanta'),
+  (96, 'W85', 'W87', '⚽', '⚽', 'Oitavas', '2026-07-07 20:00:00+00', 'BC Place Vancouver · Vancouver'),
+  (97, 'W89', 'W90', '⚽', '⚽', 'Quartas', '2026-07-09 20:00:00+00', 'Boston Stadium · Boston'),
+  (98, 'W93', 'W94', '⚽', '⚽', 'Quartas', '2026-07-10 19:00:00+00', 'Los Angeles Stadium · Los Angeles'),
+  (99, 'W91', 'W92', '⚽', '⚽', 'Quartas', '2026-07-11 21:00:00+00', 'Miami Stadium · Miami'),
+  (100, 'W95', 'W96', '⚽', '⚽', 'Quartas', '2026-07-12 01:00:00+00', 'Kansas City Stadium · Kansas City'),
+  (101, 'W97', 'W98', '⚽', '⚽', 'Semifinais', '2026-07-14 19:00:00+00', 'Dallas Stadium · Dallas'),
+  (102, 'W99', 'W100', '⚽', '⚽', 'Semifinais', '2026-07-15 19:00:00+00', 'Atlanta Stadium · Atlanta'),
+  (103, 'RU101', 'RU102', '⚽', '⚽', '3º lugar', '2026-07-18 21:00:00+00', 'Miami Stadium · Miami'),
+  (104, 'W101', 'W102', '⚽', '⚽', 'Final', '2026-07-19 19:00:00+00', 'New York/New Jersey Stadium · New Jersey');

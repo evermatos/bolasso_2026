@@ -1,4 +1,4 @@
-import { CalendarClock, GitBranch, Info, MapPin, Table2, X } from 'lucide-react'
+import { CalendarClock, Info, MapPin, Table2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
   calculateGroupStandings,
@@ -39,6 +39,7 @@ type ResolvedOfficialSlot = OfficialSlot & {
   kickoffAt?: string
   venue?: string
   city?: string
+  liveMatch?: Match
 }
 
 type CupView = 'table' | 'knockout'
@@ -256,6 +257,50 @@ function sideFullName(side: BracketTeam) {
   return `Slot oficial: ${side.label}`
 }
 
+function formatMatchScore(match: Match) {
+  if (
+    match.status !== 'finished' ||
+    match.home_score === null ||
+    match.away_score === null
+  ) {
+    return '×'
+  }
+
+  const regularScore = `${match.home_score} × ${match.away_score}`
+  if (
+    match.home_penalty_score !== null &&
+    match.away_penalty_score !== null
+  ) {
+    return `${regularScore} · pen. ${match.home_penalty_score} × ${match.away_penalty_score}`
+  }
+
+  return regularScore
+}
+
+function homeSideAdvanced(match: Match) {
+  if (
+    match.home_score === null ||
+    match.away_score === null ||
+    match.status !== 'finished'
+  ) {
+    return null
+  }
+
+  if (match.home_score !== match.away_score) {
+    return match.home_score > match.away_score
+  }
+
+  if (
+    match.home_penalty_score === null ||
+    match.away_penalty_score === null ||
+    match.home_penalty_score === match.away_penalty_score
+  ) {
+    return null
+  }
+
+  return match.home_penalty_score > match.away_penalty_score
+}
+
 function thirdPlaceholderKey(matchNumber: number, placeholder: string) {
   return `${matchNumber}:${placeholder}`
 }
@@ -318,12 +363,16 @@ function resolveOfficialSlots(
   groups: GroupStanding[],
   qualifiedTeams: ProjectedTeam[],
   completedGroups: Set<string>,
+  matches: Match[],
 ) {
   const bestThirds = qualifiedTeams
     .filter((team) => team.groupPosition === 3)
     .sort(compareProjectedTeams)
   const thirdAllocation = allocateThirdsToOfficialSlots(bestThirds)
   const allGroupsCompleted = groups.every(({ group }) => completedGroups.has(group))
+  const liveMatchesByNumber = new Map(
+    matches.map((match) => [match.match_number, match]),
+  )
 
   function isConfirmed(team: ProjectedTeam | undefined) {
     return Boolean(team && completedGroups.has(team.group) && !team.unresolvedTie)
@@ -390,14 +439,94 @@ function resolveOfficialSlots(
     return { label: placeholder, placeholder, confirmed: false }
   }
 
-  return OFFICIAL_KNOCKOUT_SLOTS.map((slot) => {
+  const baseSlots = new Map(
+    OFFICIAL_KNOCKOUT_SLOTS.map((slot) => {
+      const details = KNOCKOUT_MATCH_DETAILS[slot.matchNumber]
+      const liveMatch = liveMatchesByNumber.get(slot.matchNumber)
+
+      return [
+        slot.matchNumber,
+        {
+          ...slot,
+          ...details,
+          liveMatch,
+          home: resolvePlaceholder(slot.matchNumber, slot.placeholderA),
+          away: resolvePlaceholder(slot.matchNumber, slot.placeholderB),
+        },
+      ] as const
+    }),
+  )
+
+  function resolveProgressionPlaceholder(
+    placeholder: string,
+    visitedMatches = new Set<number>(),
+  ): BracketTeam {
+    const winnerMatch = placeholder.match(/^W(\d+)$/)
+    const runnerUpMatch = placeholder.match(/^RU(\d+)$/)
+    const sourceMatchNumber = Number(winnerMatch?.[1] ?? runnerUpMatch?.[1])
+
+    if (!sourceMatchNumber || visitedMatches.has(sourceMatchNumber)) {
+      return { label: placeholder, placeholder, note: placeholder, confirmed: false }
+    }
+
+    const sourceSlot = baseSlots.get(sourceMatchNumber)
+    const sourceLiveMatch = liveMatchesByNumber.get(sourceMatchNumber)
+    if (
+      !sourceSlot ||
+      sourceLiveMatch?.status !== 'finished' ||
+      sourceLiveMatch.home_score === null ||
+      sourceLiveMatch.away_score === null
+    ) {
+      return {
+        label: placeholder,
+        placeholder,
+        note: winnerMatch
+          ? `Vencedor do jogo ${sourceMatchNumber}`
+          : `Perdedor do jogo ${sourceMatchNumber}`,
+        confirmed: false,
+      }
+    }
+
+    const homeWon = homeSideAdvanced(sourceLiveMatch)
+    if (homeWon === null) {
+      return {
+        label: placeholder,
+        placeholder,
+        note: winnerMatch
+          ? `Vencedor do jogo ${sourceMatchNumber}`
+          : `Perdedor do jogo ${sourceMatchNumber}`,
+        confirmed: false,
+      }
+    }
+
+    const nextVisitedMatches = new Set(visitedMatches)
+    nextVisitedMatches.add(sourceMatchNumber)
+    const side = winnerMatch
+      ? homeWon ? sourceSlot.home : sourceSlot.away
+      : homeWon ? sourceSlot.away : sourceSlot.home
+
+    return resolveBracketTeam(side, nextVisitedMatches)
+  }
+
+  function resolveBracketTeam(
+    side: BracketTeam,
+    visitedMatches = new Set<number>(),
+  ): BracketTeam {
+    if (side.placeholder.startsWith('W') || side.placeholder.startsWith('RU')) {
+      return resolveProgressionPlaceholder(side.placeholder, visitedMatches)
+    }
+
+    return side
+  }
+
+  return Array.from(baseSlots.values()).map((slot) => {
     const details = KNOCKOUT_MATCH_DETAILS[slot.matchNumber]
 
     return {
       ...slot,
       ...details,
-      home: resolvePlaceholder(slot.matchNumber, slot.placeholderA),
-      away: resolvePlaceholder(slot.matchNumber, slot.placeholderB),
+      home: resolveBracketTeam(slot.home),
+      away: resolveBracketTeam(slot.away),
     }
   })
 }
@@ -551,8 +680,8 @@ export function GroupStandings({ matches }: Props) {
     [qualifiedTeams],
   )
   const officialSlots = useMemo(
-    () => resolveOfficialSlots(groups, qualifiedTeams, completedGroups),
-    [completedGroups, groups, qualifiedTeams],
+    () => resolveOfficialSlots(groups, qualifiedTeams, completedGroups, matches),
+    [completedGroups, groups, matches, qualifiedTeams],
   )
   const leftRoundOf32 = matchesByNumber(officialSlots, [73, 75, 74, 77, 81, 82, 83, 84])
   const rightRoundOf32 = matchesByNumber(officialSlots, [76, 78, 79, 80, 85, 87, 86, 88])
@@ -606,24 +735,11 @@ export function GroupStandings({ matches }: Props) {
 
       {cupView === 'knockout' && (
         <>
-          <div className="standings-note knockout-note">
-            <GitBranch size={18} />
-            <p>
-              O mata-mata abaixo é uma projeção baseada na classificação atual:
-              2 primeiros de cada grupo + 8 melhores terceiros. Os slots e o
-              caminho dos vencedores seguem a tabela oficial da FIFA; os
-              terceiros colocados são encaixados provisoriamente entre os
-              grupos permitidos para cada confronto.
-            </p>
-          </div>
-
           <section className="knockout-card" aria-labelledby="knockout-title">
             <div className="group-table-title">
               <div>
-                <span className="eyebrow">SE ACABASSE AGORA</span>
-                <h2 id="knockout-title">Mata-mata projetado</h2>
+                <h2 id="knockout-title">Mata-mata</h2>
               </div>
-              <span>Final no centro · 16 avos divididos nos lados</span>
             </div>
 
             <div className="knockout-bracket">
@@ -838,11 +954,7 @@ export function GroupStandings({ matches }: Props) {
                             <strong>{match.home_team}</strong>
                           </span>
                           <b>
-                            {match.status === 'finished' &&
-                            match.home_score !== null &&
-                            match.away_score !== null
-                              ? `${match.home_score} × ${match.away_score}`
-                              : '×'}
+                            {formatMatchScore(match)}
                           </b>
                           <span>
                             <TeamFlag fallback={match.away_flag} team={match.away_team} />

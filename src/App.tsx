@@ -254,7 +254,11 @@ export default function App() {
     matchId: number,
     home: number,
     away: number,
-    options?: { silent?: boolean },
+    options?: {
+      awayPenalty?: number | null
+      homePenalty?: number | null
+      silent?: boolean
+    },
   ) {
     if (!supabase || !session) return false
 
@@ -277,13 +281,24 @@ export default function App() {
     return true
   }
 
-  async function saveResult(matchId: number, home: number, away: number) {
+  async function saveResult(
+    matchId: number,
+    home: number,
+    away: number,
+    options?: {
+      awayPenalty?: number | null
+      homePenalty?: number | null
+      silent?: boolean
+    },
+  ) {
     if (!supabase || !session) return false
 
     const { error } = await supabase.rpc('finish_match', {
       target_match_id: matchId,
       final_home_score: home,
       final_away_score: away,
+      final_home_penalty_score: options?.homePenalty ?? null,
+      final_away_penalty_score: options?.awayPenalty ?? null,
     })
 
     if (error) {
@@ -364,8 +379,11 @@ export default function App() {
 
   const displayName = profile?.display_name ?? 'Participante'
   const isAdmin = Boolean(profile?.is_admin)
-  const futureMatches = matches.filter((match) => match.status !== 'finished')
-  const finishedMatches = matches.filter((match) => match.status === 'finished')
+  const predictionMatches = matches.filter((match) => match.match_number <= 72)
+  const futureMatches = predictionMatches.filter((match) => match.status !== 'finished')
+  const finishedMatches = predictionMatches.filter((match) => match.status === 'finished')
+  const adminFutureMatches = matches.filter((match) => match.status !== 'finished')
+  const adminFinishedMatches = matches.filter((match) => match.status === 'finished')
   const futureMatchIds = new Set(futureMatches.map((match) => match.id))
   const futurePredictionsCount = predictions.filter((prediction) =>
     futureMatchIds.has(prediction.match_id),
@@ -512,17 +530,17 @@ export default function App() {
                   <span className="eyebrow">PENDENTES</span>
                   <h2>Jogos para publicar</h2>
                 </div>
-                <span>{futureMatches.length}</span>
+                <span>{adminFutureMatches.length}</span>
               </div>
 
-              {futureMatches.length > 0 ? (
+              {adminFutureMatches.length > 0 ? (
                 <div className="match-grid">
-                  {futureMatches.map((match) => (
+                  {adminFutureMatches.map((match) => (
                     <MatchCard
                       isAdmin
                       key={match.id}
                       match={match}
-                      onShowInfo={setInfoMatch}
+                      onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
                       onSave={saveResult}
                     />
                   ))}
@@ -534,25 +552,25 @@ export default function App() {
               )}
             </section>
 
-            {finishedMatches.length > 0 && (
+            {adminFinishedMatches.length > 0 && (
               <section className="admin-match-section published-results">
                 <div className="admin-section-heading">
                   <div>
                     <span className="eyebrow">HISTÓRICO</span>
                     <h2>Resultados publicados</h2>
                   </div>
-                  <span>{finishedMatches.length}</span>
+                  <span>{adminFinishedMatches.length}</span>
                 </div>
                 <p className="admin-section-description">
                   Os placares abaixo continuam disponíveis para eventuais correções.
                 </p>
                 <div className="match-grid">
-                  {finishedMatches.map((match) => (
+                  {adminFinishedMatches.map((match) => (
                     <MatchCard
                       isAdmin
                       key={match.id}
                       match={match}
-                      onShowInfo={setInfoMatch}
+                      onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
                       onSave={saveResult}
                     />
                   ))}

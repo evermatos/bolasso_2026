@@ -18,6 +18,8 @@ export type Match = {
   status: 'scheduled' | 'finished'
   home_score: number | null
   away_score: number | null
+  home_penalty_score: number | null
+  away_penalty_score: number | null
 }
 
 export type Prediction = {

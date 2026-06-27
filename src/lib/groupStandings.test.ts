@@ -22,6 +22,8 @@ function match(
     status: 'finished',
     home_score: homeScore,
     away_score: awayScore,
+    home_penalty_score: null,
+    away_penalty_score: null,
   }
 }
 
