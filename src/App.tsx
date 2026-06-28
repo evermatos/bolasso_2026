@@ -43,6 +43,8 @@ export default function App() {
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [ranking, setRanking] = useState<RankingRow[]>([])
+  const [groupRanking, setGroupRanking] = useState<RankingRow[]>([])
+  const [knockoutRanking, setKnockoutRanking] = useState<RankingRow[]>([])
   const [infoMatch, setInfoMatch] = useState<Match | null>(null)
   const [oracleMatch, setOracleMatch] = useState<Match | null>(null)
   const [notice, setNotice] = useState('')
@@ -63,8 +65,14 @@ export default function App() {
   const loadData = useCallback(async (userId: string) => {
     if (!supabase) return
 
-    const [profileResult, matchesResult, predictionsResult, rankingResult] =
-      await Promise.all([
+    const [
+      profileResult,
+      matchesResult,
+      predictionsResult,
+      rankingResult,
+      groupRankingResult,
+      knockoutRankingResult,
+    ] = await Promise.all([
         supabase
           .from('profiles')
           .select('id, display_name, avatar_key, is_admin')
@@ -76,6 +84,14 @@ export default function App() {
           .select('match_id, home_score, away_score, points')
           .eq('user_id', userId),
         supabase.rpc('get_ranking'),
+        supabase.rpc('get_ranking_by_match_range', {
+          min_match_number: 1,
+          max_match_number: 72,
+        }),
+        supabase.rpc('get_ranking_by_match_range', {
+          min_match_number: 73,
+          max_match_number: 104,
+        }),
       ])
 
     const error =
@@ -95,6 +111,12 @@ export default function App() {
     if (matchesResult.data) setMatches(matchesResult.data)
     if (predictionsResult.data) setPredictions(predictionsResult.data)
     if (rankingResult.data) setRanking(rankingResult.data)
+    if (!groupRankingResult.error && groupRankingResult.data) {
+      setGroupRanking(groupRankingResult.data)
+    }
+    if (!knockoutRankingResult.error && knockoutRankingResult.data) {
+      setKnockoutRanking(knockoutRankingResult.data)
+    }
     setLoading(false)
   }, [])
 
@@ -379,7 +401,7 @@ export default function App() {
 
   const displayName = profile?.display_name ?? 'Participante'
   const isAdmin = Boolean(profile?.is_admin)
-  const predictionMatches = matches.filter((match) => match.match_number <= 72)
+  const predictionMatches = matches.filter((match) => match.match_number <= 88)
   const futureMatches = predictionMatches.filter((match) => match.status !== 'finished')
   const finishedMatches = predictionMatches.filter((match) => match.status === 'finished')
   const adminFutureMatches = matches.filter((match) => match.status !== 'finished')
@@ -475,8 +497,8 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
-                  onAskOracle={setOracleMatch}
-                  onShowInfo={setInfoMatch}
+                  onAskOracle={match.match_number <= 72 ? setOracleMatch : undefined}
+                  onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}
                 />
@@ -496,7 +518,7 @@ export default function App() {
                     <MatchCard
                       key={match.id}
                       match={match}
-                      onShowInfo={setInfoMatch}
+                      onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
                       onSave={savePrediction}
                       prediction={predictionMap.get(match.id)}
                     />
@@ -508,7 +530,12 @@ export default function App() {
         )}
 
         {tab === 'ranking' && (
-          <Ranking rows={ranking} currentUserId={session?.user.id} />
+          <Ranking
+            currentUserId={session?.user.id}
+            groupRows={groupRanking}
+            knockoutRows={knockoutRanking}
+            rows={ranking}
+          />
         )}
 
         {tab === 'standings' && <GroupStandings matches={matches} />}

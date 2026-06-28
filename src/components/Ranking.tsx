@@ -5,6 +5,7 @@ import {
   LoaderCircle,
   Medal,
   Target,
+  Trophy,
   X,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -15,10 +16,41 @@ import { TeamFlag } from './TeamFlag'
 
 type Props = {
   rows: RankingRow[]
+  groupRows: RankingRow[]
+  knockoutRows: RankingRow[]
   currentUserId?: string
 }
 
-export function Ranking({ rows, currentUserId }: Props) {
+type RankingView = 'overall' | 'knockout' | 'groups'
+
+const rankingViews: Record<
+  RankingView,
+  { eyebrow: string; title: string; description: string }
+> = {
+  overall: {
+    eyebrow: 'CLASSIFICAÇÃO',
+    title: 'Ranking geral',
+    description: 'Soma todos os pontos do Bolasso 2026.',
+  },
+  knockout: {
+    eyebrow: 'MATA-MATA',
+    title: 'Ranking do mata-mata',
+    description: 'Conta somente os pontos a partir dos 16 avos de final.',
+  },
+  groups: {
+    eyebrow: 'FASE DE GRUPOS',
+    title: 'Ranking da fase de grupos',
+    description: 'A fotografia final da primeira fase, com direito a pódio.',
+  },
+}
+
+export function Ranking({
+  rows,
+  groupRows,
+  knockoutRows,
+  currentUserId,
+}: Props) {
+  const [activeView, setActiveView] = useState<RankingView>('overall')
   const [selectedParticipant, setSelectedParticipant] =
     useState<RankingRow | null>(null)
   const [participantPredictions, setParticipantPredictions] = useState<
@@ -71,75 +103,147 @@ export function Ranking({ rows, currentUserId }: Props) {
     return 'Permaneceu na mesma posição'
   }
 
+  const activeRows =
+    activeView === 'groups'
+      ? groupRows
+      : activeView === 'knockout'
+        ? knockoutRows
+        : rows
+  const activeCopy = rankingViews[activeView]
+  const podiumRows = groupRows.slice(0, 3)
+  const showMovement = activeView === 'overall'
+
   return (
     <div className="ranking-page">
       <section className="ranking-card">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">CLASSIFICAÇÃO</span>
-            <h2>Quem manda nos palpites</h2>
+            <span className="eyebrow">{activeCopy.eyebrow}</span>
+            <h2>{activeCopy.title}</h2>
+            <p>{activeCopy.description}</p>
           </div>
           <Medal size={28} />
         </div>
 
-        <div className="ranking-list">
-          {rows.map((row) => (
-            <button
-              aria-label={`Ver palpites de ${row.display_name}`}
-              className={`ranking-row ${
-                row.user_id === currentUserId ? 'current-user' : ''
-              }`}
-              key={row.user_id}
-              onClick={() => showPredictions(row)}
-              type="button"
-            >
-              <span className="ranking-position">
-                <span
-                  className={`position position-${row.ranking_position}`}
-                  title={
-                    row.is_tied
-                      ? 'Posição compartilhada: todos os critérios estão empatados'
-                      : undefined
-                  }
-                >
-                  {row.ranking_position}
-                  {row.is_tied && <sup>*</sup>}
-                </span>
-                <span
-                  aria-label={movementLabel(row.position_change)}
-                  className={`ranking-movement ${
-                    row.position_change > 0
-                      ? 'up'
-                      : row.position_change < 0
-                        ? 'down'
-                        : 'same'
-                  }`}
-                  title={movementLabel(row.position_change)}
-                >
-                  {row.position_change > 0 ? (
-                    <ArrowUp size={13} strokeWidth={3} />
-                  ) : row.position_change < 0 ? (
-                    <ArrowDown size={13} strokeWidth={3} />
-                  ) : (
-                    <span aria-hidden="true" />
+        <div className="ranking-tabs" role="tablist" aria-label="Rankings do Bolasso">
+          <button
+            aria-selected={activeView === 'overall'}
+            className={activeView === 'overall' ? 'active' : ''}
+            onClick={() => setActiveView('overall')}
+            role="tab"
+            type="button"
+          >
+            Geral
+          </button>
+          <button
+            aria-selected={activeView === 'knockout'}
+            className={activeView === 'knockout' ? 'active' : ''}
+            onClick={() => setActiveView('knockout')}
+            role="tab"
+            type="button"
+          >
+            Mata-mata
+          </button>
+          <button
+            aria-selected={activeView === 'groups'}
+            className={activeView === 'groups' ? 'active' : ''}
+            onClick={() => setActiveView('groups')}
+            role="tab"
+            type="button"
+          >
+            Grupos
+          </button>
+        </div>
+
+        {activeView === 'groups' && podiumRows.length > 0 && (
+          <div className="group-podium" aria-label="Pódio da fase de grupos">
+            <div className="podium-glow" aria-hidden="true">
+              <Trophy size={58} />
+            </div>
+            {podiumRows.map((row, index) => (
+              <article
+                className={`podium-place podium-place-${index + 1}`}
+                key={row.user_id}
+              >
+                <span>{index + 1}º</span>
+                <ProfileAvatar
+                  avatarKey={row.avatar_key}
+                  displayName={row.display_name}
+                  size="small"
+                />
+                <strong>{row.display_name}</strong>
+                <small>{row.total_points} pts</small>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {activeRows.length === 0 ? (
+          <p className="ranking-empty-state">
+            Esse ranking ainda não tem dados para exibir.
+          </p>
+        ) : (
+          <div className="ranking-list">
+            {activeRows.map((row) => (
+              <button
+                aria-label={`Ver palpites de ${row.display_name}`}
+                className={`ranking-row ${
+                  row.user_id === currentUserId ? 'current-user' : ''
+                }`}
+                key={row.user_id}
+                onClick={() => showPredictions(row)}
+                type="button"
+              >
+                <span className="ranking-position">
+                  <span
+                    className={`position position-${row.ranking_position}`}
+                    title={
+                      row.is_tied
+                        ? 'Posição compartilhada: todos os critérios estão empatados'
+                        : undefined
+                    }
+                  >
+                    {row.ranking_position}
+                    {row.is_tied && <sup>*</sup>}
+                  </span>
+                  {showMovement && (
+                    <span
+                      aria-label={movementLabel(row.position_change)}
+                      className={`ranking-movement ${
+                        row.position_change > 0
+                          ? 'up'
+                          : row.position_change < 0
+                            ? 'down'
+                            : 'same'
+                      }`}
+                      title={movementLabel(row.position_change)}
+                    >
+                      {row.position_change > 0 ? (
+                        <ArrowUp size={13} strokeWidth={3} />
+                      ) : row.position_change < 0 ? (
+                        <ArrowDown size={13} strokeWidth={3} />
+                      ) : (
+                        <span aria-hidden="true" />
+                      )}
+                    </span>
                   )}
                 </span>
-              </span>
-              <ProfileAvatar
-                avatarKey={row.avatar_key}
-                displayName={row.display_name}
-              />
-              <div className="ranking-name">
-                <strong>{row.display_name}</strong>
-                <small>
-                  {row.exact_scores} placares exatos · {row.predictions_count} palpites
-                </small>
-              </div>
-              <strong className="ranking-points">{row.total_points} pts</strong>
-              <Eye className="ranking-eye" size={18} />
-            </button>
-          ))}
-        </div>
+                <ProfileAvatar
+                  avatarKey={row.avatar_key}
+                  displayName={row.display_name}
+                />
+                <div className="ranking-name">
+                  <strong>{row.display_name}</strong>
+                  <small>
+                    {row.exact_scores} placares exatos · {row.predictions_count} palpites
+                  </small>
+                </div>
+                <strong className="ranking-points">{row.total_points} pts</strong>
+                <Eye className="ranking-eye" size={18} />
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {selectedParticipant && (
