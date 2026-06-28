@@ -45,14 +45,18 @@ function TeamHistory({
           {matches.map((match) => {
             const isHome = match.home_team === team
             const opponent = isHome ? match.away_team : match.home_team
+            const teamFlag = isHome ? match.home_flag : match.away_flag
             const opponentFlag = isHome ? match.away_flag : match.home_flag
 
             return (
               <article key={`${team}-${match.id}`}>
                 <div className="knockout-history-line">
-                  <span>Jogo {match.match_number}</span>
                   <p>
-                    vs <TeamFlag fallback={opponentFlag} team={opponent} /> {opponent}
+                    <TeamFlag fallback={teamFlag} team={team} />
+                    <strong>{team}</strong>
+                    <span>vs</span>
+                    <TeamFlag fallback={opponentFlag} team={opponent} />
+                    <strong>{opponent}</strong>
                   </p>
                   <small>
                     {match.status === 'finished'
