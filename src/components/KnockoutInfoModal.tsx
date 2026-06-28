@@ -43,27 +43,31 @@ function TeamHistory({
       ) : (
         <div className="knockout-history-list">
           {matches.map((match) => {
-            const isHome = match.home_team === team
-            const opponent = isHome ? match.away_team : match.home_team
-            const teamFlag = isHome ? match.home_flag : match.away_flag
-            const opponentFlag = isHome ? match.away_flag : match.home_flag
+            const hasFinalScore =
+              match.status === 'finished' &&
+              match.home_score !== null &&
+              match.away_score !== null
 
             return (
               <article key={`${team}-${match.id}`}>
-                <div className="knockout-history-line">
-                  <p>
-                    <TeamFlag fallback={teamFlag} team={team} />
-                    <strong>{team}</strong>
-                    <span>vs</span>
-                    <TeamFlag fallback={opponentFlag} team={opponent} />
-                    <strong>{opponent}</strong>
-                  </p>
-                  <small>
-                    {match.status === 'finished'
+                <div className="knockout-history-scoreline">
+                  <span className="knockout-history-side">
+                    <TeamFlag fallback={match.home_flag} team={match.home_team} />
+                    <strong>{match.home_team}</strong>
+                  </span>
+                  <strong className="knockout-history-score">
+                    {hasFinalScore
                       ? `${match.home_score} × ${match.away_score}`
-                      : formatter.format(new Date(match.kickoff_at))}
-                  </small>
+                      : '×'}
+                  </strong>
+                  <span className="knockout-history-side is-away">
+                    <strong>{match.away_team}</strong>
+                    <TeamFlag fallback={match.away_flag} team={match.away_team} />
+                  </span>
                 </div>
+                {!hasFinalScore && (
+                  <small>{formatter.format(new Date(match.kickoff_at))}</small>
+                )}
               </article>
             )
           })}
