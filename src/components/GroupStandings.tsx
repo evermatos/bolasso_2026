@@ -565,6 +565,133 @@ function matchesByNumber(slots: ResolvedOfficialSlot[], numbers: number[]) {
     .filter((slot): slot is ResolvedOfficialSlot => Boolean(slot))
 }
 
+const BRACKET_TRACK_BY_MATCH: Record<number, number> = {
+  73: 1,
+  75: 3,
+  74: 5,
+  77: 7,
+  82: 9,
+  81: 11,
+  84: 13,
+  83: 15,
+  90: 2,
+  89: 6,
+  94: 10,
+  93: 14,
+  97: 4,
+  98: 12,
+  101: 8,
+  76: 1,
+  78: 3,
+  79: 5,
+  80: 7,
+  85: 9,
+  87: 11,
+  88: 13,
+  86: 15,
+  91: 2,
+  92: 6,
+  96: 10,
+  95: 14,
+  99: 4,
+  100: 12,
+  102: 8,
+}
+
+const LEFT_CONNECTOR_PAIRS = [
+  { from: [73, 75], to: 90 },
+  { from: [74, 77], to: 89 },
+  { from: [82, 81], to: 94 },
+  { from: [84, 83], to: 93 },
+  { from: [90, 89], to: 97 },
+  { from: [94, 93], to: 98 },
+  { from: [97, 98], to: 101 },
+]
+
+const RIGHT_CONNECTOR_PAIRS = [
+  { from: [76, 78], to: 91 },
+  { from: [79, 80], to: 92 },
+  { from: [85, 87], to: 96 },
+  { from: [88, 86], to: 95 },
+  { from: [91, 92], to: 99 },
+  { from: [96, 95], to: 100 },
+  { from: [99, 100], to: 102 },
+]
+
+function bracketGridRow(matchNumber: number) {
+  return BRACKET_TRACK_BY_MATCH[matchNumber] ?? 'auto'
+}
+
+function connectorColumn(matchNumber: number, side: 'left' | 'right') {
+  const round = OFFICIAL_KNOCKOUT_SLOTS.find(
+    (slot) => slot.matchNumber === matchNumber,
+  )?.round
+
+  if (side === 'left') {
+    if (round === '16 avos') return 0
+    if (round === 'Oitavas') return 1
+    if (round === 'Quartas') return 2
+    return 3
+  }
+
+  if (round === '16 avos') return 3
+  if (round === 'Oitavas') return 2
+  if (round === 'Quartas') return 1
+  return 0
+}
+
+function BracketConnectors({ side }: { side: 'left' | 'right' }) {
+  const pairs = side === 'left' ? LEFT_CONNECTOR_PAIRS : RIGHT_CONNECTOR_PAIRS
+  const columnWidth = 100
+  const columnGap = 8
+  const rowHeight = 54
+
+  function rowY(matchNumber: number) {
+    return ((BRACKET_TRACK_BY_MATCH[matchNumber] ?? 1) - 0.5) * rowHeight
+  }
+
+  function edgeX(matchNumber: number, edge: 'from' | 'to') {
+    const column = connectorColumn(matchNumber, side)
+    const start = column * (columnWidth + columnGap)
+    const end = start + columnWidth
+
+    if (side === 'left') return edge === 'from' ? end : start
+    return edge === 'from' ? start : end
+  }
+
+  return (
+    <svg
+      aria-hidden="true"
+      className={`knockout-connectors knockout-connectors-${side}`}
+      focusable="false"
+      viewBox="0 0 424 864"
+    >
+      {pairs.map(({ from, to }) => {
+        const [first, second] = from
+        const firstY = rowY(first)
+        const secondY = rowY(second)
+        const targetY = rowY(to)
+        const firstX = edgeX(first, 'from')
+        const secondX = edgeX(second, 'from')
+        const targetX = edgeX(to, 'to')
+        const trunkX =
+          side === 'left'
+            ? Math.max(firstX, targetX) + columnGap / 2
+            : Math.min(firstX, targetX) - columnGap / 2
+
+        return (
+          <g key={`${first}-${second}-${to}`}>
+            <path d={`M ${firstX} ${firstY} H ${trunkX}`} />
+            <path d={`M ${secondX} ${secondY} H ${trunkX}`} />
+            <path d={`M ${trunkX} ${firstY} V ${secondY}`} />
+            <path d={`M ${trunkX} ${targetY} H ${targetX}`} />
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
 function BracketColumn({
   matches,
   onSelect,
@@ -586,6 +713,7 @@ function BracketColumn({
             }`}
             key={match.matchNumber}
             onClick={() => onSelect(match)}
+            style={{ gridRow: bracketGridRow(match.matchNumber) }}
             type="button"
           >
             <small className="knockout-match-number">Jogo {match.matchNumber}</small>
@@ -772,6 +900,7 @@ export function GroupStandings({ matches }: Props) {
 
             <div className="knockout-bracket">
               <div className="knockout-side left-side">
+                <BracketConnectors side="left" />
                 <BracketColumn
                   matches={leftRoundOf32}
                   onSelect={setSelectedKnockoutMatch}
@@ -808,6 +937,7 @@ export function GroupStandings({ matches }: Props) {
               </div>
 
               <div className="knockout-side right-side">
+                <BracketConnectors side="right" />
                 <BracketColumn
                   matches={rightSemis}
                   onSelect={setSelectedKnockoutMatch}
