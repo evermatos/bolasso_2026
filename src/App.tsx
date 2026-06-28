@@ -25,6 +25,21 @@ import type { Match, Prediction, Profile, RankingRow } from './types'
 type Tab = 'matches' | 'standings' | 'ranking' | 'admin' | 'profile'
 type Theme = 'light' | 'dark'
 
+function comparePredictionMatches(left: Match, right: Match) {
+  const leftIsKnockout = left.match_number >= 73
+  const rightIsKnockout = right.match_number >= 73
+
+  if (leftIsKnockout && rightIsKnockout) {
+    return (
+      new Date(left.kickoff_at).getTime() -
+        new Date(right.kickoff_at).getTime() ||
+      left.match_number - right.match_number
+    )
+  }
+
+  return left.match_number - right.match_number
+}
+
 function getInitialTheme(): Theme {
   const savedTheme = window.localStorage.getItem('bolasso-theme')
   if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme
@@ -402,8 +417,12 @@ export default function App() {
   const displayName = profile?.display_name ?? 'Participante'
   const isAdmin = Boolean(profile?.is_admin)
   const predictionMatches = matches.filter((match) => match.match_number <= 88)
-  const futureMatches = predictionMatches.filter((match) => match.status !== 'finished')
-  const finishedMatches = predictionMatches.filter((match) => match.status === 'finished')
+  const futureMatches = predictionMatches
+    .filter((match) => match.status !== 'finished')
+    .sort(comparePredictionMatches)
+  const finishedMatches = predictionMatches
+    .filter((match) => match.status === 'finished')
+    .sort(comparePredictionMatches)
   const adminFutureMatches = matches.filter((match) => match.status !== 'finished')
   const adminFinishedMatches = matches.filter((match) => match.status === 'finished')
   const futureMatchIds = new Set(futureMatches.map((match) => match.id))
