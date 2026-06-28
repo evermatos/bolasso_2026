@@ -10,6 +10,7 @@
     "odds:list-sports": "node scripts/sync-match-odds.mjs --list-sports",
     "odds:sync": "node scripts/sync-match-odds.mjs",
     "odds:sync:dry": "node scripts/sync-match-odds.mjs --dry-run",
+    "oracle:clear-round-of-32": "node scripts/clear-round-of-32-oracles.mjs",
     "test": "vitest run",
     "preview": "vite preview"
   },

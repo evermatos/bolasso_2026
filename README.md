@@ -67,6 +67,12 @@ O script usa `ODDS_SPORT_KEY=soccer_fifa_world_cup` por padrão. Se a API ainda
 não disponibilizar odds da Copa, use `npm run odds:list-sports` para descobrir
 qual chave está ativa.
 
+Para atualizar o polvo nos 16 avos, rode o `odds:sync:dry`, confirme que os
+jogos 73 a 88 foram encontrados, rode `odds:sync` e depois limpe previsões
+antigas com `npm run oracle:clear-round-of-32`. Se preferir fazer manualmente,
+execute `supabase/migrations/20260628_clear_round_of_32_oracles.sql` no
+Supabase.
+
 ## Sobre
 
 O Bolasso 2026 foi criado para uma competição informal entre amigos. Não

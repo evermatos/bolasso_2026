@@ -497,7 +497,7 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
-                  onAskOracle={match.match_number <= 72 ? setOracleMatch : undefined}
+                  onAskOracle={match.match_number <= 88 ? setOracleMatch : undefined}
                   onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}

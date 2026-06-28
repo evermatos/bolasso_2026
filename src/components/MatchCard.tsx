@@ -122,8 +122,8 @@ export function MatchCard({
   return (
     <article
       className={`match-card ${match.status === 'finished' ? 'finished' : ''} ${
-        isBrazilMatch ? 'brazil-match' : ''
-      }`}
+        isKnockoutMatch ? 'knockout-match-card' : ''
+      } ${isBrazilMatch ? 'brazil-match' : ''}`}
     >
       <div className="match-meta">
         <span>{match.stage}</span>
