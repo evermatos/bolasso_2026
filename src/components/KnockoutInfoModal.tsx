@@ -28,16 +28,6 @@ function teamHistory(team: string, matches: Match[], currentMatchNumber: number)
     .sort((left, right) => left.match_number - right.match_number)
 }
 
-function resultForTeam(match: Match, team: string) {
-  if (match.status !== 'finished') return 'Aguardando'
-  const isHome = match.home_team === team
-  const teamScore = isHome ? match.home_score : match.away_score
-  const opponentScore = isHome ? match.away_score : match.home_score
-
-  if (teamScore === opponentScore) return 'Empate'
-  return Number(teamScore) > Number(opponentScore) ? 'Vitória' : 'Derrota'
-}
-
 function TeamHistory({
   matches,
   team,
@@ -59,18 +49,17 @@ function TeamHistory({
 
             return (
               <article key={`${team}-${match.id}`}>
-                <span>Jogo {match.match_number}</span>
-                <div>
-                  <strong>{resultForTeam(match, team)}</strong>
+                <div className="knockout-history-line">
+                  <span>Jogo {match.match_number}</span>
+                  <p>
+                    vs <TeamFlag fallback={opponentFlag} team={opponent} /> {opponent}
+                  </p>
                   <small>
                     {match.status === 'finished'
                       ? `${match.home_score} × ${match.away_score}`
                       : formatter.format(new Date(match.kickoff_at))}
                   </small>
                 </div>
-                <p>
-                  vs <TeamFlag fallback={opponentFlag} team={opponent} /> {opponent}
-                </p>
               </article>
             )
           })}
