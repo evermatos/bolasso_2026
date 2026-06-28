@@ -591,7 +591,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .knockout-history-list { display: grid; gap: 9px; }
 .knockout-history-list article { min-width: 0; padding: 11px; border-radius: 12px; background: var(--surface-soft); }
 .knockout-history-scoreline { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
-.knockout-history-side { min-width: 0; display: flex; align-items: center; gap: 6px; color: var(--ink); font-size: 0.76rem; font-weight: 800; }
+.knockout-history-side { min-width: 0; display: flex; align-items: center; gap: 6px; color: var(--text); font-size: 0.76rem; font-weight: 800; }
 .knockout-history-side.is-away { justify-content: flex-end; text-align: right; }
 .knockout-history-side strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .knockout-history-score { padding: 4px 8px; border: 1px solid rgb(6 122 80 / 18%); border-radius: 999px; color: var(--green); background: rgb(6 122 80 / 8%); font: 900 0.78rem 'Manrope'; white-space: nowrap; }
