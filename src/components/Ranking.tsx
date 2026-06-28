@@ -111,7 +111,7 @@ export function Ranking({
         : rows
   const activeCopy = rankingViews[activeView]
   const podiumRows = groupRows.slice(0, 3)
-  const showMovement = activeView === 'overall'
+  const showMovement = activeView !== 'groups'
 
   return (
     <div className="ranking-page">

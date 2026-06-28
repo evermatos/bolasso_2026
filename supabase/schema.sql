@@ -77,6 +77,15 @@ create table public.ranking_movements (
   updated_at timestamptz not null default now()
 );
 
+create table public.ranking_stage_movements (
+  stage text not null,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  previous_position integer not null check (previous_position > 0),
+  current_position integer not null check (current_position > 0),
+  updated_at timestamptz not null default now(),
+  primary key (stage, user_id)
+);
+
 create table public.oracle_predictions (
   user_id uuid not null references public.profiles(id) on delete cascade,
   match_id bigint not null references public.matches(id) on delete cascade,
@@ -493,6 +502,67 @@ begin
 end;
 $$;
 
+create or replace function public.refresh_knockout_ranking_movements()
+returns void
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  with scoped_predictions as (
+    select pr.*
+    from public.predictions pr
+    join public.matches m on m.id = pr.match_id
+    where m.match_number between 73 and 104
+  ),
+  totals as (
+    select
+      p.id as user_id,
+      coalesce(sum(sp.points), 0)::bigint as total_points,
+      count(*) filter (where sp.points = 7)::bigint as exact_scores,
+      count(*) filter (where sp.points = 5)::bigint as five_point_scores,
+      count(*) filter (where sp.points = 3)::bigint as three_point_scores,
+      count(*) filter (where sp.points = 1)::bigint as one_point_scores
+    from public.profiles p
+    left join scoped_predictions sp on sp.user_id = p.id
+    group by p.id
+  ),
+  ranked as (
+    select
+      user_id,
+      rank() over (
+        order by
+          total_points desc,
+          exact_scores desc,
+          five_point_scores desc,
+          three_point_scores desc,
+          one_point_scores desc
+      )::integer as ranking_position
+    from totals
+  )
+  insert into public.ranking_stage_movements (
+    stage,
+    user_id,
+    previous_position,
+    current_position,
+    updated_at
+  )
+  select
+    'knockout',
+    ranked.user_id,
+    coalesce(movements.current_position, ranked.ranking_position),
+    ranked.ranking_position,
+    now()
+  from ranked
+  left join public.ranking_stage_movements movements
+    on movements.stage = 'knockout'
+    and movements.user_id = ranked.user_id
+  on conflict (stage, user_id) do update
+  set previous_position = public.ranking_stage_movements.current_position,
+      current_position = excluded.current_position,
+      updated_at = excluded.updated_at;
+end;
+$$;
+
 create or replace function public.finish_match(
   target_match_id bigint,
   final_home_score integer,
@@ -578,6 +648,10 @@ begin
   where match_id = target_match_id;
 
   perform public.refresh_ranking_movements();
+
+  if target_match_number >= 73 then
+    perform public.refresh_knockout_ranking_movements();
+  end if;
 end;
 $$;
 
@@ -727,7 +801,14 @@ as $$
     ranked.display_name,
     ranked.avatar_key,
     ranked.ranking_position,
-    0::integer as position_change,
+    case
+      when min_match_number = 73 and max_match_number = 104 then
+        coalesce(
+          movements.previous_position - movements.current_position,
+          0
+        )::integer
+      else 0::integer
+    end as position_change,
     ranked.is_tied,
     ranked.total_points,
     ranked.exact_scores,
@@ -736,6 +817,11 @@ as $$
     ranked.one_point_scores,
     ranked.predictions_count
   from ranked
+  left join public.ranking_stage_movements movements
+    on movements.stage = 'knockout'
+    and movements.user_id = ranked.user_id
+    and min_match_number = 73
+    and max_match_number = 104
   order by ranked.ranking_position, ranked.display_name asc;
 $$;
 
@@ -743,6 +829,7 @@ alter table public.profiles enable row level security;
 alter table public.matches enable row level security;
 alter table public.predictions enable row level security;
 alter table public.ranking_movements enable row level security;
+alter table public.ranking_stage_movements enable row level security;
 alter table public.oracle_predictions enable row level security;
 alter table public.match_odds enable row level security;
 
@@ -806,6 +893,8 @@ revoke all on function public.finish_match(bigint, integer, integer, integer, in
 grant execute on function public.finish_match(bigint, integer, integer, integer, integer) to authenticated;
 revoke all on function public.refresh_ranking_movements() from public;
 revoke all on function public.refresh_ranking_movements() from authenticated;
+revoke all on function public.refresh_knockout_ranking_movements() from public;
+revoke all on function public.refresh_knockout_ranking_movements() from authenticated;
 revoke all on function public.get_oracle_prediction(bigint) from public;
 grant execute on function public.get_oracle_prediction(bigint) to authenticated;
 revoke all on function public.get_ranking() from public;
