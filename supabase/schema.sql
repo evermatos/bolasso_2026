@@ -65,7 +65,8 @@ create table public.predictions (
   match_id bigint not null references public.matches(id) on delete cascade,
   home_score smallint not null check (home_score between 0 and 99),
   away_score smallint not null check (away_score between 0 and 99),
-  points smallint check (points between 0 and 7),
+  predicted_qualifier text check (predicted_qualifier in ('home', 'away')),
+  points smallint check (points between 0 and 9),
   updated_at timestamptz not null default now(),
   primary key (user_id, match_id)
 );
@@ -401,6 +402,10 @@ as $$
 begin
   new.updated_at := now();
 
+  if new.home_score <> new.away_score then
+    new.predicted_qualifier := null;
+  end if;
+
   if tg_op = 'INSERT' then
     new.points := null;
   elsif not public.is_admin() then
@@ -419,7 +424,10 @@ create or replace function public.calculate_points(
   predicted_home integer,
   predicted_away integer,
   final_home integer,
-  final_away integer
+  final_away integer,
+  predicted_qualifier text default null,
+  final_home_penalty_score integer default null,
+  final_away_penalty_score integer default null
 )
 returns integer
 language plpgsql
@@ -428,12 +436,12 @@ as $$
 declare
   outcome_points integer := 0;
   one_score_point integer := 0;
+  qualifier_points integer := 0;
+  final_qualifier text := null;
 begin
   if predicted_home = final_home and predicted_away = final_away then
-    return 7;
-  end if;
-
-  if sign(predicted_home - predicted_away) = sign(final_home - final_away) then
+    outcome_points := 7;
+  elsif sign(predicted_home - predicted_away) = sign(final_home - final_away) then
     outcome_points := 3;
   end if;
 
@@ -442,10 +450,27 @@ begin
   end if;
 
   if outcome_points = 3 and one_score_point = 1 then
-    return 5;
+    outcome_points := 5;
+    one_score_point := 0;
   end if;
 
-  return outcome_points + one_score_point;
+  if final_home = final_away
+    and predicted_home = predicted_away
+    and predicted_qualifier in ('home', 'away')
+    and final_home_penalty_score is not null
+    and final_away_penalty_score is not null
+    and final_home_penalty_score <> final_away_penalty_score then
+    final_qualifier := case
+      when final_home_penalty_score > final_away_penalty_score then 'home'
+      else 'away'
+    end;
+
+    if predicted_qualifier = final_qualifier then
+      qualifier_points := 2;
+    end if;
+  end if;
+
+  return outcome_points + one_score_point + qualifier_points;
 end;
 $$;
 
@@ -460,7 +485,7 @@ begin
       p.id as user_id,
       p.display_name,
       coalesce(sum(pr.points), 0)::bigint as total_points,
-      count(*) filter (where pr.points = 7)::bigint as exact_scores,
+      count(*) filter (where pr.points in (7, 9))::bigint as exact_scores,
       count(*) filter (where pr.points = 5)::bigint as five_point_scores,
       count(*) filter (where pr.points = 3)::bigint as three_point_scores,
       count(*) filter (where pr.points = 1)::bigint as one_point_scores
@@ -518,7 +543,7 @@ begin
     select
       p.id as user_id,
       coalesce(sum(sp.points), 0)::bigint as total_points,
-      count(*) filter (where sp.points = 7)::bigint as exact_scores,
+      count(*) filter (where sp.points in (7, 9))::bigint as exact_scores,
       count(*) filter (where sp.points = 5)::bigint as five_point_scores,
       count(*) filter (where sp.points = 3)::bigint as three_point_scores,
       count(*) filter (where sp.points = 1)::bigint as one_point_scores
@@ -643,7 +668,10 @@ begin
     home_score,
     away_score,
     final_home_score,
-    final_away_score
+    final_away_score,
+    predicted_qualifier,
+    final_home_penalty_score,
+    final_away_penalty_score
   )
   where match_id = target_match_id;
 
@@ -680,7 +708,7 @@ as $$
       p.display_name,
       p.avatar_key,
       coalesce(sum(pr.points), 0)::bigint as total_points,
-      count(*) filter (where pr.points = 7)::bigint as exact_scores,
+      count(*) filter (where pr.points in (7, 9))::bigint as exact_scores,
       count(*) filter (where pr.points = 5)::bigint as five_point_scores,
       count(*) filter (where pr.points = 3)::bigint as three_point_scores,
       count(*) filter (where pr.points = 1)::bigint as one_point_scores,
@@ -766,7 +794,7 @@ as $$
       p.display_name,
       p.avatar_key,
       coalesce(sum(sp.points), 0)::bigint as total_points,
-      count(*) filter (where sp.points = 7)::bigint as exact_scores,
+      count(*) filter (where sp.points in (7, 9))::bigint as exact_scores,
       count(*) filter (where sp.points = 5)::bigint as five_point_scores,
       count(*) filter (where sp.points = 3)::bigint as three_point_scores,
       count(*) filter (where sp.points = 1)::bigint as one_point_scores,

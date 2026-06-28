@@ -26,6 +26,7 @@ export type Prediction = {
   match_id: number
   home_score: number
   away_score: number
+  predicted_qualifier: 'home' | 'away' | null
   points: number | null
 }
 
@@ -65,5 +66,6 @@ export type ParticipantPrediction = {
   final_away_score: number | null
   predicted_home_score: number
   predicted_away_score: number
+  predicted_qualifier: 'home' | 'away' | null
   points: number | null
 }

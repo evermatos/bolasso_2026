@@ -341,6 +341,7 @@ export function Ranking({
           <div><strong>7 pts</strong><span>Acertou o placar exato</span></div>
           <div><strong>5 pts</strong><span>Acertou o resultado e os gols de uma seleção</span></div>
           <div><strong>3 pts</strong><span>Acertou quem venceu ou acertou o empate</span></div>
+          <div><strong>+2 pts</strong><span>No mata-mata, acertou quem se classifica após empate</span></div>
           <div><strong>1 pt</strong><span>Acertou apenas os gols de uma seleção</span></div>
           <div><strong>0 pts</strong><span>Não acertou nenhuma das condições</span></div>
         </div>

@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthScreen } from './components/AuthScreen'
 import { GroupInfoModal } from './components/GroupInfoModal'
 import { GroupStandings } from './components/GroupStandings'
+import { KnockoutInfoModal } from './components/KnockoutInfoModal'
 import { MatchCard } from './components/MatchCard'
 import { OraclePredictionModal } from './components/OraclePredictionModal'
 import { ProfileAvatar } from './components/ProfileAvatar'
@@ -96,7 +97,7 @@ export default function App() {
         supabase.from('matches').select('*').order('match_number'),
         supabase
           .from('predictions')
-          .select('match_id, home_score, away_score, points')
+          .select('match_id, home_score, away_score, predicted_qualifier, points')
           .eq('user_id', userId),
         supabase.rpc('get_ranking'),
         supabase.rpc('get_ranking_by_match_range', {
@@ -294,6 +295,7 @@ export default function App() {
     options?: {
       awayPenalty?: number | null
       homePenalty?: number | null
+      predictedQualifier?: 'home' | 'away' | null
       silent?: boolean
     },
   ) {
@@ -305,6 +307,7 @@ export default function App() {
         match_id: matchId,
         home_score: home,
         away_score: away,
+        predicted_qualifier: options?.predictedQualifier ?? null,
       },
       { onConflict: 'user_id,match_id' },
     )
@@ -325,6 +328,7 @@ export default function App() {
     options?: {
       awayPenalty?: number | null
       homePenalty?: number | null
+      predictedQualifier?: 'home' | 'away' | null
       silent?: boolean
     },
   ) {
@@ -517,7 +521,7 @@ export default function App() {
                   key={match.id}
                   match={match}
                   onAskOracle={match.match_number <= 88 ? setOracleMatch : undefined}
-                  onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
+                  onShowInfo={setInfoMatch}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}
                 />
@@ -537,7 +541,7 @@ export default function App() {
                     <MatchCard
                       key={match.id}
                       match={match}
-                      onShowInfo={match.match_number <= 72 ? setInfoMatch : undefined}
+                      onShowInfo={setInfoMatch}
                       onSave={savePrediction}
                       prediction={predictionMap.get(match.id)}
                     />
@@ -656,8 +660,15 @@ export default function App() {
       </nav>
 
       {notice && <div className="toast">{notice}</div>}
-      {infoMatch && (
+      {infoMatch && infoMatch.match_number <= 72 && (
         <GroupInfoModal
+          match={infoMatch}
+          matches={matches}
+          onClose={() => setInfoMatch(null)}
+        />
+      )}
+      {infoMatch && infoMatch.match_number >= 73 && (
+        <KnockoutInfoModal
           match={infoMatch}
           matches={matches}
           onClose={() => setInfoMatch(null)}

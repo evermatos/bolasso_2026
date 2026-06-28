@@ -17,6 +17,7 @@ type Props = {
     options?: {
       awayPenalty?: number | null
       homePenalty?: number | null
+      predictedQualifier?: 'home' | 'away' | null
       silent?: boolean
     },
   ) => Promise<boolean>
@@ -44,10 +45,14 @@ export function MatchCard({
   const initialAway = showFinalScore ? match.away_score : prediction?.away_score
   const initialHomePenalty = showFinalScore ? match.home_penalty_score : null
   const initialAwayPenalty = showFinalScore ? match.away_penalty_score : null
+  const initialPredictedQualifier = prediction?.predicted_qualifier ?? null
   const [home, setHome] = useState(initialHome?.toString() ?? '')
   const [away, setAway] = useState(initialAway?.toString() ?? '')
   const [homePenalty, setHomePenalty] = useState(initialHomePenalty?.toString() ?? '')
   const [awayPenalty, setAwayPenalty] = useState(initialAwayPenalty?.toString() ?? '')
+  const [predictedQualifier, setPredictedQualifier] = useState<
+    'home' | 'away' | ''
+  >(initialPredictedQualifier ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [now, setNow] = useState(Date.now())
@@ -61,16 +66,29 @@ export function MatchCard({
   const isKnockoutMatch = match.match_number >= 73
   const needsPenaltyScore =
     Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
+  const needsPredictedQualifier =
+    Boolean(!isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
 
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
     setAway(initialAway?.toString() ?? '')
     setHomePenalty(initialHomePenalty?.toString() ?? '')
     setAwayPenalty(initialAwayPenalty?.toString() ?? '')
+    setPredictedQualifier(initialPredictedQualifier ?? '')
     if (!isAdmin && prediction) {
-      lastSavedScore.current = `${prediction.home_score}:${prediction.away_score}`
+      lastSavedScore.current = `${prediction.home_score}:${prediction.away_score}:${
+        prediction.predicted_qualifier ?? ''
+      }`
     }
-  }, [initialAway, initialAwayPenalty, initialHome, initialHomePenalty, isAdmin, prediction])
+  }, [
+    initialAway,
+    initialAwayPenalty,
+    initialHome,
+    initialHomePenalty,
+    initialPredictedQualifier,
+    isAdmin,
+    prediction,
+  ])
 
   useEffect(() => {
     if ((!isAdmin && locked) || (isAdmin && kickoffStarted)) return
@@ -91,22 +109,39 @@ export function MatchCard({
       {
         awayPenalty: needsPenaltyScore ? Number(awayPenalty) : null,
         homePenalty: needsPenaltyScore ? Number(homePenalty) : null,
+        predictedQualifier: needsPredictedQualifier
+          ? predictedQualifier || null
+          : null,
         silent,
       },
     )
     savingRef.current = false
     setSaving(false)
     if (succeeded) {
-      lastSavedScore.current = `${home}:${away}`
+      lastSavedScore.current = `${home}:${away}:${
+        needsPredictedQualifier ? predictedQualifier : ''
+      }`
       setSaved(true)
       window.setTimeout(() => setSaved(false), 1800)
     }
-  }, [away, awayPenalty, home, homePenalty, match.id, needsPenaltyScore, onSave])
+  }, [
+    away,
+    awayPenalty,
+    home,
+    homePenalty,
+    match.id,
+    needsPenaltyScore,
+    needsPredictedQualifier,
+    onSave,
+    predictedQualifier,
+  ])
 
   useEffect(() => {
     if (isAdmin || locked || home === '' || away === '') return
 
-    const score = `${home}:${away}`
+    if (needsPredictedQualifier && !predictedQualifier) return
+
+    const score = `${home}:${away}:${needsPredictedQualifier ? predictedQualifier : ''}`
     if (score === lastSavedScore.current) return
 
     const timer = window.setTimeout(() => {
@@ -114,7 +149,7 @@ export function MatchCard({
     }, 900)
 
     return () => window.clearTimeout(timer)
-  }, [away, home, isAdmin, locked, save])
+  }, [away, home, isAdmin, locked, needsPredictedQualifier, predictedQualifier, save])
 
   const isBrazilMatch =
     match.home_team === 'Brasil' || match.away_team === 'Brasil'
@@ -130,13 +165,17 @@ export function MatchCard({
         <div>
           {onShowInfo && (
             <button
-              aria-label={`Ver classificação e resultados do ${match.stage}`}
+              aria-label={
+                isKnockoutMatch
+                  ? `Ver histórico de ${match.home_team} e ${match.away_team}`
+                  : `Ver classificação e resultados do ${match.stage}`
+              }
               className="match-info-button"
               onClick={() => onShowInfo(match)}
               type="button"
             >
               <Info size={14} />
-              <span>Info do grupo</span>
+              <span>{isKnockoutMatch ? 'Histórico' : 'Info do grupo'}</span>
             </button>
           )}
           <span>
@@ -209,6 +248,32 @@ export function MatchCard({
         </div>
       </div>
 
+      {needsPredictedQualifier && (
+        <div className="qualifier-picker">
+          <span>Se empatar, quem se classifica?</span>
+          <div>
+            <button
+              className={predictedQualifier === 'home' ? 'active' : ''}
+              disabled={locked}
+              onClick={() => setPredictedQualifier('home')}
+              type="button"
+            >
+              <TeamFlag fallback={match.home_flag} team={match.home_team} />
+              {match.home_team}
+            </button>
+            <button
+              className={predictedQualifier === 'away' ? 'active' : ''}
+              disabled={locked}
+              onClick={() => setPredictedQualifier('away')}
+              type="button"
+            >
+              <TeamFlag fallback={match.away_flag} team={match.away_team} />
+              {match.away_team}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="match-footer">
         <div className="match-footer-side">
           <span className="venue">{match.venue}</span>
@@ -246,7 +311,8 @@ export function MatchCard({
               saving ||
               home === '' ||
               away === '' ||
-              (needsPenaltyScore && (homePenalty === '' || awayPenalty === ''))
+              (needsPenaltyScore && (homePenalty === '' || awayPenalty === '')) ||
+              (needsPredictedQualifier && !predictedQualifier)
             }
             onClick={() => save(false)}
             type="button"
