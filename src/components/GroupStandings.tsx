@@ -168,6 +168,17 @@ const OFFICIAL_KNOCKOUT_SLOTS: OfficialSlot[] = [
   { matchNumber: 104, round: 'Final', placeholderA: 'W101', placeholderB: 'W102' },
 ]
 
+const THIRD_PLACE_SLOT_PRIORITY: Record<string, string[]> = {
+  '74:3ABCDF': ['D', 'B', 'A', 'C', 'F'],
+  '77:3CDFGH': ['F', 'C', 'D', 'G', 'H'],
+  '79:3CEFHI': ['E', 'C', 'F', 'H', 'I'],
+  '80:3EHIJK': ['K', 'E', 'H', 'I', 'J'],
+  '81:3BEFIJ': ['B', 'E', 'F', 'I', 'J'],
+  '82:3AEHIJ': ['I', 'A', 'E', 'H', 'J'],
+  '85:3EFGIJ': ['J', 'E', 'F', 'G', 'I'],
+  '87:3DEIJL': ['L', 'D', 'E', 'I', 'J'],
+}
+
 function compareProjectedTeams(a: ProjectedTeam, b: ProjectedTeam) {
   return (
     b.points - a.points ||
@@ -305,6 +316,10 @@ function thirdPlaceholderKey(matchNumber: number, placeholder: string) {
   return `${matchNumber}:${placeholder}`
 }
 
+function groupLetter(group: string) {
+  return group.replace('Grupo ', '')
+}
+
 function allowedThirdGroups(placeholder: string) {
   const match = placeholder.match(/^3([A-L]+)$/)
   if (!match) return null
@@ -324,7 +339,20 @@ function allocateThirdsToOfficialSlots(bestThirds: ProjectedTeam[]) {
         ? slot.placeholderA
         : slot.placeholderB
       const allowedGroups = allowedThirdGroups(placeholder) ?? new Set<string>()
-      const candidates = bestThirds.filter((team) => allowedGroups.has(team.group))
+      const priority =
+        THIRD_PLACE_SLOT_PRIORITY[thirdPlaceholderKey(slot.matchNumber, placeholder)] ??
+        []
+      const candidates = bestThirds
+        .filter((team) => allowedGroups.has(team.group))
+        .sort((a, b) => {
+          const priorityA = priority.indexOf(groupLetter(a.group))
+          const priorityB = priority.indexOf(groupLetter(b.group))
+
+          return (
+            (priorityA === -1 ? 99 : priorityA) -
+            (priorityB === -1 ? 99 : priorityB)
+          )
+        })
 
       return {
         key: thirdPlaceholderKey(slot.matchNumber, placeholder),
@@ -683,8 +711,8 @@ export function GroupStandings({ matches }: Props) {
     () => resolveOfficialSlots(groups, qualifiedTeams, completedGroups, matches),
     [completedGroups, groups, matches, qualifiedTeams],
   )
-  const leftRoundOf32 = matchesByNumber(officialSlots, [73, 75, 74, 77, 81, 82, 83, 84])
-  const rightRoundOf32 = matchesByNumber(officialSlots, [76, 78, 79, 80, 85, 87, 86, 88])
+  const leftRoundOf32 = matchesByNumber(officialSlots, [73, 75, 74, 77, 82, 81, 84, 83])
+  const rightRoundOf32 = matchesByNumber(officialSlots, [76, 78, 79, 80, 85, 87, 88, 86])
   const leftRoundOf16 = matchesByNumber(officialSlots, [89, 90, 91, 92])
   const rightRoundOf16 = matchesByNumber(officialSlots, [93, 94, 95, 96])
   const leftQuarters = matchesByNumber(officialSlots, [97, 99])

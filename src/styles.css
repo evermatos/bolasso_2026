@@ -389,11 +389,35 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .knockout-round { min-width: 0; display: grid; align-content: start; gap: 10px; }
 .knockout-round h3 { margin: 0; padding: 8px 9px; border-radius: 11px; color: var(--green); background: var(--surface-soft); font: 800 0.72rem 'Manrope'; text-transform: uppercase; letter-spacing: 0.08em; }
 .knockout-games { display: grid; gap: 7px; }
-.knockout-round-4 .knockout-games { padding-top: 28px; gap: 62px; }
-.knockout-round-2 .knockout-games { padding-top: 83px; gap: 172px; }
-.knockout-round-1 .knockout-games { padding-top: 193px; }
+.knockout-round-4 .knockout-games { padding-top: 27px; gap: 60px; }
+.knockout-round-2 .knockout-games { padding-top: 80px; gap: 166px; }
+.knockout-round-1 .knockout-games { padding-top: 186px; }
 .knockout-center .knockout-round-1 .knockout-games { padding-top: 0; }
-.knockout-game { min-width: 0; min-height: 46px; display: grid; align-content: center; gap: 4px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 11px; color: inherit; background: var(--surface-soft); font: inherit; text-align: left; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+.knockout-game { position: relative; min-width: 0; min-height: 46px; display: grid; align-content: center; gap: 4px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 11px; color: inherit; background: var(--surface-soft); font: inherit; text-align: left; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease; }
+.left-side .knockout-round:not(:last-child) .knockout-game::after,
+.left-side .knockout-round:last-child .knockout-game::after,
+.knockout-center .knockout-round:first-child .knockout-game::before,
+.knockout-center .knockout-round:first-child .knockout-game::after,
+.right-side .knockout-round:not(:first-child) .knockout-game::before,
+.right-side .knockout-round:first-child .knockout-game::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  border-top: 2px solid rgb(6 122 80 / 26%);
+}
+.left-side .knockout-round:not(:last-child) .knockout-game::after,
+.left-side .knockout-round:last-child .knockout-game::after {
+  right: -9px;
+}
+.knockout-center .knockout-round:first-child .knockout-game::after {
+  right: -9px;
+}
+.right-side .knockout-round:not(:first-child) .knockout-game::before,
+.right-side .knockout-round:first-child .knockout-game::before,
+.knockout-center .knockout-round:first-child .knockout-game::before {
+  left: -9px;
+}
 .knockout-game:hover { transform: translateY(-1px); border-color: rgb(6 122 80 / 26%); box-shadow: 0 8px 22px rgb(10 36 27 / 8%); }
 .knockout-match-number { color: var(--muted); font-size: 0.56rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 .knockout-game span { min-width: 0; display: flex; align-items: center; gap: 5px; color: var(--text); font-size: 0.74rem; font-weight: 800; }
