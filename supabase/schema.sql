@@ -716,6 +716,11 @@ as $$
     join public.matches m on m.id = pr.match_id
     where m.status = 'finished'
   ),
+  all_predictions as (
+    select pr.user_id, count(pr.match_id)::bigint as predictions_count
+    from public.predictions pr
+    group by pr.user_id
+  ),
   totals as (
     select
       p.id as user_id,
@@ -726,10 +731,11 @@ as $$
       count(*) filter (where sp.points = 5)::bigint as five_point_scores,
       count(*) filter (where sp.points = 3)::bigint as three_point_scores,
       count(*) filter (where sp.points = 1)::bigint as one_point_scores,
-      count(sp.match_id)::bigint as predictions_count
+      coalesce(ap.predictions_count, 0)::bigint as predictions_count
     from public.profiles p
     left join scored_predictions sp on sp.user_id = p.id
-    group by p.id, p.display_name, p.avatar_key
+    left join all_predictions ap on ap.user_id = p.id
+    group by p.id, p.display_name, p.avatar_key, ap.predictions_count
   ),
   ranked as (
     select
@@ -796,12 +802,19 @@ language sql
 stable
 security definer set search_path = ''
 as $$
-  with scoped_predictions as (
+  with scored_predictions as (
     select pr.*
     from public.predictions pr
     join public.matches m on m.id = pr.match_id
     where m.match_number between min_match_number and max_match_number
       and m.status = 'finished'
+  ),
+  all_predictions as (
+    select pr.user_id, count(pr.match_id)::bigint as predictions_count
+    from public.predictions pr
+    join public.matches m on m.id = pr.match_id
+    where m.match_number between min_match_number and max_match_number
+    group by pr.user_id
   ),
   totals as (
     select
@@ -813,10 +826,11 @@ as $$
       count(*) filter (where sp.points = 5)::bigint as five_point_scores,
       count(*) filter (where sp.points = 3)::bigint as three_point_scores,
       count(*) filter (where sp.points = 1)::bigint as one_point_scores,
-      count(sp.match_id)::bigint as predictions_count
+      coalesce(ap.predictions_count, 0)::bigint as predictions_count
     from public.profiles p
-    left join scoped_predictions sp on sp.user_id = p.id
-    group by p.id, p.display_name, p.avatar_key
+    left join scored_predictions sp on sp.user_id = p.id
+    left join all_predictions ap on ap.user_id = p.id
+    group by p.id, p.display_name, p.avatar_key, ap.predictions_count
   ),
   ranked as (
     select
