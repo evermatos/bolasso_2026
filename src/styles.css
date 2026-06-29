@@ -419,8 +419,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .knockout-connectors path { fill: none; stroke: rgb(6 122 80 / 46%); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .knockout-game:hover { transform: translateY(-1px); border-color: rgb(6 122 80 / 26%); box-shadow: 0 8px 22px rgb(10 36 27 / 8%); }
 .knockout-match-number { color: var(--muted); font-size: 0.56rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-.knockout-game span { min-width: 0; display: flex; align-items: center; gap: 5px; color: var(--text); font-size: 0.74rem; font-weight: 800; }
+.knockout-game span { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 5px; color: var(--text); font-size: 0.74rem; font-weight: 800; }
 .knockout-game strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.knockout-game-score { color: var(--green); font: 900 0.76rem 'Manrope'; white-space: nowrap; }
 .knockout-game .flag-image { width: 25px; height: 16px; }
 .knockout-game .flag { font-size: 1.35rem; }
 .muted-round { opacity: 0.78; }

@@ -30,6 +30,7 @@ type BracketTeam = {
   placeholder: string
   team?: ProjectedTeam
   note?: string
+  sourceLabel?: string
   confirmed: boolean
 }
 
@@ -266,6 +267,38 @@ function sideFullName(side: BracketTeam) {
   if (side.placeholder.startsWith('RU')) return `Perdedor do jogo ${side.placeholder.slice(2)}`
 
   return `Slot oficial: ${side.label}`
+}
+
+function sideSourceLabel(side: BracketTeam) {
+  return side.sourceLabel ?? (
+    side.confirmed && side.team
+      ? `${side.team.groupPosition}º do ${side.team.group}`
+      : side.note
+  )
+}
+
+function knockoutTeamScore(match: ResolvedOfficialSlot, side: 'home' | 'away') {
+  const liveMatch = match.liveMatch
+
+  if (
+    !liveMatch ||
+    liveMatch.status !== 'finished' ||
+    liveMatch.home_score === null ||
+    liveMatch.away_score === null
+  ) {
+    return null
+  }
+
+  const regularScore = side === 'home'
+    ? liveMatch.home_score
+    : liveMatch.away_score
+  const penaltyScore = side === 'home'
+    ? liveMatch.home_penalty_score
+    : liveMatch.away_penalty_score
+
+  return penaltyScore === null
+    ? String(regularScore)
+    : `${regularScore} (${penaltyScore})`
 }
 
 function formatMatchScore(match: Match) {
@@ -533,7 +566,14 @@ function resolveOfficialSlots(
       ? homeWon ? sourceSlot.home : sourceSlot.away
       : homeWon ? sourceSlot.away : sourceSlot.home
 
-    return resolveBracketTeam(side, nextVisitedMatches)
+    const resolvedSide = resolveBracketTeam(side, nextVisitedMatches)
+
+    return {
+      ...resolvedSide,
+      sourceLabel: winnerMatch
+        ? `Vencedor do jogo ${sourceMatchNumber}`
+        : `Perdedor do jogo ${sourceMatchNumber}`,
+    }
   }
 
   function resolveBracketTeam(
@@ -674,17 +714,18 @@ function BracketConnectors({ side }: { side: 'left' | 'right' }) {
         const firstX = edgeX(first, 'from')
         const secondX = edgeX(second, 'from')
         const targetX = edgeX(to, 'to')
+        const targetInsetX = side === 'left' ? targetX - 3 : targetX + 3
         const trunkX =
           side === 'left'
-            ? Math.max(firstX, targetX) + columnGap / 2
-            : Math.min(firstX, targetX) - columnGap / 2
+            ? Math.min(firstX, targetX) + columnGap / 2
+            : Math.max(firstX, targetX) - columnGap / 2
 
         return (
           <g key={`${first}-${second}-${to}`}>
             <path d={`M ${firstX} ${firstY} H ${trunkX}`} />
             <path d={`M ${secondX} ${secondY} H ${trunkX}`} />
             <path d={`M ${trunkX} ${firstY} V ${secondY}`} />
-            <path d={`M ${trunkX} ${targetY} H ${targetX}`} />
+            <path d={`M ${trunkX} ${targetY} H ${targetInsetX}`} />
           </g>
         )
       })}
@@ -717,20 +758,33 @@ function BracketColumn({
             type="button"
           >
             <small className="knockout-match-number">Jogo {match.matchNumber}</small>
-            {[match.home, match.away].map((side) => (
-              <span key={`${match.matchNumber}-${side.placeholder}`}>
-                {side.confirmed && side.team ? (
-                  <>
-                    <TeamFlag fallback={side.team.flag} team={side.team.team} />
-                    <strong>{teamCode(side.team.team)}</strong>
-                  </>
-                ) : (
-                  <>
-                    <strong>{side.label}</strong>
-                  </>
-                )}
-              </span>
-            ))}
+            {[
+              { key: 'home' as const, team: match.home },
+              { key: 'away' as const, team: match.away },
+            ].map((side) => {
+              const score = knockoutTeamScore(match, side.key)
+
+              return (
+                <span key={`${match.matchNumber}-${side.team.placeholder}`}>
+                  {side.team.confirmed && side.team.team ? (
+                    <>
+                      <TeamFlag
+                        fallback={side.team.team.flag}
+                        team={side.team.team.team}
+                      />
+                      <strong>{teamCode(side.team.team.team)}</strong>
+                    </>
+                  ) : (
+                    <>
+                      <strong>{side.team.label}</strong>
+                    </>
+                  )}
+                  {score !== null && (
+                    <b className="knockout-game-score">{score}</b>
+                  )}
+                </span>
+              )
+            })}
           </button>
         ))}
       </div>
@@ -778,11 +832,7 @@ function KnockoutMatchModal({
                 <span className="knockout-slot-chip">{side.placeholder}</span>
               )}
               <strong>{sideFullName(side)}</strong>
-              <small>
-                {side.confirmed && side.team
-                  ? `${side.team.groupPosition}º do ${side.team.group}`
-                  : side.note}
-              </small>
+              <small>{sideSourceLabel(side)}</small>
             </div>
           ))}
         </div>
