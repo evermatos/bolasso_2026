@@ -482,18 +482,23 @@ language plpgsql
 security definer set search_path = ''
 as $$
 begin
-  with totals as (
+  with scored_predictions as (
+    select pr.*
+    from public.predictions pr
+    join public.matches m on m.id = pr.match_id
+    where m.status = 'finished'
+  ),
+  totals as (
     select
       p.id as user_id,
-      p.display_name,
-      coalesce(sum(pr.points), 0)::bigint as total_points,
-      count(*) filter (where pr.points in (7, 9))::bigint as exact_scores,
-      count(*) filter (where pr.points = 5)::bigint as five_point_scores,
-      count(*) filter (where pr.points = 3)::bigint as three_point_scores,
-      count(*) filter (where pr.points = 1)::bigint as one_point_scores
+      coalesce(sum(sp.points), 0)::bigint as total_points,
+      count(*) filter (where sp.points in (7, 9))::bigint as exact_scores,
+      count(*) filter (where sp.points = 5)::bigint as five_point_scores,
+      count(*) filter (where sp.points = 3)::bigint as three_point_scores,
+      count(*) filter (where sp.points = 1)::bigint as one_point_scores
     from public.profiles p
-    left join public.predictions pr on pr.user_id = p.id
-    group by p.id, p.display_name
+    left join scored_predictions sp on sp.user_id = p.id
+    group by p.id
   ),
   ranked as (
     select
@@ -540,6 +545,7 @@ begin
     from public.predictions pr
     join public.matches m on m.id = pr.match_id
     where m.match_number between 73 and 104
+      and m.status = 'finished'
   ),
   totals as (
     select
@@ -704,19 +710,25 @@ language sql
 stable
 security definer set search_path = ''
 as $$
-  with totals as (
+  with scored_predictions as (
+    select pr.*
+    from public.predictions pr
+    join public.matches m on m.id = pr.match_id
+    where m.status = 'finished'
+  ),
+  totals as (
     select
       p.id as user_id,
       p.display_name,
       p.avatar_key,
-      coalesce(sum(pr.points), 0)::bigint as total_points,
-      count(*) filter (where pr.points in (7, 9))::bigint as exact_scores,
-      count(*) filter (where pr.points = 5)::bigint as five_point_scores,
-      count(*) filter (where pr.points = 3)::bigint as three_point_scores,
-      count(*) filter (where pr.points = 1)::bigint as one_point_scores,
-      count(pr.match_id)::bigint as predictions_count
+      coalesce(sum(sp.points), 0)::bigint as total_points,
+      count(*) filter (where sp.points in (7, 9))::bigint as exact_scores,
+      count(*) filter (where sp.points = 5)::bigint as five_point_scores,
+      count(*) filter (where sp.points = 3)::bigint as three_point_scores,
+      count(*) filter (where sp.points = 1)::bigint as one_point_scores,
+      count(sp.match_id)::bigint as predictions_count
     from public.profiles p
-    left join public.predictions pr on pr.user_id = p.id
+    left join scored_predictions sp on sp.user_id = p.id
     group by p.id, p.display_name, p.avatar_key
   ),
   ranked as (
@@ -789,6 +801,7 @@ as $$
     from public.predictions pr
     join public.matches m on m.id = pr.match_id
     where m.match_number between min_match_number and max_match_number
+      and m.status = 'finished'
   ),
   totals as (
     select
