@@ -112,6 +112,19 @@ export function Ranking({
   const activeCopy = rankingViews[activeView]
   const podiumRows = groupRows.slice(0, 3)
   const showMovement = activeView !== 'groups'
+  const participantPredictionsForActiveView = participantPredictions.filter(
+    (prediction) => {
+      if (activeView === 'groups') return prediction.match_number <= 72
+      if (activeView === 'knockout') return prediction.match_number >= 73
+      return true
+    },
+  )
+  const predictionScopeLabel =
+    activeView === 'groups'
+      ? 'da fase de grupos'
+      : activeView === 'knockout'
+        ? 'do mata-mata'
+        : 'do Bolasso'
 
   return (
     <div className="ranking-page">
@@ -267,7 +280,8 @@ export function Ranking({
           </div>
 
           <p className="predictions-privacy-note">
-            Apenas jogos cujo prazo de palpite já encerrou são exibidos.
+            Apenas palpites {predictionScopeLabel} cujo prazo já encerrou são
+            exibidos.
           </p>
 
           {loadingPredictions ? (
@@ -277,13 +291,13 @@ export function Ranking({
             </div>
           ) : predictionsError ? (
             <p className="form-message error">{predictionsError}</p>
-          ) : participantPredictions.length === 0 ? (
+          ) : participantPredictionsForActiveView.length === 0 ? (
             <p className="empty-predictions">
               Nenhum palpite liberado até o momento.
             </p>
           ) : (
             <div className="participant-predictions-list">
-              {participantPredictions.map((prediction) => (
+              {participantPredictionsForActiveView.map((prediction) => (
                 <article className="participant-prediction" key={prediction.match_id}>
                   <span className="prediction-match-number">
                     Jogo {prediction.match_number}

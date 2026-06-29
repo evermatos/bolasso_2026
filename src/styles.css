@@ -396,6 +396,24 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .profile-avatar-capybara-fan { background: linear-gradient(145deg, #f3d0a7, #9b5b31); }
 .profile-avatar-ball-wizard { background: linear-gradient(145deg, #e3c4ff, #5741a7); }
 .profile-avatar-angry-referee { background: linear-gradient(145deg, #ffd3d3, #d22d2d); }
+.profile-avatar-octopus-oracle { background: linear-gradient(145deg, #f3d7ff, #7c3aed); }
+.profile-avatar-lucky-socks { background: linear-gradient(145deg, #f7f0d8, #2f9f74); }
+.profile-avatar-tactical-board { background: linear-gradient(145deg, #dff7ea, #2f6f5e); }
+.profile-avatar-vuvuzela-chaos { background: linear-gradient(145deg, #ffe58a, #ef6f2e); }
+.profile-avatar-wizard-staff { background: linear-gradient(145deg, #d9e8ff, #5145cd); }
+.profile-avatar-pizza-var { background: linear-gradient(145deg, #ffe6a6, #d64c35); }
+.profile-avatar-dragon-goalie { background: linear-gradient(145deg, #cdfbd7, #227a3c); }
+.profile-avatar-ninja-winger { background: linear-gradient(145deg, #c8d0dc, #171b24); }
+.profile-avatar-rocket-shot { background: linear-gradient(145deg, #ffd9c8, #d23030); }
+.profile-avatar-trophy-ghost { background: linear-gradient(145deg, #fff8bc, #9aa4b2); }
+.profile-avatar-robot-coach { background: linear-gradient(145deg, #e6f1ff, #5f7287); }
+.profile-avatar-unicorn-fan { background: linear-gradient(145deg, #ffd7f4, #7dd3fc); }
+.profile-avatar-king-ball { background: linear-gradient(145deg, #fff2a8, #b7791f); }
+.profile-avatar-hotdog-stadium { background: linear-gradient(145deg, #ffd6a3, #b63e2e); }
+.profile-avatar-sleepy-striker { background: linear-gradient(145deg, #e9e1ff, #6574cd); }
+.profile-avatar-fortune-cookie { background: linear-gradient(145deg, #fff0c2, #d49b42); }
+.profile-avatar-thunder-cleat { background: linear-gradient(145deg, #fff176, #4b5563); }
+.profile-avatar-space-referee { background: linear-gradient(145deg, #d1fae5, #4338ca); }
 .standings-page { max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; }
 .standings-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 32px; border-radius: 20px; color: white; background: var(--ink); }
 .standings-header h1 { margin: 8px 0; font-size: 2.2rem; }

@@ -19,7 +19,25 @@ create table public.profiles (
       'var-alien',
       'capybara-fan',
       'ball-wizard',
-      'angry-referee'
+      'angry-referee',
+      'octopus-oracle',
+      'lucky-socks',
+      'tactical-board',
+      'vuvuzela-chaos',
+      'wizard-staff',
+      'pizza-var',
+      'dragon-goalie',
+      'ninja-winger',
+      'rocket-shot',
+      'trophy-ghost',
+      'robot-coach',
+      'unicorn-fan',
+      'king-ball',
+      'hotdog-stadium',
+      'sleepy-striker',
+      'fortune-cookie',
+      'thunder-cleat',
+      'space-referee'
     )),
   is_admin boolean not null default false,
   created_at timestamptz not null default now()
@@ -249,7 +267,25 @@ begin
     'var-alien',
     'capybara-fan',
     'ball-wizard',
-    'angry-referee'
+    'angry-referee',
+    'octopus-oracle',
+    'lucky-socks',
+    'tactical-board',
+    'vuvuzela-chaos',
+    'wizard-staff',
+    'pizza-var',
+    'dragon-goalie',
+    'ninja-winger',
+    'rocket-shot',
+    'trophy-ghost',
+    'robot-coach',
+    'unicorn-fan',
+    'king-ball',
+    'hotdog-stadium',
+    'sleepy-striker',
+    'fortune-cookie',
+    'thunder-cleat',
+    'space-referee'
   ) then
     raise exception 'Imagem de perfil inválida.';
   end if;

@@ -41,6 +41,14 @@ function comparePredictionMatches(left: Match, right: Match) {
   return left.match_number - right.match_number
 }
 
+function compareMatchesByKickoff(left: Match, right: Match) {
+  return (
+    new Date(left.kickoff_at).getTime() -
+      new Date(right.kickoff_at).getTime() ||
+    left.match_number - right.match_number
+  )
+}
+
 function getInitialTheme(): Theme {
   const savedTheme = window.localStorage.getItem('bolasso-theme')
   if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme
@@ -427,8 +435,12 @@ export default function App() {
   const finishedMatches = predictionMatches
     .filter((match) => match.status === 'finished')
     .sort(comparePredictionMatches)
-  const adminFutureMatches = matches.filter((match) => match.status !== 'finished')
-  const adminFinishedMatches = matches.filter((match) => match.status === 'finished')
+  const adminFutureMatches = matches
+    .filter((match) => match.status !== 'finished')
+    .sort(compareMatchesByKickoff)
+  const adminFinishedMatches = matches
+    .filter((match) => match.status === 'finished')
+    .sort(compareMatchesByKickoff)
   const futureMatchIds = new Set(futureMatches.map((match) => match.id))
   const futurePredictionsCount = predictions.filter((prediction) =>
     futureMatchIds.has(prediction.match_id),
