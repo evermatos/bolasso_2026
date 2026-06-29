@@ -441,17 +441,19 @@ declare
 begin
   if predicted_home = final_home and predicted_away = final_away then
     outcome_points := 7;
-  elsif sign(predicted_home - predicted_away) = sign(final_home - final_away) then
-    outcome_points := 3;
-  end if;
+  else
+    if sign(predicted_home - predicted_away) = sign(final_home - final_away) then
+      outcome_points := 3;
+    end if;
 
-  if predicted_home = final_home or predicted_away = final_away then
-    one_score_point := 1;
-  end if;
+    if predicted_home = final_home or predicted_away = final_away then
+      one_score_point := 1;
+    end if;
 
-  if outcome_points = 3 and one_score_point = 1 then
-    outcome_points := 5;
-    one_score_point := 0;
+    if outcome_points = 3 and one_score_point = 1 then
+      outcome_points := 5;
+      one_score_point := 0;
+    end if;
   end if;
 
   if final_home = final_away
