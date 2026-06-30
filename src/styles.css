@@ -460,6 +460,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .knockout-modal-teams strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font: 900 1rem 'Manrope'; }
 .knockout-modal-teams small { color: var(--muted); font-size: 0.72rem; font-weight: 700; }
 .knockout-slot-chip { min-width: 48px; min-height: 32px; display: inline-grid; place-items: center; padding: 6px 10px; border-radius: 999px; color: var(--green); background: rgb(6 122 80 / 10%); font: 900 0.8rem 'Manrope'; }
+.knockout-modal-result { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 14px; padding: 12px 14px; border: 1px solid rgb(6 122 80 / 14%); border-radius: 14px; background: var(--surface-soft); }
+.knockout-modal-result span { color: var(--muted); font-size: 0.72rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.knockout-modal-result strong { color: var(--green); font: 900 1rem 'Manrope'; text-align: right; }
 .knockout-modal-details { display: grid; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; font-weight: 700; }
 .knockout-modal-details span { display: flex; align-items: center; gap: 8px; }
 .knockout-modal-details svg { color: var(--green); }

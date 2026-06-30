@@ -1,7 +1,7 @@
 import {
   AR, AT, AU, BA, BE, BR, CA, CD, CH, CI, CO, CV, CW, CZ, DE, DZ, EC,
   EG, ES, FR, GB_ENG, GB_SCT, GH, HT, IQ, IR, JO, JP, KR, MA, MX, NL,
-  NO, NZ, PA, PT, PY, QA, SA, SE, SN, TN, TR, US, UY, UZ, ZA,
+  NO, NZ, PA, PT, PY, QA, SA, SE, SN, TN, TR, US, UY, UZ, ZA, HR,
 } from 'country-flag-icons/react/3x2'
 
 type FlagComponent = typeof BR
@@ -22,6 +22,7 @@ const flags: Record<string, FlagComponent> = {
   Colômbia: CO,
   'Coreia do Sul': KR,
   'Costa do Marfim': CI,
+  Croácia: HR,
   Curaçao: CW,
   Egito: EG,
   Equador: EC,

@@ -809,6 +809,9 @@ function KnockoutMatchModal({
   match: ResolvedOfficialSlot
   onClose: () => void
 }) {
+  const resultLabel = match.liveMatch ? formatMatchScore(match.liveMatch) : null
+  const hasResult = resultLabel !== null && resultLabel !== '×'
+
   return (
     <div aria-modal="true" className="knockout-modal-shell" role="dialog">
       <button
@@ -846,6 +849,13 @@ function KnockoutMatchModal({
             </div>
           ))}
         </div>
+
+        {hasResult && (
+          <div className="knockout-modal-result">
+            <span>Resultado</span>
+            <strong>{resultLabel}</strong>
+          </div>
+        )}
 
         <div className="knockout-modal-details">
           <span>

@@ -347,6 +347,18 @@ export function Ranking({
                           : prediction.away_team,
                     }
                   : null
+                const actualQualifier =
+                  prediction.status === 'finished' &&
+                  prediction.final_home_score !== null &&
+                  prediction.final_away_score !== null &&
+                  prediction.final_home_score === prediction.final_away_score &&
+                  prediction.final_home_penalty_score !== null &&
+                  prediction.final_away_penalty_score !== null
+                    ? prediction.final_home_penalty_score >
+                      prediction.final_away_penalty_score
+                      ? prediction.home_team
+                      : prediction.away_team
+                    : null
 
                 return (
                   <article
@@ -394,6 +406,8 @@ export function Ranking({
                           <span>
                             Resultado: {prediction.final_home_score} ×{' '}
                             {prediction.final_away_score}
+                            {actualQualifier &&
+                              ` · ${actualQualifier} se classificou`}
                           </span>
                           <strong>+{prediction.points ?? 0} pts</strong>
                         </>

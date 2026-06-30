@@ -64,6 +64,8 @@ export type ParticipantPrediction = {
   status: 'scheduled' | 'finished'
   final_home_score: number | null
   final_away_score: number | null
+  final_home_penalty_score: number | null
+  final_away_penalty_score: number | null
   predicted_home_score: number
   predicted_away_score: number
   predicted_qualifier: 'home' | 'away' | null
