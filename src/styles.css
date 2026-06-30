@@ -356,6 +356,10 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .participant-prediction-score strong { font: 800 1.2rem 'Manrope'; }
 .participant-prediction-score .flag { font-size: 1.3rem; }
 .participant-prediction-score .flag-image { width: 25px; height: 16px; }
+.participant-qualifier-pick { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 0.72rem; }
+.participant-qualifier-pick strong { display: inline-flex; align-items: center; gap: 6px; color: var(--green); }
+.participant-qualifier-pick .flag { font-size: 1rem; }
+.participant-qualifier-pick .flag-image { width: 21px; height: 14px; }
 .participant-prediction-result { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; }
 .participant-prediction-result strong { color: var(--green); }
 .scoring-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }

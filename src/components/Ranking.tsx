@@ -334,46 +334,79 @@ export function Ranking({
             </p>
           ) : (
             <div className="participant-predictions-list">
-              {participantPredictionsForActiveView.map((prediction) => (
-                <article className="participant-prediction" key={prediction.match_id}>
-                  <span className="prediction-match-number">
-                    Jogo {prediction.match_number}
-                  </span>
-                  <div className="participant-prediction-score">
-                    <span>
-                      <TeamFlag
-                        fallback={prediction.home_flag}
-                        team={prediction.home_team}
-                      />
-                      {prediction.home_team}
+              {participantPredictionsForActiveView.map((prediction) => {
+                const qualifierPick =
+                  prediction.predicted_home_score ===
+                    prediction.predicted_away_score &&
+                  prediction.predicted_qualifier
+                    ? {
+                        flag:
+                          prediction.predicted_qualifier === 'home'
+                            ? prediction.home_flag
+                            : prediction.away_flag,
+                        team:
+                          prediction.predicted_qualifier === 'home'
+                            ? prediction.home_team
+                            : prediction.away_team,
+                      }
+                    : null
+
+                return (
+                  <article
+                    className="participant-prediction"
+                    key={prediction.match_id}
+                  >
+                    <span className="prediction-match-number">
+                      Jogo {prediction.match_number}
                     </span>
-                    <strong>
-                      {prediction.predicted_home_score} ×{' '}
-                      {prediction.predicted_away_score}
-                    </strong>
-                    <span>
-                      {prediction.away_team}
-                      <TeamFlag
-                        fallback={prediction.away_flag}
-                        team={prediction.away_team}
-                      />
-                    </span>
-                  </div>
-                  <div className="participant-prediction-result">
-                    {prediction.status === 'finished' ? (
-                      <>
-                        <span>
-                          Resultado: {prediction.final_home_score} ×{' '}
-                          {prediction.final_away_score}
-                        </span>
-                        <strong>+{prediction.points ?? 0} pts</strong>
-                      </>
-                    ) : (
-                      <span>Aguardando resultado</span>
+                    <div className="participant-prediction-score">
+                      <span>
+                        <TeamFlag
+                          fallback={prediction.home_flag}
+                          team={prediction.home_team}
+                        />
+                        {prediction.home_team}
+                      </span>
+                      <strong>
+                        {prediction.predicted_home_score} ×{' '}
+                        {prediction.predicted_away_score}
+                      </strong>
+                      <span>
+                        {prediction.away_team}
+                        <TeamFlag
+                          fallback={prediction.away_flag}
+                          team={prediction.away_team}
+                        />
+                      </span>
+                    </div>
+                    {qualifierPick && (
+                      <div className="participant-qualifier-pick">
+                        <span>Se empatar:</span>
+                        <strong>
+                          <TeamFlag
+                            fallback={qualifierPick.flag}
+                            team={qualifierPick.team}
+                          />
+                          {qualifierPick.team} se classifica
+                        </strong>
+                      </div>
                     )}
-                  </div>
-                </article>
-              ))}
+                    <div className="participant-prediction-result">
+                      {prediction.status === 'finished' ? (
+                        <>
+                          <span>
+                            Resultado: {prediction.final_home_score} ×{' '}
+                            {prediction.final_away_score}
+                          </span>
+                          <strong>+{prediction.points ?? 0} pts</strong>
+                        </>
+                      ) : (
+                        <span>Aguardando resultado</span>
+                      )}
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           )}
         </section>

@@ -403,6 +403,7 @@ returns table (
   final_away_score smallint,
   predicted_home_score smallint,
   predicted_away_score smallint,
+  predicted_qualifier text,
   points smallint
 )
 language sql
@@ -422,6 +423,7 @@ as $$
     m.away_score,
     pr.home_score,
     pr.away_score,
+    pr.predicted_qualifier,
     pr.points
   from public.matches m
   join public.predictions pr on pr.match_id = m.id
