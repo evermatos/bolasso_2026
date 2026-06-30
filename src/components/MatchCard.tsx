@@ -185,33 +185,6 @@ export function MatchCard({
         </div>
       </div>
 
-      {needsPenaltyScore && (
-        <div className="penalty-inputs">
-          <span>Pênaltis</span>
-          <input
-            aria-label={`Pênaltis de ${match.home_team}`}
-            disabled={adminLocked}
-            inputMode="numeric"
-            max="99"
-            min="0"
-            onChange={(event) => setHomePenalty(event.target.value)}
-            type="number"
-            value={homePenalty}
-          />
-          <strong>×</strong>
-          <input
-            aria-label={`Pênaltis de ${match.away_team}`}
-            disabled={adminLocked}
-            inputMode="numeric"
-            max="99"
-            min="0"
-            onChange={(event) => setAwayPenalty(event.target.value)}
-            type="number"
-            value={awayPenalty}
-          />
-        </div>
-      )}
-
       <div className="match-teams">
         <div className="team home-team">
           <TeamFlag fallback={match.home_flag} team={match.home_team} />
@@ -247,6 +220,33 @@ export function MatchCard({
           <strong>{match.away_team}</strong>
         </div>
       </div>
+
+      {needsPenaltyScore && (
+        <div className="penalty-inputs">
+          <span>Pênaltis</span>
+          <input
+            aria-label={`Pênaltis de ${match.home_team}`}
+            disabled={adminLocked}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setHomePenalty(event.target.value)}
+            type="number"
+            value={homePenalty}
+          />
+          <strong>×</strong>
+          <input
+            aria-label={`Pênaltis de ${match.away_team}`}
+            disabled={adminLocked}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setAwayPenalty(event.target.value)}
+            type="number"
+            value={awayPenalty}
+          />
+        </div>
+      )}
 
       {needsPredictedQualifier && (
         <div className="qualifier-picker">

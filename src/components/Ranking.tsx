@@ -23,6 +23,41 @@ type Props = {
 
 type RankingView = 'overall' | 'knockout' | 'groups'
 
+function compareParticipantPredictions(
+  left: ParticipantPrediction,
+  right: ParticipantPrediction,
+  view: RankingView,
+) {
+  if (view === 'knockout') {
+    return (
+      new Date(left.kickoff_at).getTime() -
+        new Date(right.kickoff_at).getTime() ||
+      left.match_number - right.match_number
+    )
+  }
+
+  if (view === 'groups') {
+    return left.match_number - right.match_number
+  }
+
+  const leftIsKnockout = left.match_number >= 73
+  const rightIsKnockout = right.match_number >= 73
+
+  if (leftIsKnockout && rightIsKnockout) {
+    return (
+      new Date(left.kickoff_at).getTime() -
+        new Date(right.kickoff_at).getTime() ||
+      left.match_number - right.match_number
+    )
+  }
+
+  if (leftIsKnockout !== rightIsKnockout) {
+    return leftIsKnockout ? 1 : -1
+  }
+
+  return left.match_number - right.match_number
+}
+
 const rankingViews: Record<
   RankingView,
   { eyebrow: string; title: string; description: string }
@@ -112,13 +147,15 @@ export function Ranking({
   const activeCopy = rankingViews[activeView]
   const podiumRows = groupRows.slice(0, 3)
   const showMovement = activeView !== 'groups'
-  const participantPredictionsForActiveView = participantPredictions.filter(
-    (prediction) => {
+  const participantPredictionsForActiveView = participantPredictions
+    .filter((prediction) => {
       if (activeView === 'groups') return prediction.match_number <= 72
       if (activeView === 'knockout') return prediction.match_number >= 73
       return true
-    },
-  )
+    })
+    .sort((left, right) =>
+      compareParticipantPredictions(left, right, activeView),
+    )
   const predictionScopeLabel =
     activeView === 'groups'
       ? 'da fase de grupos'
