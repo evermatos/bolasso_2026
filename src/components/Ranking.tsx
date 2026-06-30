@@ -30,14 +30,14 @@ function compareParticipantPredictions(
 ) {
   if (view === 'knockout') {
     return (
-      new Date(left.kickoff_at).getTime() -
-        new Date(right.kickoff_at).getTime() ||
-      left.match_number - right.match_number
+      new Date(right.kickoff_at).getTime() -
+        new Date(left.kickoff_at).getTime() ||
+      right.match_number - left.match_number
     )
   }
 
   if (view === 'groups') {
-    return left.match_number - right.match_number
+    return right.match_number - left.match_number
   }
 
   const leftIsKnockout = left.match_number >= 73
@@ -45,17 +45,17 @@ function compareParticipantPredictions(
 
   if (leftIsKnockout && rightIsKnockout) {
     return (
-      new Date(left.kickoff_at).getTime() -
-        new Date(right.kickoff_at).getTime() ||
-      left.match_number - right.match_number
+      new Date(right.kickoff_at).getTime() -
+        new Date(left.kickoff_at).getTime() ||
+      right.match_number - left.match_number
     )
   }
 
   if (leftIsKnockout !== rightIsKnockout) {
-    return leftIsKnockout ? 1 : -1
+    return leftIsKnockout ? -1 : 1
   }
 
-  return left.match_number - right.match_number
+  return right.match_number - left.match_number
 }
 
 const rankingViews: Record<
