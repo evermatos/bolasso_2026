@@ -682,7 +682,7 @@ function connectorColumn(matchNumber: number, side: 'left' | 'right') {
 
 function BracketConnectors({ side }: { side: 'left' | 'right' }) {
   const pairs = side === 'left' ? LEFT_CONNECTOR_PAIRS : RIGHT_CONNECTOR_PAIRS
-  const columnWidth = 100
+  const columnWidth = 112
   const columnGap = 8
   const rowHeight = 54
 
@@ -704,7 +704,7 @@ function BracketConnectors({ side }: { side: 'left' | 'right' }) {
       aria-hidden="true"
       className={`knockout-connectors knockout-connectors-${side}`}
       focusable="false"
-      viewBox="0 0 424 864"
+      viewBox="0 0 472 864"
     >
       {pairs.map(({ from, to }) => {
         const [first, second] = from
@@ -746,47 +746,57 @@ function BracketColumn({
     <div className={`knockout-round knockout-round-${matches.length}`}>
       <h3>{title}</h3>
       <div className="knockout-games">
-        {matches.map((match) => (
-          <button
-            aria-label={`Ver detalhes do jogo ${match.matchNumber}`}
-            className={`knockout-game ${
-              match.round !== '16 avos' ? 'placeholder-game' : ''
-            }`}
-            key={match.matchNumber}
-            onClick={() => onSelect(match)}
-            style={{ gridRow: bracketGridRow(match.matchNumber) }}
-            type="button"
-          >
-            <small className="knockout-match-number">Jogo {match.matchNumber}</small>
-            {[
-              { key: 'home' as const, team: match.home },
-              { key: 'away' as const, team: match.away },
-            ].map((side) => {
-              const score = knockoutTeamScore(match, side.key)
+        {matches.map((match) => {
+          const hasBothTeams = match.home.confirmed && match.away.confirmed
+          const hasBrazil =
+            match.home.team?.team === 'Brasil' || match.away.team?.team === 'Brasil'
 
-              return (
-                <span key={`${match.matchNumber}-${side.team.placeholder}`}>
-                  {side.team.confirmed && side.team.team ? (
-                    <>
-                      <TeamFlag
-                        fallback={side.team.team.flag}
-                        team={side.team.team.team}
-                      />
-                      <strong>{teamCode(side.team.team.team)}</strong>
-                    </>
-                  ) : (
-                    <>
-                      <strong>{side.team.label}</strong>
-                    </>
-                  )}
-                  {score !== null && (
-                    <b className="knockout-game-score">{score}</b>
-                  )}
-                </span>
-              )
-            })}
-          </button>
-        ))}
+          return (
+            <button
+              aria-label={`Ver detalhes do jogo ${match.matchNumber}`}
+              className={`knockout-game ${
+                match.round !== '16 avos' && !hasBothTeams ? 'placeholder-game' : ''
+              } ${hasBothTeams ? 'confirmed-game' : ''} ${
+                hasBrazil ? 'brazil-knockout-game' : ''
+              }`}
+              key={match.matchNumber}
+              onClick={() => onSelect(match)}
+              style={{ gridRow: bracketGridRow(match.matchNumber) }}
+              type="button"
+            >
+              <small className="knockout-match-number">
+                Jogo {match.matchNumber}
+              </small>
+              {[
+                { key: 'home' as const, team: match.home },
+                { key: 'away' as const, team: match.away },
+              ].map((side) => {
+                const score = knockoutTeamScore(match, side.key)
+
+                return (
+                  <span key={`${match.matchNumber}-${side.team.placeholder}`}>
+                    {side.team.confirmed && side.team.team ? (
+                      <>
+                        <TeamFlag
+                          fallback={side.team.team.flag}
+                          team={side.team.team.team}
+                        />
+                        <strong>{teamCode(side.team.team.team)}</strong>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{side.team.label}</strong>
+                      </>
+                    )}
+                    {score !== null && (
+                      <b className="knockout-game-score">{score}</b>
+                    )}
+                  </span>
+                )
+              })}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

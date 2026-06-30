@@ -335,21 +335,18 @@ export function Ranking({
           ) : (
             <div className="participant-predictions-list">
               {participantPredictionsForActiveView.map((prediction) => {
-                const qualifierPick =
-                  prediction.predicted_home_score ===
-                    prediction.predicted_away_score &&
-                  prediction.predicted_qualifier
-                    ? {
-                        flag:
-                          prediction.predicted_qualifier === 'home'
-                            ? prediction.home_flag
-                            : prediction.away_flag,
-                        team:
-                          prediction.predicted_qualifier === 'home'
-                            ? prediction.home_team
-                            : prediction.away_team,
-                      }
-                    : null
+                const qualifierPick = prediction.predicted_qualifier
+                  ? {
+                      flag:
+                        prediction.predicted_qualifier === 'home'
+                          ? prediction.home_flag
+                          : prediction.away_flag,
+                      team:
+                        prediction.predicted_qualifier === 'home'
+                          ? prediction.home_team
+                          : prediction.away_team,
+                    }
+                  : null
 
                 return (
                   <article
