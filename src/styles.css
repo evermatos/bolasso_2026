@@ -265,11 +265,9 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-info-button:hover { background: #cdebdc; }
 .match-info-button svg { flex: 0 0 auto; }
 .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 26px 0; }
-.match-teams.compact-result-teams { padding-bottom: 18px; }
 .team { min-width: 0; display: flex; align-items: center; gap: 10px; }
 .away-team { flex-direction: row-reverse; text-align: right; }
 .team strong { overflow: hidden; text-overflow: ellipsis; }
-.compact-versus { color: var(--muted); font: 900 1.3rem 'Manrope'; }
 .flag { font-size: 1.75rem; }
 .flag-image { width: 31px; height: 21px; flex: 0 0 auto; border-radius: 2px; box-shadow: 0 0 0 1px rgb(10 36 27 / 12%); }
 .score-inputs { display: flex; align-items: center; gap: 7px; color: #9aa39f; }
@@ -304,19 +302,13 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   }
   .match-footer-side { display: contents; }
   .venue { min-width: 0; align-self: center; }
-  .save-button, .oracle-button, .prediction-summary-card, .locked-label {
+  .save-button, .oracle-button, .locked-label {
     min-height: 38px;
     align-self: end;
   }
   .oracle-button { padding: 9px 12px; }
 }
 
-.points-badge { padding: 6px 9px; border-radius: 8px; color: var(--green); background: #dff2e8; font-size: 0.78rem; }
-.prediction-summary-card { width: min(100%, 360px); display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: var(--surface-soft); color: var(--muted); }
-.prediction-summary-card div { min-width: 0; display: grid; gap: 2px; }
-.prediction-summary-card span { font-size: 0.62rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-.prediction-summary-card div strong { color: var(--text); font: 900 0.96rem 'Manrope'; white-space: nowrap; }
-.prediction-summary-card small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.66rem; font-weight: 800; }
 .locked-label { color: var(--muted); font-size: 0.75rem; }
 
 .ranking-page { max-width: 850px; margin: 0 auto; display: grid; gap: 22px; }
@@ -373,7 +365,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .participant-prediction-result { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.74rem; }
 .participant-prediction-result span { font-size: 0.82rem; }
 .participant-prediction-result strong { color: var(--green); font-size: 0.86rem; }
-.match-result-prediction-card { width: min(100%, 430px); }
 .scoring-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .scoring-grid div { min-height: 116px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 16px; border-radius: 14px; background: var(--surface-soft); }
 .scoring-grid strong { color: var(--green); font: 800 1.35rem 'Manrope'; }
@@ -674,8 +665,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .flag { font-size: 1.6rem; }
   .flag-image { width: 29px; height: 18px; }
   .score-inputs input { width: 48px; height: 48px; }
-  .prediction-summary-card { width: 100%; grid-template-columns: 1fr 1fr; }
-  .prediction-summary-card .points-badge { grid-column: 1 / -1; justify-self: center; }
   .ranking-card, .scoring-card, .participant-predictions-card { padding: 6px 14px 18px; }
   .ranking-tabs { gap: 5px; padding: 5px; }
   .ranking-tabs button { padding: 10px 6px; font-size: 0.76rem; }
@@ -894,7 +883,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   box-shadow: 0 0 0 2px #f2c500, 0 4px 12px rgb(80 211 155 / 18%);
 }
 
-[data-theme='dark'] .points-badge,
 [data-theme='dark'] .ranking-movement.up {
   color: #75e9b5;
   background: #153d2e;

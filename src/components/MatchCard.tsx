@@ -96,7 +96,6 @@ export function MatchCard({
       ? match.home_flag
       : match.away_flag
     : null
-  const showCompactResultCard = Boolean(match.status === 'finished' && !isAdmin)
 
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
@@ -183,6 +182,52 @@ export function MatchCard({
   const isBrazilMatch =
     match.home_team === 'Brasil' || match.away_team === 'Brasil'
 
+  if (match.status === 'finished' && !isAdmin) {
+    return (
+      <article className="participant-prediction">
+        <span className="prediction-match-number">
+          Jogo {match.match_number}
+        </span>
+        <div className="participant-prediction-score">
+          <span>
+            <TeamFlag fallback={match.home_flag} team={match.home_team} />
+            {match.home_team}
+          </span>
+          {prediction ? (
+            <strong>
+              {prediction.home_score} × {prediction.away_score}
+            </strong>
+          ) : (
+            <strong>Sem palpite</strong>
+          )}
+          <span>
+            {match.away_team}
+            <TeamFlag fallback={match.away_flag} team={match.away_team} />
+          </span>
+        </div>
+        {prediction && predictedQualifierTeam && predictedQualifierFlag && (
+          <div className="participant-qualifier-pick">
+            <span>Se empatar:</span>
+            <strong>
+              <TeamFlag
+                fallback={predictedQualifierFlag}
+                team={predictedQualifierTeam}
+              />
+              {predictedQualifierTeam} se classifica
+            </strong>
+          </div>
+        )}
+        <div className="participant-prediction-result">
+          <span>
+            Resultado: {finalScoreLabel}
+            {actualQualifier && ` · ${actualQualifier} se classificou`}
+          </span>
+          {prediction && <strong>+{prediction.points ?? 0} pts</strong>}
+        </div>
+      </article>
+    )
+  }
+
   return (
     <article
       className={`match-card ${match.status === 'finished' ? 'finished' : ''} ${
@@ -216,39 +261,35 @@ export function MatchCard({
         </div>
       </div>
 
-      <div className={`match-teams ${showCompactResultCard ? 'compact-result-teams' : ''}`}>
+      <div className="match-teams">
         <div className="team home-team">
           <TeamFlag fallback={match.home_flag} team={match.home_team} />
           <strong>{match.home_team}</strong>
         </div>
 
-        {showCompactResultCard ? (
-          <strong className="compact-versus">×</strong>
-        ) : (
-          <div className="score-inputs">
-            <input
-              aria-label={`Gols de ${match.home_team}`}
-              disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
-              inputMode="numeric"
-              max="99"
-              min="0"
-              onChange={(event) => setHome(event.target.value)}
-              type="number"
-              value={home}
-            />
-            <span>×</span>
-            <input
-              aria-label={`Gols de ${match.away_team}`}
-              disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
-              inputMode="numeric"
-              max="99"
-              min="0"
-              onChange={(event) => setAway(event.target.value)}
-              type="number"
-              value={away}
-            />
-          </div>
-        )}
+        <div className="score-inputs">
+          <input
+            aria-label={`Gols de ${match.home_team}`}
+            disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setHome(event.target.value)}
+            type="number"
+            value={home}
+          />
+          <span>×</span>
+          <input
+            aria-label={`Gols de ${match.away_team}`}
+            disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
+            inputMode="numeric"
+            max="99"
+            min="0"
+            onChange={(event) => setAway(event.target.value)}
+            type="number"
+            value={away}
+          />
+        </div>
 
         <div className="team away-team">
           <TeamFlag fallback={match.away_flag} team={match.away_team} />
@@ -324,49 +365,7 @@ export function MatchCard({
             </button>
           )}
         </div>
-        {match.status === 'finished' && !isAdmin ? (
-          prediction ? (
-            <div className="participant-prediction match-result-prediction-card">
-              <span className="prediction-match-number">
-                Jogo {match.match_number}
-              </span>
-              <div className="participant-prediction-score">
-                <span>
-                  <TeamFlag fallback={match.home_flag} team={match.home_team} />
-                  {match.home_team}
-                </span>
-                <strong>
-                  {prediction.home_score} × {prediction.away_score}
-                </strong>
-                <span>
-                  {match.away_team}
-                  <TeamFlag fallback={match.away_flag} team={match.away_team} />
-                </span>
-              </div>
-              {predictedQualifierTeam && predictedQualifierFlag && (
-                <div className="participant-qualifier-pick">
-                  <span>Se empatar:</span>
-                  <strong>
-                    <TeamFlag
-                      fallback={predictedQualifierFlag}
-                      team={predictedQualifierTeam}
-                    />
-                    {predictedQualifierTeam} se classifica
-                  </strong>
-                </div>
-              )}
-              <div className="participant-prediction-result">
-                <span>
-                  Resultado: {finalScoreLabel}
-                  {actualQualifier && ` · ${actualQualifier} se classificou`}
-                </span>
-                <strong>+{prediction.points ?? 0} pts</strong>
-              </div>
-            </div>
-          ) : (
-            <span className="locked-label">Sem palpite</span>
-          )
-        ) : adminLocked ? (
+        {adminLocked ? (
           <span className="locked-label">Aguardando o início do jogo</span>
         ) : locked && !isAdmin ? (
           <span className="locked-label">Palpites encerrados</span>
