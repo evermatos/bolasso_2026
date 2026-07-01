@@ -68,6 +68,12 @@ export function MatchCard({
     Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
   const needsPredictedQualifier =
     Boolean(!isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
+  const finalScoreLabel =
+    match.home_score !== null && match.away_score !== null
+      ? match.home_penalty_score !== null && match.away_penalty_score !== null
+        ? `${match.home_score} × ${match.away_score} (${match.home_penalty_score} × ${match.away_penalty_score})`
+        : `${match.home_score} × ${match.away_score}`
+      : 'Aguardando'
 
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
@@ -291,10 +297,15 @@ export function MatchCard({
         </div>
         {match.status === 'finished' && !isAdmin ? (
           prediction ? (
-            <div className="prediction-result">
-              <span>
-                Seu palpite: {prediction.home_score} × {prediction.away_score}
-              </span>
+            <div className="prediction-summary-card">
+              <div>
+                <span>Palpite</span>
+                <strong>{prediction.home_score} × {prediction.away_score}</strong>
+              </div>
+              <div>
+                <span>Resultado</span>
+                <strong>{finalScoreLabel}</strong>
+              </div>
               <strong className="points-badge">+{prediction.points ?? 0} pts</strong>
             </div>
           ) : (
