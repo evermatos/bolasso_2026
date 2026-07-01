@@ -64,6 +64,7 @@ export function MatchCard({
   const locked = !isAdmin && isPredictionLocked(match.kickoff_at, now)
   const adminLocked = Boolean(isAdmin && !kickoffStarted)
   const isKnockoutMatch = match.match_number >= 73
+  const isRoundOf16OrLater = match.match_number >= 89
   const needsPenaltyScore =
     Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
   const needsPredictedQualifier =
@@ -89,6 +90,11 @@ export function MatchCard({
     ? prediction.predicted_qualifier === 'home'
       ? match.home_team
       : match.away_team
+    : null
+  const predictedQualifierFlag = prediction?.predicted_qualifier
+    ? prediction.predicted_qualifier === 'home'
+      ? match.home_flag
+      : match.away_flag
     : null
   const showCompactResultCard = Boolean(match.status === 'finished' && !isAdmin)
 
@@ -181,7 +187,9 @@ export function MatchCard({
     <article
       className={`match-card ${match.status === 'finished' ? 'finished' : ''} ${
         isKnockoutMatch ? 'knockout-match-card' : ''
-      } ${isBrazilMatch ? 'brazil-match' : ''}`}
+      } ${isRoundOf16OrLater ? 'round-of-16-match-card' : ''} ${
+        isBrazilMatch ? 'brazil-match' : ''
+      }`}
     >
       <div className="match-meta">
         <span>{match.stage}</span>
@@ -318,22 +326,42 @@ export function MatchCard({
         </div>
         {match.status === 'finished' && !isAdmin ? (
           prediction ? (
-            <div className="prediction-summary-card">
-              <div>
-                <span>Palpite</span>
-                <strong>{prediction.home_score} × {prediction.away_score}</strong>
-                {predictedQualifierTeam && (
-                  <small>{predictedQualifierTeam} se classifica</small>
-                )}
+            <div className="participant-prediction match-result-prediction-card">
+              <span className="prediction-match-number">
+                Jogo {match.match_number}
+              </span>
+              <div className="participant-prediction-score">
+                <span>
+                  <TeamFlag fallback={match.home_flag} team={match.home_team} />
+                  {match.home_team}
+                </span>
+                <strong>
+                  {prediction.home_score} × {prediction.away_score}
+                </strong>
+                <span>
+                  {match.away_team}
+                  <TeamFlag fallback={match.away_flag} team={match.away_team} />
+                </span>
               </div>
-              <div>
-                <span>Resultado</span>
-                <strong>{finalScoreLabel}</strong>
-                {actualQualifier && (
-                  <small>{actualQualifier} se classificou</small>
-                )}
+              {predictedQualifierTeam && predictedQualifierFlag && (
+                <div className="participant-qualifier-pick">
+                  <span>Se empatar:</span>
+                  <strong>
+                    <TeamFlag
+                      fallback={predictedQualifierFlag}
+                      team={predictedQualifierTeam}
+                    />
+                    {predictedQualifierTeam} se classifica
+                  </strong>
+                </div>
+              )}
+              <div className="participant-prediction-result">
+                <span>
+                  Resultado: {finalScoreLabel}
+                  {actualQualifier && ` · ${actualQualifier} se classificou`}
+                </span>
+                <strong>+{prediction.points ?? 0} pts</strong>
               </div>
-              <strong className="points-badge">+{prediction.points ?? 0} pts</strong>
             </div>
           ) : (
             <span className="locked-label">Sem palpite</span>
