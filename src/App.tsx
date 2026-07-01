@@ -41,6 +41,14 @@ function comparePredictionMatches(left: Match, right: Match) {
   return left.match_number - right.match_number
 }
 
+function compareFinishedPredictionMatches(left: Match, right: Match) {
+  return (
+    new Date(right.kickoff_at).getTime() -
+      new Date(left.kickoff_at).getTime() ||
+    right.match_number - left.match_number
+  )
+}
+
 function compareMatchesByKickoff(left: Match, right: Match) {
   return (
     new Date(left.kickoff_at).getTime() -
@@ -440,7 +448,7 @@ export default function App() {
     .sort(comparePredictionMatches)
   const finishedMatches = predictionMatches
     .filter((match) => match.status === 'finished')
-    .sort(comparePredictionMatches)
+    .sort(compareFinishedPredictionMatches)
   const adminFutureMatches = matches
     .filter((match) => match.status !== 'finished')
     .sort(compareMatchesByKickoff)

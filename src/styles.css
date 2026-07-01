@@ -247,6 +247,10 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-card.knockout-match-card { border-color: #d6a71d; box-shadow: 0 0 0 1px rgb(214 167 29 / 18%), 0 14px 34px rgb(132 92 7 / 9%); }
 .match-card.knockout-match-card::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 17px; box-shadow: inset 0 0 0 1px rgb(255 233 148 / 34%); }
 .match-card.knockout-match-card > * { position: relative; z-index: 1; }
+.match-card.knockout-match-card:not(.brazil-match) .match-meta,
+.match-card.knockout-match-card:not(.brazil-match) .match-meta svg {
+  color: #b88406;
+}
 .match-card.brazil-match { border: 2px solid #f2c500; box-shadow: inset 7px 0 0 #078449, 0 14px 34px rgb(7 132 73 / 16%); background: linear-gradient(135deg, #fff9bf 0%, #fffef8 48%, #e3f6e9 100%); }
 .match-card.brazil-match::before { content: ''; position: absolute; width: 115px; height: 115px; right: -52px; top: -52px; border-radius: 50%; background: #078449; box-shadow: 0 0 0 13px #f2c500, 0 0 0 26px rgb(7 132 73 / 14%); }
 .match-card.brazil-match > * { position: relative; z-index: 1; }
@@ -261,9 +265,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-info-button:hover { background: #cdebdc; }
 .match-info-button svg { flex: 0 0 auto; }
 .match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px; padding: 26px 0; }
+.match-teams.compact-result-teams { padding-bottom: 18px; }
 .team { min-width: 0; display: flex; align-items: center; gap: 10px; }
 .away-team { flex-direction: row-reverse; text-align: right; }
 .team strong { overflow: hidden; text-overflow: ellipsis; }
+.compact-versus { color: var(--muted); font: 900 1.3rem 'Manrope'; }
 .flag { font-size: 1.75rem; }
 .flag-image { width: 31px; height: 21px; flex: 0 0 auto; border-radius: 2px; box-shadow: 0 0 0 1px rgb(10 36 27 / 12%); }
 .score-inputs { display: flex; align-items: center; gap: 7px; color: #9aa39f; }
@@ -306,10 +312,11 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 }
 
 .points-badge { padding: 6px 9px; border-radius: 8px; color: var(--green); background: #dff2e8; font-size: 0.78rem; }
-.prediction-summary-card { min-width: min(100%, 250px); display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 13px; background: var(--surface-soft); color: var(--muted); }
+.prediction-summary-card { width: min(100%, 360px); display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: var(--surface-soft); color: var(--muted); }
 .prediction-summary-card div { min-width: 0; display: grid; gap: 2px; }
 .prediction-summary-card span { font-size: 0.62rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 .prediction-summary-card div strong { color: var(--text); font: 900 0.96rem 'Manrope'; white-space: nowrap; }
+.prediction-summary-card small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 0.66rem; font-weight: 800; }
 .locked-label { color: var(--muted); font-size: 0.75rem; }
 
 .ranking-page { max-width: 850px; margin: 0 auto; display: grid; gap: 22px; }
@@ -666,6 +673,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .flag { font-size: 1.6rem; }
   .flag-image { width: 29px; height: 18px; }
   .score-inputs input { width: 48px; height: 48px; }
+  .prediction-summary-card { width: 100%; grid-template-columns: 1fr 1fr; }
+  .prediction-summary-card .points-badge { grid-column: 1 / -1; justify-self: center; }
   .ranking-card, .scoring-card, .participant-predictions-card { padding: 6px 14px 18px; }
   .ranking-tabs { gap: 5px; padding: 5px; }
   .ranking-tabs button { padding: 10px 6px; font-size: 0.76rem; }

@@ -74,6 +74,23 @@ export function MatchCard({
         ? `${match.home_score} × ${match.away_score} (${match.home_penalty_score} × ${match.away_penalty_score})`
         : `${match.home_score} × ${match.away_score}`
       : 'Aguardando'
+  const actualQualifier =
+    match.status === 'finished' &&
+    match.home_score !== null &&
+    match.away_score !== null &&
+    match.home_score === match.away_score &&
+    match.home_penalty_score !== null &&
+    match.away_penalty_score !== null
+      ? match.home_penalty_score > match.away_penalty_score
+        ? match.home_team
+        : match.away_team
+      : null
+  const predictedQualifierTeam = prediction?.predicted_qualifier
+    ? prediction.predicted_qualifier === 'home'
+      ? match.home_team
+      : match.away_team
+    : null
+  const showCompactResultCard = Boolean(match.status === 'finished' && !isAdmin)
 
   useEffect(() => {
     setHome(initialHome?.toString() ?? '')
@@ -191,35 +208,39 @@ export function MatchCard({
         </div>
       </div>
 
-      <div className="match-teams">
+      <div className={`match-teams ${showCompactResultCard ? 'compact-result-teams' : ''}`}>
         <div className="team home-team">
           <TeamFlag fallback={match.home_flag} team={match.home_team} />
           <strong>{match.home_team}</strong>
         </div>
 
-        <div className="score-inputs">
-          <input
-            aria-label={`Gols de ${match.home_team}`}
-            disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
-            inputMode="numeric"
-            max="99"
-            min="0"
-            onChange={(event) => setHome(event.target.value)}
-            type="number"
-            value={home}
-          />
-          <span>×</span>
-          <input
-            aria-label={`Gols de ${match.away_team}`}
-            disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
-            inputMode="numeric"
-            max="99"
-            min="0"
-            onChange={(event) => setAway(event.target.value)}
-            type="number"
-            value={away}
-          />
-        </div>
+        {showCompactResultCard ? (
+          <strong className="compact-versus">×</strong>
+        ) : (
+          <div className="score-inputs">
+            <input
+              aria-label={`Gols de ${match.home_team}`}
+              disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
+              inputMode="numeric"
+              max="99"
+              min="0"
+              onChange={(event) => setHome(event.target.value)}
+              type="number"
+              value={home}
+            />
+            <span>×</span>
+            <input
+              aria-label={`Gols de ${match.away_team}`}
+              disabled={adminLocked || locked || (match.status === 'finished' && !isAdmin)}
+              inputMode="numeric"
+              max="99"
+              min="0"
+              onChange={(event) => setAway(event.target.value)}
+              type="number"
+              value={away}
+            />
+          </div>
+        )}
 
         <div className="team away-team">
           <TeamFlag fallback={match.away_flag} team={match.away_team} />
@@ -301,10 +322,16 @@ export function MatchCard({
               <div>
                 <span>Palpite</span>
                 <strong>{prediction.home_score} × {prediction.away_score}</strong>
+                {predictedQualifierTeam && (
+                  <small>{predictedQualifierTeam} se classifica</small>
+                )}
               </div>
               <div>
                 <span>Resultado</span>
                 <strong>{finalScoreLabel}</strong>
+                {actualQualifier && (
+                  <small>{actualQualifier} se classificou</small>
+                )}
               </div>
               <strong className="points-badge">+{prediction.points ?? 0} pts</strong>
             </div>
