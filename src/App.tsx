@@ -438,7 +438,7 @@ export default function App() {
   const isAdmin = Boolean(profile?.is_admin)
   const predictionMatches = matches.filter((match) => {
     if (match.match_number <= 88) return true
-    if (match.match_number > 94) return false
+    if (match.match_number > 96) return false
 
     return !/^W\d+|^RU\d+/.test(match.home_team) &&
       !/^W\d+|^RU\d+/.test(match.away_team)
@@ -546,7 +546,7 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
-                  onAskOracle={match.match_number <= 94 ? setOracleMatch : undefined}
+                  onAskOracle={match.match_number <= 96 ? setOracleMatch : undefined}
                   onShowInfo={setInfoMatch}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}
