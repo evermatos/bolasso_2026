@@ -207,6 +207,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .desktop-nav button.active::after { content: ''; position: absolute; height: 3px; left: 0; right: 0; bottom: 0; background: var(--green); border-radius: 3px 3px 0 0; }
 .user-menu { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 700; }
 .user-menu button { display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); padding: 8px; }
+.user-menu .profile-shortcut { display: flex; align-items: center; gap: 10px; min-width: 0; border-radius: 999px; color: var(--text); }
+.user-menu .profile-shortcut:hover { background: var(--surface-soft); }
 .theme-toggle, .user-menu .theme-toggle { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 auto; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--text); background: var(--surface-soft); transition: transform 160ms ease, background 160ms ease; }
 .theme-toggle:hover { background: var(--surface-hover); transform: translateY(-1px); }
 .auth-theme-toggle { position: absolute; right: 24px; top: 24px; z-index: 5; color: white; border-color: rgb(255 255 255 / 18%); background: rgb(10 36 27 / 65%); backdrop-filter: blur(8px); }
@@ -250,6 +252,17 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .match-card.round-of-16-match-card:not(.brazil-match) .match-meta,
 .match-card.round-of-16-match-card:not(.brazil-match) .match-meta svg {
   color: #b88406;
+}
+.match-card.quarterfinal-match-card .team strong,
+.match-card.quarterfinal-match-card .score-inputs,
+.match-card.quarterfinal-match-card .score-inputs input,
+.match-card.quarterfinal-match-card .venue {
+  color: #b88406;
+}
+.match-card.quarterfinal-match-card .score-inputs input {
+  border-color: rgb(184 132 6 / 34%);
+  background: rgb(255 249 223 / 72%);
+  box-shadow: 0 0 0 3px rgb(184 132 6 / 8%);
 }
 .match-card.brazil-match { border: 2px solid #f2c500; box-shadow: inset 7px 0 0 #078449, 0 14px 34px rgb(7 132 73 / 16%); background: linear-gradient(135deg, #fff9bf 0%, #fffef8 48%, #e3f6e9 100%); }
 .match-card.brazil-match::before { content: ''; position: absolute; width: 115px; height: 115px; right: -52px; top: -52px; border-radius: 50%; background: #078449; box-shadow: 0 0 0 13px #f2c500, 0 0 0 26px rgb(7 132 73 / 14%); }

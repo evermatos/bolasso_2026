@@ -438,7 +438,7 @@ export default function App() {
   const isAdmin = Boolean(profile?.is_admin)
   const predictionMatches = matches.filter((match) => {
     if (match.match_number <= 88) return true
-    if (match.match_number > 96) return false
+    if (match.match_number > 97) return false
 
     return !/^W\d+|^RU\d+/.test(match.home_team) &&
       !/^W\d+|^RU\d+/.test(match.away_team)
@@ -500,12 +500,19 @@ export default function App() {
             <span aria-hidden="true" />
             {realtimeConnected ? 'Ao vivo' : 'Reconectando'}
           </span>
-          <ProfileAvatar
-            avatarKey={profile?.avatar_key}
-            displayName={displayName}
-            size="small"
-          />
-          <span className="user-name">{displayName}</span>
+          <button
+            aria-label="Abrir perfil"
+            className="profile-shortcut"
+            onClick={() => navigateToTab('profile')}
+            type="button"
+          >
+            <ProfileAvatar
+              avatarKey={profile?.avatar_key}
+              displayName={displayName}
+              size="small"
+            />
+            <span className="user-name">{displayName}</span>
+          </button>
           <ThemeToggle onToggle={toggleTheme} theme={theme} />
           <button aria-label="Sair" onClick={signOut} title="Sair"><LogOut size={18} /></button>
         </div>
@@ -546,7 +553,7 @@ export default function App() {
                 <MatchCard
                   key={match.id}
                   match={match}
-                  onAskOracle={match.match_number <= 96 ? setOracleMatch : undefined}
+                  onAskOracle={match.match_number <= 97 ? setOracleMatch : undefined}
                   onShowInfo={setInfoMatch}
                   onSave={savePrediction}
                   prediction={predictionMap.get(match.id)}

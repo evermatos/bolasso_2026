@@ -65,6 +65,7 @@ export function MatchCard({
   const adminLocked = Boolean(isAdmin && !kickoffStarted)
   const isKnockoutMatch = match.match_number >= 73
   const isRoundOf16OrLater = match.match_number >= 89
+  const isQuarterfinalMatch = match.match_number >= 97 && match.match_number <= 100
   const needsPenaltyScore =
     Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
   const needsPredictedQualifier =
@@ -233,6 +234,8 @@ export function MatchCard({
       className={`match-card ${match.status === 'finished' ? 'finished' : ''} ${
         isKnockoutMatch ? 'knockout-match-card' : ''
       } ${isRoundOf16OrLater ? 'round-of-16-match-card' : ''} ${
+        isQuarterfinalMatch ? 'quarterfinal-match-card' : ''
+      } ${
         isBrazilMatch ? 'brazil-match' : ''
       }`}
     >
