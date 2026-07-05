@@ -261,7 +261,6 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 }
 .match-card.quarterfinal-match-card .score-inputs input {
   border-color: rgb(184 132 6 / 34%);
-  background: rgb(255 249 223 / 72%);
   box-shadow: 0 0 0 3px rgb(184 132 6 / 8%);
 }
 .match-card.brazil-match { border: 2px solid #f2c500; box-shadow: inset 7px 0 0 #078449, 0 14px 34px rgb(7 132 73 / 16%); background: linear-gradient(135deg, #fff9bf 0%, #fffef8 48%, #e3f6e9 100%); }
