@@ -413,14 +413,14 @@ export default function App() {
     const message = result?.message
 
     if (!message) {
-      showNotice('Senha gerada, mas a mensagem nao veio do banco.')
+      showNotice('Senha gerada, mas a mensagem não veio do banco.')
       await loadData(session.user.id)
       return
     }
 
     try {
       await navigator.clipboard.writeText(message)
-      showNotice(`Senha provisoria de ${request.display_name} copiada.`)
+      showNotice(`Senha provisória de ${request.display_name} copiada.`)
     } catch {
       showNotice(`Senha gerada: ${result.temporary_password}`)
     }
@@ -677,9 +677,9 @@ export default function App() {
                 <span>{passwordResetRequests.length}</span>
               </div>
               <p className="admin-section-description">
-                Aqui aparecem somente os usuarios que clicaram em Esqueci a senha.
-                Ao gerar, a mensagem ja fica copiada para voce enviar direto ao
-                usuario vacilao.
+                Aqui aparecem somente os usuários que clicaram em Esqueci a senha.
+                Ao gerar, a mensagem já fica copiada para você enviar direto ao
+                usuário vacilão.
               </p>
 
               {passwordResetRequests.length > 0 ? (
@@ -707,15 +707,15 @@ export default function App() {
                         ) : (
                           <KeyRound size={17} />
                         )}
-                        Gerar senha provisoria
+                        Gerar senha provisória
                       </button>
                     </article>
                   ))}
                 </div>
               ) : (
                 <div className="admin-empty-state">
-                  Nenhum pedido de resgate no momento. O Doutor Admin esta de
-                  plantao, mas sem pacientes.
+                  Nenhum pedido de resgate no momento. O Doutor Admin está de
+                  plantão, mas sem pacientes.
                 </div>
               )}
             </section>

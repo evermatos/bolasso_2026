@@ -21,7 +21,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
 
   function friendlyAuthError(errorMessage: string) {
     if (errorMessage === 'Invalid login credentials') {
-      return 'Username ou senha nao conferem. A bola bateu na trave. Se a senha sumiu no vestiario, clique em Esqueci a senha e chame o Doutor Admin.'
+      return 'Username ou senha não conferem. A bola bateu na trave. Se a senha sumiu no vestiário, clique em Esqueci a senha e chame o Doutor Admin.'
     }
 
     if (errorMessage.includes('Password should be at least')) {
@@ -29,7 +29,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
     }
 
     if (errorMessage.includes('User already registered')) {
-      return 'Esse username ja esta no bolao. Tente entrar ou escolha outro nome.'
+      return 'Esse username já está no bolão. Tente entrar ou escolha outro nome.'
     }
 
     return errorMessage
@@ -92,7 +92,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
     if (!isValidUsername(username)) {
       setIsError(true)
       setMessage(
-        'Digite seu username primeiro. O Doutor Admin e bom, mas ainda nao le pensamentos.',
+        'Digite seu username primeiro. O Doutor Admin é bom, mas ainda não lê pensamentos.',
       )
       return
     }
@@ -110,7 +110,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
     setMessage(
       error
         ? error.message
-        : data ?? 'Pedido enviado para o Doutor Admin. Agora e aguardar o resgate.',
+        : data ?? 'Pedido enviado para o Doutor Admin. Agora é aguardar o resgate.',
     )
   }
 
@@ -230,8 +230,8 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
                 Esqueci a senha
               </button>
               <p>
-                Vacilou na senha? Peca ajuda para o Doutor Admin por aqui e ele
-                manda uma senha provisoria digna de resenha.
+                Vacilou na senha? Peça ajuda para o Doutor Admin por aqui e ele
+                manda uma senha provisória digna de resenha.
               </p>
             </div>
           )}
