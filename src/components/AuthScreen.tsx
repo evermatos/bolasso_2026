@@ -13,7 +13,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [mode, setMode] = useState<'login' | 'signup' | 'recovery'>('login')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -163,15 +163,58 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
             >
               Criar conta
             </button>
+            <button
+              className={mode === 'recovery' ? 'active' : ''}
+              onClick={() => setMode('recovery')}
+              type="button"
+            >
+              Esqueci a senha
+            </button>
           </div>
 
-          <h2>{mode === 'login' ? 'Bem-vindo de volta' : 'Entre no bolão'}</h2>
+          <h2>
+            {mode === 'login'
+              ? 'Bem-vindo de volta'
+              : mode === 'signup'
+                ? 'Entre no bolão'
+                : 'Chamar o Doutor Admin'}
+          </h2>
           <p className="muted">
             {mode === 'login'
               ? 'Use seu username e sua senha para acessar.'
-              : 'Crie uma conta para registrar seus palpites.'}
+              : mode === 'signup'
+                ? 'Crie uma conta para registrar seus palpites.'
+                : 'Vacilou na senha? Peça ajuda por aqui e aguarde o resgate.'}
           </p>
 
+          {mode === 'recovery' ? (
+            <form onSubmit={(event) => {
+              event.preventDefault()
+              void requestPasswordHelp()
+            }}>
+              <label>
+                Username
+                <input
+                  autoCapitalize="none"
+                  autoComplete="username"
+                  maxLength={24}
+                  minLength={3}
+                  required
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="Ex.: Gilberto Barros"
+                />
+              </label>
+              <button className="primary-button" disabled={recoveryLoading} type="submit">
+                {recoveryLoading && <LoaderCircle className="spin" size={18} />}
+                Pedir ajuda ao Doutor Admin
+              </button>
+              <p className="auth-recovery-note">
+                Se o username existir, o pedido aparece no painel do admin. Ele
+                vai te mandar uma senha provisória e você troca depois no Perfil.
+              </p>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit}>
             <label>
               Username
@@ -217,23 +260,6 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
               {mode === 'login' ? 'Entrar' : 'Criar conta'}
             </button>
           </form>
-
-          {mode === 'login' && (
-            <div className="auth-recovery-help">
-              <button
-                className="auth-help-button"
-                disabled={recoveryLoading}
-                onClick={requestPasswordHelp}
-                type="button"
-              >
-                {recoveryLoading && <LoaderCircle className="spin" size={15} />}
-                Esqueci a senha
-              </button>
-              <p>
-                Vacilou na senha? Peça ajuda para o Doutor Admin por aqui e ele
-                manda uma senha provisória digna de resenha.
-              </p>
-            </div>
           )}
 
           {message && (

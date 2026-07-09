@@ -93,6 +93,10 @@ export default function App() {
   const [updateAvailable, setUpdateAvailable] = useState(false)
   const [passwordResetRequests, setPasswordResetRequests] = useState<PasswordResetRequest[]>([])
   const [resettingPasswordRequestId, setResettingPasswordRequestId] = useState<number | null>(null)
+  const [passwordResetMessage, setPasswordResetMessage] = useState<{
+    displayName: string
+    message: string
+  } | null>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -418,14 +422,23 @@ export default function App() {
       return
     }
 
-    try {
-      await navigator.clipboard.writeText(message)
-      showNotice(`Senha provisória de ${request.display_name} copiada.`)
-    } catch {
-      showNotice(`Senha gerada: ${result.temporary_password}`)
-    }
+    setPasswordResetMessage({
+      displayName: request.display_name,
+      message,
+    })
+
+    await copyPasswordResetMessage(message)
 
     await loadData(session.user.id)
+  }
+
+  async function copyPasswordResetMessage(message: string) {
+    try {
+      await navigator.clipboard.writeText(message)
+      showNotice('Mensagem copiada.')
+    } catch {
+      showNotice('Não consegui copiar automaticamente. Use o texto da janela.')
+    }
   }
 
   function showNotice(message: string) {
@@ -516,6 +529,12 @@ export default function App() {
   const adminFinishedMatches = matches
     .filter((match) => match.status === 'finished')
     .sort(compareMatchesByKickoff)
+  const pendingPasswordResetRequests = passwordResetRequests.filter(
+    (request) => request.status === 'pending',
+  )
+  const resolvedPasswordResetRequests = passwordResetRequests.filter(
+    (request) => request.status === 'completed',
+  )
   const futureMatchIds = new Set(futureMatches.map((match) => match.id))
   const futurePredictionsCount = predictions.filter((prediction) =>
     futureMatchIds.has(prediction.match_id),
@@ -674,17 +693,17 @@ export default function App() {
                   <span className="eyebrow">DOUTOR ADMIN</span>
                   <h2>Resetar senhas</h2>
                 </div>
-                <span>{passwordResetRequests.length}</span>
+                <span>{pendingPasswordResetRequests.length}</span>
               </div>
               <p className="admin-section-description">
                 Aqui aparecem somente os usuários que clicaram em Esqueci a senha.
-                Ao gerar, a mensagem já fica copiada para você enviar direto ao
-                usuário vacilão.
+                Ao gerar, a mensagem aparece na tela e também tenta copiar para
+                você enviar direto ao usuário vacilão.
               </p>
 
-              {passwordResetRequests.length > 0 ? (
+              {pendingPasswordResetRequests.length > 0 ? (
                 <div className="password-request-list">
-                  {passwordResetRequests.map((request) => (
+                  {pendingPasswordResetRequests.map((request) => (
                     <article className="password-request-card" key={request.id}>
                       <div>
                         <strong>{request.display_name}</strong>
@@ -716,6 +735,48 @@ export default function App() {
                 <div className="admin-empty-state">
                   Nenhum pedido de resgate no momento. O Doutor Admin está de
                   plantão, mas sem pacientes.
+                </div>
+              )}
+
+              {resolvedPasswordResetRequests.length > 0 && (
+                <div className="resolved-password-requests">
+                  <div className="admin-section-heading compact">
+                    <div>
+                      <span className="eyebrow">RESOLVIDOS</span>
+                      <h2>Senhas já geradas</h2>
+                    </div>
+                    <span>{resolvedPasswordResetRequests.length}</span>
+                  </div>
+                  <div className="password-request-list">
+                    {resolvedPasswordResetRequests.map((request) => (
+                      <article className="password-request-card resolved" key={request.id}>
+                        <div>
+                          <strong>{request.display_name}</strong>
+                          <span>
+                            Resolvido em{' '}
+                            {request.resolved_at
+                              ? new Date(request.resolved_at).toLocaleString('pt-BR', {
+                                  dateStyle: 'short',
+                                  timeStyle: 'short',
+                                })
+                              : 'data indisponível'}
+                          </span>
+                        </div>
+                        {request.generated_message && (
+                          <button
+                            className="secondary-button"
+                            onClick={() => setPasswordResetMessage({
+                              displayName: request.display_name,
+                              message: request.generated_message ?? '',
+                            })}
+                            type="button"
+                          >
+                            Ver mensagem
+                          </button>
+                        )}
+                      </article>
+                    ))}
+                  </div>
                 </div>
               )}
             </section>
@@ -835,6 +896,37 @@ export default function App() {
           <button onClick={() => window.location.reload()} type="button">
             Atualizar agora
           </button>
+        </div>
+      )}
+      {passwordResetMessage && (
+        <div
+          aria-modal="true"
+          className="password-message-backdrop"
+          role="dialog"
+        >
+          <div className="password-message-modal">
+            <div>
+              <span className="eyebrow">MENSAGEM PRONTA</span>
+              <h2>{passwordResetMessage.displayName}</h2>
+            </div>
+            <textarea readOnly value={passwordResetMessage.message} />
+            <div className="password-message-actions">
+              <button
+                className="secondary-button"
+                onClick={() => copyPasswordResetMessage(passwordResetMessage.message)}
+                type="button"
+              >
+                Copiar mensagem
+              </button>
+              <button
+                className="primary-button"
+                onClick={() => setPasswordResetMessage(null)}
+                type="button"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

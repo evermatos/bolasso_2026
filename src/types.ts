@@ -77,4 +77,7 @@ export type PasswordResetRequest = {
   user_id: string
   display_name: string
   requested_at: string
+  resolved_at: string | null
+  generated_message: string | null
+  status: 'pending' | 'completed'
 }
