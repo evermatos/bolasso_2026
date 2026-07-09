@@ -17,6 +17,23 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [recoveryLoading, setRecoveryLoading] = useState(false)
+
+  function friendlyAuthError(errorMessage: string) {
+    if (errorMessage === 'Invalid login credentials') {
+      return 'Username ou senha nao conferem. A bola bateu na trave. Se a senha sumiu no vestiario, clique em Esqueci a senha e chame o Doutor Admin.'
+    }
+
+    if (errorMessage.includes('Password should be at least')) {
+      return 'A senha precisa ter pelo menos 8 caracteres.'
+    }
+
+    if (errorMessage.includes('User already registered')) {
+      return 'Esse username ja esta no bolao. Tente entrar ou escolha outro nome.'
+    }
+
+    return errorMessage
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -59,7 +76,7 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
     setIsError(Boolean(result.error))
 
     if (result.error) {
-      setMessage(result.error.message)
+      setMessage(friendlyAuthError(result.error.message))
     } else if (mode === 'signup' && !result.data.session) {
       setMessage(
         'O Supabase ainda está exigindo confirmação. Desative Confirm email nas configurações.',
@@ -67,6 +84,34 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
     } else {
       setMessage(mode === 'signup' ? 'Conta criada com sucesso.' : '')
     }
+  }
+
+  async function requestPasswordHelp() {
+    if (!supabase) return
+
+    if (!isValidUsername(username)) {
+      setIsError(true)
+      setMessage(
+        'Digite seu username primeiro. O Doutor Admin e bom, mas ainda nao le pensamentos.',
+      )
+      return
+    }
+
+    setRecoveryLoading(true)
+    setMessage('')
+    setIsError(false)
+
+    const { data, error } = await supabase.rpc('request_password_reset', {
+      username_input: username.trim(),
+    })
+
+    setRecoveryLoading(false)
+    setIsError(Boolean(error))
+    setMessage(
+      error
+        ? error.message
+        : data ?? 'Pedido enviado para o Doutor Admin. Agora e aguardar o resgate.',
+    )
   }
 
   return (
@@ -172,6 +217,24 @@ export function AuthScreen({ theme, onThemeToggle }: Props) {
               {mode === 'login' ? 'Entrar' : 'Criar conta'}
             </button>
           </form>
+
+          {mode === 'login' && (
+            <div className="auth-recovery-help">
+              <button
+                className="auth-help-button"
+                disabled={recoveryLoading}
+                onClick={requestPasswordHelp}
+                type="button"
+              >
+                {recoveryLoading && <LoaderCircle className="spin" size={15} />}
+                Esqueci a senha
+              </button>
+              <p>
+                Vacilou na senha? Peca ajuda para o Doutor Admin por aqui e ele
+                manda uma senha provisoria digna de resenha.
+              </p>
+            </div>
+          )}
 
           {message && (
             <p className={`form-message ${isError ? 'error' : ''}`}>{message}</p>

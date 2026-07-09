@@ -2,6 +2,8 @@ import type { Session } from '@supabase/supabase-js'
 import {
   BarChart3,
   CalendarDays,
+  KeyRound,
+  LoaderCircle,
   LogOut,
   Settings,
   Table2,
@@ -21,7 +23,13 @@ import { ProfileScreen } from './components/ProfileScreen'
 import { Ranking } from './components/Ranking'
 import { ThemeToggle } from './components/ThemeToggle'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
-import type { Match, Prediction, Profile, RankingRow } from './types'
+import type {
+  Match,
+  PasswordResetRequest,
+  Prediction,
+  Profile,
+  RankingRow,
+} from './types'
 
 type Tab = 'matches' | 'standings' | 'ranking' | 'admin' | 'profile'
 type Theme = 'light' | 'dark'
@@ -83,6 +91,8 @@ export default function App() {
   const [dataError, setDataError] = useState('')
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [updateAvailable, setUpdateAvailable] = useState(false)
+  const [passwordResetRequests, setPasswordResetRequests] = useState<PasswordResetRequest[]>([])
+  const [resettingPasswordRequestId, setResettingPasswordRequestId] = useState<number | null>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -149,6 +159,17 @@ export default function App() {
     if (!knockoutRankingResult.error && knockoutRankingResult.data) {
       setKnockoutRanking(knockoutRankingResult.data)
     }
+
+    if (profileResult.data?.is_admin) {
+      const resetRequestsResult = await supabase.rpc('admin_list_password_reset_requests')
+
+      if (!resetRequestsResult.error && resetRequestsResult.data) {
+        setPasswordResetRequests(resetRequestsResult.data)
+      }
+    } else {
+      setPasswordResetRequests([])
+    }
+
     setLoading(false)
   }, [])
 
@@ -198,6 +219,11 @@ export default function App() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'predictions' },
+        scheduleRefresh,
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'password_reset_requests' },
         scheduleRefresh,
       )
       .subscribe((status) => {
@@ -365,6 +391,41 @@ export default function App() {
     await loadData(session.user.id)
     showNotice('Resultado publicado e pontos recalculados.')
     return true
+  }
+
+  async function generateTemporaryPassword(request: PasswordResetRequest) {
+    if (!supabase || !session) return
+
+    setResettingPasswordRequestId(request.id)
+
+    const { data, error } = await supabase.rpc('admin_generate_temporary_password', {
+      request_id: request.id,
+    })
+
+    setResettingPasswordRequestId(null)
+
+    if (error) {
+      showNotice(error.message)
+      return
+    }
+
+    const result = Array.isArray(data) ? data[0] : data
+    const message = result?.message
+
+    if (!message) {
+      showNotice('Senha gerada, mas a mensagem nao veio do banco.')
+      await loadData(session.user.id)
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(message)
+      showNotice(`Senha provisoria de ${request.display_name} copiada.`)
+    } catch {
+      showNotice(`Senha gerada: ${result.temporary_password}`)
+    }
+
+    await loadData(session.user.id)
   }
 
   function showNotice(message: string) {
@@ -606,6 +667,58 @@ export default function App() {
               </div>
               <Settings size={34} />
             </div>
+
+            <section className="admin-match-section admin-password-requests">
+              <div className="admin-section-heading">
+                <div>
+                  <span className="eyebrow">DOUTOR ADMIN</span>
+                  <h2>Resetar senhas</h2>
+                </div>
+                <span>{passwordResetRequests.length}</span>
+              </div>
+              <p className="admin-section-description">
+                Aqui aparecem somente os usuarios que clicaram em Esqueci a senha.
+                Ao gerar, a mensagem ja fica copiada para voce enviar direto ao
+                usuario vacilao.
+              </p>
+
+              {passwordResetRequests.length > 0 ? (
+                <div className="password-request-list">
+                  {passwordResetRequests.map((request) => (
+                    <article className="password-request-card" key={request.id}>
+                      <div>
+                        <strong>{request.display_name}</strong>
+                        <span>
+                          Pediu socorro em{' '}
+                          {new Date(request.requested_at).toLocaleString('pt-BR', {
+                            dateStyle: 'short',
+                            timeStyle: 'short',
+                          })}
+                        </span>
+                      </div>
+                      <button
+                        className="primary-button"
+                        disabled={resettingPasswordRequestId === request.id}
+                        onClick={() => generateTemporaryPassword(request)}
+                        type="button"
+                      >
+                        {resettingPasswordRequestId === request.id ? (
+                          <LoaderCircle className="spin" size={17} />
+                        ) : (
+                          <KeyRound size={17} />
+                        )}
+                        Gerar senha provisoria
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="admin-empty-state">
+                  Nenhum pedido de resgate no momento. O Doutor Admin esta de
+                  plantao, mas sem pacientes.
+                </div>
+              )}
+            </section>
 
             <section className="admin-match-section">
               <div className="admin-section-heading">

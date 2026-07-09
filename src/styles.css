@@ -192,6 +192,10 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .primary-button:disabled { opacity: 0.7; }
 .form-message { margin-top: 16px; padding: 12px; border-radius: 10px; color: var(--green); background: rgb(6 122 80 / 8%); font-size: 0.88rem; }
 .form-message.error { color: #a32626; background: rgb(163 38 38 / 8%); }
+.auth-recovery-help { display: grid; gap: 8px; margin-top: 18px; color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
+.auth-help-button { width: fit-content; display: inline-flex; align-items: center; gap: 7px; border: 0; padding: 0; color: var(--green); background: transparent; font: inherit; font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+.auth-help-button:disabled { opacity: 0.7; }
+.auth-recovery-help p { margin: 0; }
 .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -624,6 +628,13 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 .admin-section-heading > span { min-width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--green); background: var(--surface-soft); font: 800 0.78rem 'Manrope'; }
 .admin-section-description { margin: -8px 0 20px; color: var(--muted); font-size: 0.8rem; }
 .admin-empty-state { padding: 34px 20px; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); background: var(--paper); text-align: center; }
+.admin-password-requests { padding: 22px; border: 1px solid rgb(247 190 58 / 36%); border-radius: 18px; background: linear-gradient(135deg, rgb(247 190 58 / 9%), var(--paper)); }
+.password-request-list { display: grid; gap: 12px; }
+.password-request-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.password-request-card > div { min-width: 0; display: grid; gap: 4px; }
+.password-request-card strong { color: var(--text); font: 900 1rem 'Manrope'; }
+.password-request-card span { color: var(--muted); font-size: 0.76rem; font-weight: 700; line-height: 1.4; }
+.password-request-card .primary-button { flex: 0 0 auto; padding: 12px 14px; font-size: 0.78rem; }
 .mobile-nav { display: none; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 30; padding: 12px 18px; border-radius: 10px; color: white; background: var(--ink); box-shadow: 0 12px 32px rgb(0 0 0 / 20%); font-size: 0.85rem; font-weight: 700; }
 .update-banner { position: fixed; right: 22px; bottom: 22px; z-index: 40; width: min(410px, calc(100% - 44px)); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; border: 1px solid rgb(184 243 74 / 28%); border-radius: 16px; color: white; background: var(--ink); box-shadow: 0 16px 44px rgb(0 0 0 / 24%); }
@@ -654,6 +665,7 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .auth-card .segmented button { color: #b9c9c2; }
   .auth-card .segmented button.active { background: var(--lime); color: var(--ink); box-shadow: none; }
   .auth-card input { background: #fff; color: var(--ink); -webkit-text-fill-color: var(--ink); }
+  .auth-help-button { color: var(--lime); }
   .topbar { height: 66px; padding: 0 18px; }
   .desktop-nav, .user-name, .live-status { display: none; }
   .content { width: min(100% - 28px, 600px); margin-top: 18px; padding-bottom: 72px; }
@@ -663,6 +675,8 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   .hero-stat { min-width: 105px; margin-top: -4px; background: rgb(184 243 74 / 15%); }
   .hero-stat strong { font-size: 1.7rem; }
   .hero-stat span { font-size: 0.65rem; }
+  .password-request-card { align-items: stretch; flex-direction: column; }
+  .password-request-card .primary-button { width: 100%; }
   .predictions-supporters-art { right: 72px; width: 42%; opacity: 0.78; }
   .page-heading { margin-top: 34px; }
   .page-heading h2, .section-heading h2 { font-size: 1.4rem; }

@@ -71,3 +71,10 @@ export type ParticipantPrediction = {
   predicted_qualifier: 'home' | 'away' | null
   points: number | null
 }
+
+export type PasswordResetRequest = {
+  id: number
+  user_id: string
+  display_name: string
+  requested_at: string
+}
