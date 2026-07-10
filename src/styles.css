@@ -269,6 +269,40 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
   border-color: rgb(184 132 6 / 34%);
   box-shadow: 0 0 0 3px rgb(184 132 6 / 8%);
 }
+.match-card.semifinal-match-card:not(.brazil-match) {
+  border-color: #e8b923;
+  background:
+    radial-gradient(circle at 84% 10%, rgb(255 219 89 / 28%), transparent 34%),
+    linear-gradient(135deg, #fff8dc 0%, var(--paper) 44%, #fffdf5 100%);
+  box-shadow:
+    0 0 0 1px rgb(232 185 35 / 26%),
+    0 18px 46px rgb(184 132 6 / 18%),
+    0 0 42px rgb(247 190 58 / 16%);
+}
+.match-card.semifinal-match-card:not(.brazil-match)::before {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  right: -72px;
+  top: -74px;
+  border-radius: 50%;
+  background: rgb(247 190 58 / 22%);
+  box-shadow: 0 0 54px rgb(247 190 58 / 34%);
+}
+.match-card.semifinal-match-card:not(.brazil-match) .team strong,
+.match-card.semifinal-match-card:not(.brazil-match) .score-inputs,
+.match-card.semifinal-match-card:not(.brazil-match) .score-inputs input,
+.match-card.semifinal-match-card:not(.brazil-match) .venue,
+.match-card.semifinal-match-card:not(.brazil-match) .match-meta,
+.match-card.semifinal-match-card:not(.brazil-match) .match-meta svg {
+  color: #9f6f00;
+}
+.match-card.semifinal-match-card:not(.brazil-match) .score-inputs input {
+  border-color: rgb(232 185 35 / 48%);
+  background: #fffaf0;
+  box-shadow: 0 0 0 3px rgb(247 190 58 / 12%);
+}
 .match-card.brazil-match { border: 2px solid #f2c500; box-shadow: inset 7px 0 0 #078449, 0 14px 34px rgb(7 132 73 / 16%); background: linear-gradient(135deg, #fff9bf 0%, #fffef8 48%, #e3f6e9 100%); }
 .match-card.brazil-match::before { content: ''; position: absolute; width: 115px; height: 115px; right: -52px; top: -52px; border-radius: 50%; background: #078449; box-shadow: 0 0 0 13px #f2c500, 0 0 0 26px rgb(7 132 73 / 14%); }
 .match-card.brazil-match > * { position: relative; z-index: 1; }
@@ -871,6 +905,37 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgb(6 122 80 / 1
 [data-theme='dark'] .match-card.brazil-match .score-inputs input {
   color: #f4fbf7;
   background: #14291f;
+}
+
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) {
+  background:
+    radial-gradient(circle at 84% 10%, rgb(247 190 58 / 22%), transparent 36%),
+    linear-gradient(135deg, #352b0e 0%, #10251d 48%, #211c0e 100%);
+  border-color: #f7be3a;
+  box-shadow:
+    0 0 0 1px rgb(247 190 58 / 34%),
+    0 18px 48px rgb(247 190 58 / 14%),
+    0 0 52px rgb(247 190 58 / 14%);
+}
+
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match)::before {
+  background: rgb(247 190 58 / 14%);
+  box-shadow: 0 0 58px rgb(247 190 58 / 22%);
+}
+
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .team strong,
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .score-inputs,
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .score-inputs input,
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .venue,
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .match-meta,
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .match-meta svg {
+  color: #ffd86a;
+}
+
+[data-theme='dark'] .match-card.semifinal-match-card:not(.brazil-match) .score-inputs input {
+  background: rgb(255 216 106 / 9%);
+  border-color: rgb(255 216 106 / 48%);
+  box-shadow: 0 0 0 3px rgb(247 190 58 / 12%);
 }
 
 [data-theme='dark'] .qualifier-picker {

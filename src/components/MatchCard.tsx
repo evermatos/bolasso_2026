@@ -66,6 +66,7 @@ export function MatchCard({
   const isKnockoutMatch = match.match_number >= 73
   const isRoundOf16OrLater = match.match_number >= 89
   const isQuarterfinalMatch = match.match_number >= 97 && match.match_number <= 100
+  const isSemifinalMatch = match.match_number >= 101 && match.match_number <= 102
   const needsPenaltyScore =
     Boolean(isAdmin && isKnockoutMatch && home !== '' && away !== '' && home === away)
   const needsPredictedQualifier =
@@ -235,6 +236,8 @@ export function MatchCard({
         isKnockoutMatch ? 'knockout-match-card' : ''
       } ${isRoundOf16OrLater ? 'round-of-16-match-card' : ''} ${
         isQuarterfinalMatch ? 'quarterfinal-match-card' : ''
+      } ${
+        isSemifinalMatch ? 'semifinal-match-card quarterfinal-match-card' : ''
       } ${
         isBrazilMatch ? 'brazil-match' : ''
       }`}
