@@ -28,6 +28,27 @@ function teamHistory(team: string, matches: Match[], currentMatchNumber: number)
     .sort((left, right) => left.match_number - right.match_number)
 }
 
+function matchScoreline(match: Match) {
+  if (
+    match.status !== 'finished' ||
+    match.home_score === null ||
+    match.away_score === null
+  ) {
+    return '×'
+  }
+
+  const regularScore = `${match.home_score} × ${match.away_score}`
+
+  if (
+    match.home_penalty_score !== null &&
+    match.away_penalty_score !== null
+  ) {
+    return `${regularScore} - ${match.home_penalty_score} × ${match.away_penalty_score} (p)`
+  }
+
+  return regularScore
+}
+
 function TeamHistory({
   matches,
   team,
@@ -56,9 +77,7 @@ function TeamHistory({
                     <strong>{match.home_team}</strong>
                   </span>
                   <strong className="knockout-history-score">
-                    {hasFinalScore
-                      ? `${match.home_score} × ${match.away_score}`
-                      : '×'}
+                    {matchScoreline(match)}
                   </strong>
                   <span className="knockout-history-side is-away">
                     <strong>{match.away_team}</strong>
