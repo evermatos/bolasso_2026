@@ -241,6 +241,16 @@ function teamCode(team: string) {
   return TEAM_CODES[team] ?? normalizeTeamName(team).slice(0, 3).toUpperCase()
 }
 
+function knockoutTeamLabel(matchNumber: number, team: string) {
+  return matchNumber >= 103 ? team : teamCode(team)
+}
+
+function knockoutGameTone(matchNumber: number) {
+  if (matchNumber === 104) return 'final-knockout-game title-knockout-game'
+  if (matchNumber === 103) return 'third-place-knockout-game title-knockout-game'
+  return ''
+}
+
 function formatKnockoutDate(kickoffAt?: string) {
   if (!kickoffAt) return 'Horário a definir'
 
@@ -758,6 +768,8 @@ function BracketColumn({
                 match.round !== '16 avos' && !hasBothTeams ? 'placeholder-game' : ''
               } ${hasBothTeams ? 'confirmed-game' : ''} ${
                 hasBrazil ? 'brazil-knockout-game' : ''
+              } ${
+                knockoutGameTone(match.matchNumber)
               }`}
               key={match.matchNumber}
               onClick={() => onSelect(match)}
@@ -781,7 +793,9 @@ function BracketColumn({
                           fallback={side.team.team.flag}
                           team={side.team.team.team}
                         />
-                        <strong>{teamCode(side.team.team.team)}</strong>
+                        <strong>
+                          {knockoutTeamLabel(match.matchNumber, side.team.team.team)}
+                        </strong>
                       </>
                     ) : (
                       <>
