@@ -19,6 +19,7 @@ type Props = {
   groupRows: RankingRow[]
   knockoutRows: RankingRow[]
   currentUserId?: string
+  finalPublished: boolean
 }
 
 type RankingView = 'overall' | 'knockout' | 'groups'
@@ -79,11 +80,50 @@ const rankingViews: Record<
   },
 }
 
+function RankingPodium({
+  ariaLabel,
+  rows,
+  variant,
+}: {
+  ariaLabel: string
+  rows: RankingRow[]
+  variant?: 'grand'
+}) {
+  return (
+    <div
+      aria-label={ariaLabel}
+      className={`group-podium ranking-podium ${
+        variant === 'grand' ? 'grand-podium' : ''
+      }`}
+    >
+      <div className="podium-glow" aria-hidden="true">
+        <Trophy size={variant === 'grand' ? 78 : 58} />
+      </div>
+      {rows.map((row, index) => (
+        <article
+          className={`podium-place podium-place-${index + 1}`}
+          key={row.user_id}
+        >
+          <span>{index + 1}º</span>
+          <ProfileAvatar
+            avatarKey={row.avatar_key}
+            displayName={row.display_name}
+            size="small"
+          />
+          <strong>{row.display_name}</strong>
+          <small>{row.total_points} pts</small>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 export function Ranking({
   rows,
   groupRows,
   knockoutRows,
   currentUserId,
+  finalPublished,
 }: Props) {
   const [activeView, setActiveView] = useState<RankingView>('overall')
   const [selectedParticipant, setSelectedParticipant] =
@@ -145,7 +185,15 @@ export function Ranking({
         ? knockoutRows
         : rows
   const activeCopy = rankingViews[activeView]
-  const podiumRows = groupRows.slice(0, 3)
+  const podiumRows =
+    activeView === 'overall'
+      ? rows.slice(0, 3)
+      : activeView === 'knockout'
+        ? knockoutRows.slice(0, 3)
+        : groupRows.slice(0, 3)
+  const showPodium =
+    activeView === 'groups' ||
+    (finalPublished && (activeView === 'overall' || activeView === 'knockout'))
   const showMovement = activeView !== 'groups'
   const participantPredictionsForActiveView = participantPredictions
     .filter((prediction) => {
@@ -205,27 +253,18 @@ export function Ranking({
           </button>
         </div>
 
-        {activeView === 'groups' && podiumRows.length > 0 && (
-          <div className="group-podium" aria-label="Pódio da fase de grupos">
-            <div className="podium-glow" aria-hidden="true">
-              <Trophy size={58} />
-            </div>
-            {podiumRows.map((row, index) => (
-              <article
-                className={`podium-place podium-place-${index + 1}`}
-                key={row.user_id}
-              >
-                <span>{index + 1}º</span>
-                <ProfileAvatar
-                  avatarKey={row.avatar_key}
-                  displayName={row.display_name}
-                  size="small"
-                />
-                <strong>{row.display_name}</strong>
-                <small>{row.total_points} pts</small>
-              </article>
-            ))}
-          </div>
+        {showPodium && podiumRows.length > 0 && (
+          <RankingPodium
+            ariaLabel={
+              activeView === 'overall'
+                ? 'Pódio do ranking geral'
+                : activeView === 'knockout'
+                  ? 'Pódio do mata-mata'
+                  : 'Pódio da fase de grupos'
+            }
+            rows={podiumRows}
+            variant={activeView === 'overall' ? 'grand' : undefined}
+          />
         )}
 
         {activeRows.length === 0 ? (

@@ -539,6 +539,9 @@ export default function App() {
   const futurePredictionsCount = predictions.filter((prediction) =>
     futureMatchIds.has(prediction.match_id),
   ).length
+  const finalPublished = matches.some(
+    (match) => match.match_number === 104 && match.status === 'finished',
+  )
 
   return (
     <div className="app-shell" id="app-top">
@@ -675,6 +678,7 @@ export default function App() {
         {tab === 'ranking' && (
           <Ranking
             currentUserId={session?.user.id}
+            finalPublished={finalPublished}
             groupRows={groupRanking}
             knockoutRows={knockoutRanking}
             rows={ranking}

@@ -355,6 +355,18 @@ function homeSideAdvanced(match: Match) {
   return match.home_penalty_score > match.away_penalty_score
 }
 
+function finalChampion(match: Match | undefined) {
+  if (!match) return null
+
+  const homeWon = homeSideAdvanced(match)
+  if (homeWon === null) return null
+
+  return {
+    flag: homeWon ? match.home_flag : match.away_flag,
+    team: homeWon ? match.home_team : match.away_team,
+  }
+}
+
 function thirdPlaceholderKey(matchNumber: number, placeholder: string) {
   return `${matchNumber}:${placeholder}`
 }
@@ -933,6 +945,7 @@ export function GroupStandings({ matches }: Props) {
   const rightSemis = matchesByNumber(officialSlots, [102])
   const finalMatches = matchesByNumber(officialSlots, [104])
   const thirdPlaceMatches = matchesByNumber(officialSlots, [103])
+  const champion = finalChampion(finalMatches[0]?.liveMatch)
   const selectedGroupMatches = useMemo(
     () =>
       matches
@@ -1008,6 +1021,15 @@ export function GroupStandings({ matches }: Props) {
               </div>
 
               <div className="knockout-center">
+                {champion && (
+                  <div className="champion-card" aria-label="Campeão da Copa">
+                    <span>Campeão</span>
+                    <strong>
+                      <TeamFlag fallback={champion.flag} team={champion.team} />
+                      {champion.team}
+                    </strong>
+                  </div>
+                )}
                 <BracketColumn
                   matches={finalMatches}
                   onSelect={setSelectedKnockoutMatch}
